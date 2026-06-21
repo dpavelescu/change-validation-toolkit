@@ -8,7 +8,7 @@ description: >-
 
 *Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
 
-The Validation Plan states **what evidence is needed to trust this change**, keyed to stable acceptance‑criterion IDs. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution (Phase 3). It is per‑change, in‑repo, and travels with the change.
+The Validation Plan states **what evidence is needed to trust this change**, keyed to stable acceptance‑criterion IDs. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution by `implement-tests` (against the Characterization Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
 
 ## Plan schema
 
@@ -43,7 +43,7 @@ open-decisions:    [ escalations blocking completeness ]
    - AC new / `none-yet` → `add`
    - **Every `change`/`remove` rationale must trace to a criteria delta** — never to a test result. (Result‑driven test edits are an execution‑time concern and are forbidden as a *plan* justification.)
 5. **Set gates** — split required evidence into `local-gate` / `ci-gate` per the Rules.
-6. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a characterization baseline) happens at execution.
+6. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a characterization baseline, by `implement-tests`) happens at execution.
 
 ## Gate (readiness to capture the plan)
 

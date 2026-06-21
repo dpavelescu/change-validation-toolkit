@@ -66,6 +66,7 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
 | **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — specified; capture via the runner) |
 | **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — specified; first piece that runs) |
+| **Test Reconciliation** (witnesses + record) | per change | tool (independent test‑implementer) | ✅ (Phase 3 — specified) |
 | Evidence Ledger | per change | tool | forthcoming |
 
 **Hard rule:** *Validation Rules is regenerated from the Strategy, never hand‑maintained beside it.* Two hand‑edited documents drift, and the agent then enforces rules the strategy has abandoned.
@@ -206,8 +207,21 @@ See the **execution‑runner** skill for the run‑record schema and the resolve
 
 ---
 
+## Phase 3 — Test Reconciliation (witnesses, authored honestly)
+
+The Validation Plan proposes **fates** (`add`/`change`/`keep`/`remove`) for each AC's witness, but provisionally. Test Reconciliation makes them real: it **materializes new tests and adjusts existing ones** so every active criterion has a witness that traces to it, then hands them to the Runner for evidence. It is the step that finally writes test code — and *who* writes it, and *from what*, is load‑bearing.
+
+**An independent witness.** Tests are authored by a dedicated test‑implementer (`implement-tests`), **never by the producer of the change**. The invariant holds that implementation is the only freely‑mutable element and tests are witnesses to criteria; if the same will writes both, the witness collapses into the thing it judges and silently becomes a witness to the *implementation* instead of the *criterion*. So the test‑implementer's authority for *what to assert* is the **Criteria Ledger** — or, for a refactor's characterization tests, the **pinned baseline** — and **never the new implementation**. (It may read the impl for mechanical wiring — how to invoke a surface — but not to decide what is correct; that read is flagged.)
+
+**The honesty lock.** A test `change`/`remove` is honest only when three independent keys agree: the **Ledger** carries a criteria delta (`moved`/`retired`) to justify it, the **Baseline** classifies the behavior delta as `justified` rather than `regression`, and the **Runner** *observes* the evidence rather than it being asserted. A test edited **because it went red, with no criteria delta**, is regression‑laundering and is forbidden — the same guard the plan reviewer applies to fates, now enforced on real test edits. If behavior changed without a criterion moving, that is a regression (loop input) or a criteria gap (decision) — never a quiet test edit.
+
+**Done is evidence, not assertion.** An AC's witness is satisfied only on **green evidence from the Runner**. A red witness with no implementation yet is not a failure to hand off — it is **loop input** for the implementer, whose production change is the freely‑mutable element. A non‑automatable AC is **admitted** as a runtime witness, never faked green. This is why a witness cannot be declared done without running it, and why the test must be implemented to close the loop: the evidence *is* the test, run.
+
+See the **test‑reconciliation** skill for the fate→action mapping and the honesty lock; `implement-tests` is the test‑implementer that performs it and calls `run-validation` for evidence.
+
+---
+
 ## What's forthcoming (kept coherent, not yet built)
 
-- **Test reconciliation** against the existing brownfield suite — materializing or adjusting tests per the plan's fates, each delta justified against the **Characterization Baseline** (above): a test changes only because a criterion moved, never because it went red.
 - **Auto‑fix loop (local/CI)** — the self‑closing loop *on top of* the Execution Runner: a clean fail is diagnosed, a fix proposed as a commit and re‑run — never a silent edit to a protected branch; CI runs the same plan with constrained autonomy.
 - **Evidence Ledger** — the audit trail of justified test changes that makes human review fast.
