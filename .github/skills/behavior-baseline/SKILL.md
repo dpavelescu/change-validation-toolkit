@@ -20,7 +20,7 @@ scope:             <blast-radius surfaces pinned — minimal>   # from change-cl
 strategy-version:  <provenance of the Rules in force>
 
 surfaces:                                  # one block per pinned surface in the blast radius
-  - surface-id:        <stable handle: endpoint | consumer | migration | component | contract>
+  - surface-id:        <code-derived handle: endpoint path | method sig | event name | contract — recomputed per change from the diff, NOT a stored registry id>
     kind:              <change-type>                  # rest-api | event-consumer | db-migration | ...
     observation:       <what is observable & pinned — response+status | emitted-payload | persisted-state | rendered-output>
     pinned-behavior:   <recorded observation(s) at captured-at>       # the witness of "current"
