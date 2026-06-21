@@ -11,7 +11,7 @@ The Source‑Map makes source discovery **navigable and deterministic** — and,
 
 ## Canonical kinds
 
-`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
+`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
 
 ## Claims & authority
 
@@ -53,3 +53,4 @@ The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptanc
 - **Agent‑extension is explicit** — agents propose additions; humans seed and confirm. The map stays trustworthy because nothing enters it silently.
 - **`build-commands` is how the runner runs** — the (Phase 3) Execution Runner resolves its install/build/test invocations and selective‑run syntax from `build-commands`, cross‑checked against `ci-config` for local↔CI parity. It never guesses the test command any more than it guesses a file path; an unresolvable critical command is a blocking *limitation*.
 - **`tests` is typed** — the `tests` kind carries one entry **per test type** (`unit` · `integration` · `contract` · `e2e/system` · `component`), each with its location and **scope** (symbol · module · contract · flow). Blast‑radius **test‑impact analysis** uses the type to pick how a test is implicated: fine‑grained tests (`unit`/`component`/`integration`) by **reachability / coverage**; `contract` tests by a change to the contract source they pin; **`e2e`/`system` tests by surface/flow participation** — a change to *any* surface in a flow they cover — because their system‑level impact crosses HTTP/queue hops that call‑graph reachability can't see. Knowing where each type lives is what makes the coarse, system‑level tests discoverable at all.
+- **`test-report` is what the runner reads** — the Execution Runner takes results from the project's **machine‑readable test report** (`test-report` kind — JUnit XML, TAP, or a native JSON reporter; its **format + location** are recorded here), **never** by scraping console output. The report is the normalization boundary, so heterogeneous tools are handled uniformly; a project that emits no machine‑readable report is a *limitation* (configure a reporter), not a reason to scrape stdout.

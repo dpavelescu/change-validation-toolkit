@@ -24,7 +24,7 @@
 | `authoritative-for` | the claim categories this source is the canonical truth for; `—` if none |
 | `notes` | optional — version, owner, caveats |
 
-**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
+**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
 
 **Claim categories** (what a source can be *authoritative‑for*): `correctness` (acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `build-and-run` · `conventions` · `operational-behavior`. The **implementation is never authoritative** for a claim a normative source owns.
 
@@ -47,6 +47,7 @@
 | tests (integration) | `src/test/java/**/*IT.java`, `src/test/integration/**` | repo | `*` | critical | descriptive | `—` | scope: module/service; **runs: local-if-infra-available else CI**; reachability/coverage or surface participation |
 | tests (e2e) | `e2e/**`, `cypress/**` | repo | `*` | supporting | descriptive | `—` | scope: flow/system; **runs: CI (cross-boundary/infra)**; implicated by any in‑scope surface in a covered flow — NOT call‑graph reachable |
 | build-commands | `./mvnw test`, `npm test`, `pom.xml`, `package.json` | command:`./mvnw -q test` | `*` | critical | normative | `build-and-run` | install/build/test + selective‑run; defers to `ci-config` for parity |
+| test-report | `target/surefire-reports/*.xml`, `**/junit.xml`, `**/test-results/**` | repo | `*` | critical | descriptive | `—` | machine‑readable results the runner reads (format: junit-xml \| tap \| json \| native); **not** stdout |
 | ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | normative | `build-and-run` | parity authority: local must match what CI runs |
 | runbook | `docs/runbooks/**` | repo | `cross-service`, `db-migration` | supporting | descriptive | `operational-behavior` | |
 | observability | `<dashboards/alerts url>` | url | `cross-service` | supporting | descriptive | `operational-behavior` | for runtime‑witness items |
