@@ -68,7 +68,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
 
 1. **Testing Strategy** — human‑owned, **architecture‑aware** source of truth for expected evidence, keyed by change‑type (REST API, SNS/SQS consumer, DB migration, React UI, cross‑service, refactor). Evidence, not tools.
 2. **Validation Rules** — the thin, machine‑usable projection of the Strategy. **Generated from it, never hand‑edited beside it** (regenerate on change; version‑stamped).
-3. **Source‑Map Manifest** — maps *source kinds → locations → which change‑types need them*, so agents **discover sources deterministically** instead of guessing. Critical + unretrievable = blocking.
+3. **Source‑Map Manifest** — maps *source kinds → locations → what each is **authoritative for** → which change‑types need them*, so agents **discover sources deterministically** and **resolve a claim against its owner** instead of guessing. Records authority (`normative`/`descriptive`/`advisory`) so the API contract, event contract, boundaries, and expected evidence each have a declared source of truth — and the implementation is never it. Critical + unretrievable = blocking.
 4. **Change Classification** — classify a change into types and scope its **blast radius**, selecting which Rules apply and which sources to retrieve. The entry of every per‑change activity.
 
 ---

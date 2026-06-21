@@ -130,12 +130,13 @@ See the **validation‑rules** skill for the rule schema and the derivation proc
 
 ## Foundation piece 3 — Source‑Map Manifest
 
-A first‑class artifact that maps **source kinds → where they live → which change‑types need them**, so agents **discover the sources they need deterministically** instead of guessing. It is the "considerate of sources" discipline made navigable.
+A first‑class artifact that maps **source kinds → where they live → what they are authoritative for → which change‑types need them**, so agents **discover the sources they need deterministically** instead of guessing. It is the "considerate of sources" discipline made navigable.
 
-Kinds include: architecture docs, API specs (OpenAPI), event schemas, coding/testing guidelines, the Testing Strategy itself, existing‑test locations, CI config, data models, runbooks/observability.
+Kinds include: architecture docs, API specs (OpenAPI), event schemas, coding/testing guidelines, the Testing Strategy itself, existing‑test locations, build/run commands, CI config, data models, runbooks/observability.
 
+- **Authority is the point.** Beyond *where* a source lives, the map records **what it is the authority for** — which source is the source of truth for which **category of claim** (the API contract → `api-spec`, service boundaries → `architecture`, the expected evidence → `testing-strategy`), and how binding it is: `normative` **defines** correctness, `descriptive` **describes** the system, `advisory` **recommends**. This lets the toolkit resolve a claim against its owner instead of guessing — and, crucially, it **never treats the implementation as the authority** for a claim a normative source owns (the invariant, restated at the source layer). A claim with **no** authoritative source is a **gap** to clarify; two **normative** sources contradicting on the same claim is a **decision** to escalate.
 - **Human‑seeded, agent‑extendable.** A human supplies the initial map; agents may propose additions when they discover a needed source not yet listed.
-- **Criticality‑aware.** A *critical* source that can't be retrieved is **blocking** — the same rule as a missing one (mirrors prepare‑work‑item's source guard).
+- **Criticality‑aware.** A *critical* source that can't be retrieved is **blocking** — the same rule as a missing one (mirrors prepare‑work‑item's source guard). (Criticality — *blocking if missing* — is orthogonal to authority — *how binding its claims are*: a source can be critical but merely descriptive, or advisory but always present.)
 
 See the **source‑map** skill for the manifest schema and the discovery procedure, and `source-map.manifest.md` for the fillable template.
 
