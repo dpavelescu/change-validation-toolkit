@@ -12,7 +12,7 @@ Give each acceptance criterion a **stable, immutable ID** by reconciling the sto
 **Args:** `story=<link|file>` (the criteria content source) · `ledger=<path>` (prior ledger if any; default `.validation/<change>/criteria.md`).
 
 ## Inputs (retrieve, don't assume)
-The story's current acceptance criteria via the **source‑map** skill (kind `testing-strategy`/story source) — **actually retrieve it**; a critical unretrievable source is blocking. The prior Criteria Ledger if present. Apply the **criteria‑ledger** skill.
+The story's current acceptance criteria via the **source‑map** skill (kind `acceptance-criteria` — the normative owner of the `correctness` claim) — **actually retrieve it**; a critical unretrievable source is blocking. The prior Criteria Ledger if present. Apply the **criteria‑ledger** skill.
 
 ## Process (read → match → record)
 1. **Read** the story and extract its current acceptance criteria. If none are identifiable → **Not ready — needs criteria** (route to the work‑item‑preparation‑toolkit); don't invent ACs.

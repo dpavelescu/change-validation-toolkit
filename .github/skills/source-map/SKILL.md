@@ -13,7 +13,7 @@ The Source‑Map makes source discovery **navigable and deterministic** — and,
 
 ## Canonical kinds
 
-`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
+`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
 
 ## Claims & authority
 
@@ -21,7 +21,7 @@ A source carries claims of one **authority class** — `normative` (defines corr
 
 `correctness` (the acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `build-and-run` · `conventions` · `operational-behavior`
 
-The map answers *"who owns this claim?"* — e.g. the **API contract** is owned by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns — that is the toolkit's invariant restated at the source layer (tests witness, code implements; neither defines truth).
+The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptance criteria) is owned by `acceptance-criteria`, the **API contract** by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns — that is the toolkit's invariant restated at the source layer (tests witness, code implements; neither defines truth).
 
 ## Entry schema
 

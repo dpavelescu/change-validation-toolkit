@@ -24,7 +24,7 @@
 | `authoritative-for` | the claim categories this source is the canonical truth for; `—` if none |
 | `notes` | optional — version, owner, caveats |
 
-**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
+**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
 
 **Claim categories** (what a source can be *authoritative‑for*): `correctness` (acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `build-and-run` · `conventions` · `operational-behavior`. The **implementation is never authoritative** for a claim a normative source owns.
 
@@ -40,6 +40,7 @@
 | data-model | `src/main/resources/db/migration/**` | repo | `db-migration` | critical | normative | `persistence-shape` | Flyway/Liquibase |
 | coding-guidelines | `docs/engineering/guidelines.md` | repo | `*` | supporting | advisory | `conventions` | recommends, never binds |
 | testing-strategy | `.github/skills/testing-strategy` + `TESTING-STRATEGY.md` | repo | `*` | critical | normative | `expected-evidence` | the human‑owned Strategy |
+| acceptance-criteria | `<tracker link>` or `docs/stories/<id>.md` | url or repo | `*` | critical | normative | `correctness` | the story's ACs; source‑agnostic (link or in‑repo); read‑only — humans own the content, the Criteria Ledger owns identity |
 | tests | `src/test/**`, `**/*.spec.tsx` | repo | `*` | critical | descriptive | `—` | witnesses, not a source of truth (reconciliation target) |
 | build-commands | `./mvnw test`, `npm test`, `pom.xml`, `package.json` | command:`./mvnw -q test` | `*` | critical | normative | `build-and-run` | install/build/test + selective‑run; defers to `ci-config` for parity |
 | ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | normative | `build-and-run` | parity authority: local must match what CI runs |

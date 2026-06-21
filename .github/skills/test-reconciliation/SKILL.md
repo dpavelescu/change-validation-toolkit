@@ -59,6 +59,7 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 - **Independent witness** — tests are authored by the test‑implementer, never by the producer of the change; the implementer never writes its own witnesses.
 - **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl; impl is read for wiring only, flagged.
 - **Honesty lock** — every `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden.
+- **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Ledger** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the ledger; humans never type it.
 - **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input, never a softened test or a handoff.
 - **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
 - **No faked green** — non‑automatable → admitted runtime witness, never a fake pass.

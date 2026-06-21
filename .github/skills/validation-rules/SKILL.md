@@ -30,6 +30,7 @@ escalates-as-decision: [ <conditions> ]   # e.g. ownership boundary, public-cont
 - **`required-evidence`** items carry a `why` that traces to a confidence stated in the Strategy — the rule is a projection, not a new opinion.
 - **`source-kinds`** are kinds, not paths; the Source‑Map Manifest resolves them per project.
 - **`escalates-as-decision`** pre‑declares the conditions that are legitimate human decisions for this type (feeds the escalation model so limitations never masquerade as decisions).
+- **Behavior‑preservation (regression) evidence** — a change‑type's `required-evidence` applied in a *regression lens* to a blast‑radius surface of this type that **no AC owns** (the Plan's behavior‑preservation track). The Rules name the evidence per type; the Plan decides which touched surfaces need it. No separate rule field — same evidence, asserted against the pinned baseline instead of an AC.
 
 ## Derivation procedure (Strategy → Rules)
 
