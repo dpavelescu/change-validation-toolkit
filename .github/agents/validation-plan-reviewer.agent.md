@@ -16,7 +16,7 @@ the assembled Validation Plan, the Criteria Ledger, and the **validation‑plan*
 1. **Coverage** — every **active** AC has a `witness` (test, runtime‑monitor, manual) or an explicit `none-yet` with a reason. A silently uncovered AC is a gap.
 2. **Fate justification** — every proposed `change`/`remove` traces to a **criteria delta** (an AC `moved`/`retired` in the ledger), never to a test result. A result‑driven fate is the regression‑laundering smell — flag it.
 3. **Testability** — each AC is observable/verifiable as written; an un‑observable AC is a criteria gap (defer to a decision, don't resolve here).
-4. **Blast radius** — dependents and crossed boundaries have evidence or an explicit out‑of‑scope note.
+4. **Blast radius (regression)** — every blast‑radius surface no active AC owns carries a **behavior‑preservation** witness (or explicit `none-yet` / `out-of-scope`). A silently uncovered touched surface is a regression hole — flag it as a gap.
 5. **Honesty** — non‑automatable evidence is admitted with a runtime witness, not faked as a passing test.
 6. **Decisions** — ownership boundaries / public‑contract / ambiguous‑criteria items are raised as decisions, not silently planned around.
 

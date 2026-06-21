@@ -31,6 +31,8 @@ The change‑types are the **key** the Testing Strategy and Validation Rules are
 
 Scope **what the change touches transitively** — the callers, consumers, and contracts downstream of the diff. Blast radius drives later minimality (smallest sufficient evidence set) and tells the Source‑Map which sources to retrieve. Record it as: changed surfaces → direct dependents → contract/consumer boundaries crossed.
 
+A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the characterization baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
+
 ## Output (consumed by Validation Rules + the forthcoming Plan)
 
 `change-types[]` · `blast-radius` (changed surfaces, dependents, boundaries) · `source-kinds-needed[]` (from the matched Rules) · `notes` (refactor/baseline flags, multi‑type interactions).

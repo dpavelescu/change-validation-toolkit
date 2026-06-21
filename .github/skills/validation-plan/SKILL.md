@@ -8,7 +8,7 @@ description: >-
 
 *Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
 
-The Validation Plan states **what evidence is needed to trust this change**, keyed to stable acceptance‑criterion IDs. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution by `implement-tests` (against the Characterization Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
+The Validation Plan states **what evidence is needed to trust this change** along two tracks: **criterion evidence** (per active AC — *does the intended change work?*) and **behavior‑preservation evidence** (per blast‑radius surface no AC owns — *does the change break anything around it?*). The first is keyed to stable acceptance‑criterion IDs; the second is keyed to surfaces and exists to catch regression. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution by `implement-tests` (against the Characterization Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
 
 ## Plan schema
 
@@ -24,6 +24,14 @@ criteria:                               # one block per ACTIVE acceptance criter
     witness:          { kind: test | runtime-monitor | manual | none-yet, ref, status }
     proposed-fate:    keep | change | add | remove      # PROVISIONAL — re: related existing tests
     rationale:        <why; for change/remove MUST trace to a criteria delta (AC moved/retired)>
+
+behavior-preservation:                  # one block per BLAST-RADIUS surface NOT owned by an active AC
+  - surface-id:        <endpoint | consumer | shared method | contract | component>
+    why-in-radius:     <how the change reaches it — caller, consumer, shared dependency>
+    required-evidence: [ ... ]          # behavior-preservation (regression) evidence from the Rules
+    witness:           { kind: test | runtime-monitor | none-yet, ref }   # provenance: the pinned baseline
+    proposed-fate:     keep | add        # keep = existing witness suffices; add = author a CHARACTERIZATION test
+out-of-scope:      [ { surface-id, why-excluded } ]     # blast-radius surfaces deliberately not witnessed
 
 local-gate:        [ evidence that must pass locally before PR ]
 ci-gate:           [ broader evidence the CI gate adds ]
@@ -42,8 +50,9 @@ open-decisions:    [ escalations blocking completeness ]
    - AC unchanged, witness exists → `keep`
    - AC new / `none-yet` → `add`
    - **Every `change`/`remove` rationale must trace to a criteria delta** — never to a test result. (Result‑driven test edits are an execution‑time concern and are forbidden as a *plan* justification.)
-5. **Set gates** — split required evidence into `local-gate` / `ci-gate` per the Rules.
-6. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a characterization baseline, by `implement-tests`) happens at execution.
+5. **Cover the blast radius (regression).** List each blast‑radius surface **no active AC owns** — **minimal**, the smallest sufficient set, not every transitive node. Give each a **behavior‑preservation** witness: an existing test → `keep`; none yet → `add` a **characterization** test (provenance: the pinned baseline, *never* the change). A surface deliberately excluded gets an explicit **`out-of-scope`** note. (`internal-refactor` is the limit case: *every* surface is behavior‑preservation, since no AC moved.)
+6. **Set gates** — split required evidence (both tracks) into `local-gate` / `ci-gate` per the Rules.
+7. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a characterization baseline, by `implement-tests`) happens at execution.
 
 ## Gate (readiness to capture the plan)
 
@@ -52,7 +61,7 @@ The plan is ready when:
 - **Coverage** — every active AC has a `witness` (test, runtime‑monitor, manual) or an explicit `none-yet` with a reason.
 - **Fate justification** — every proposed `change`/`remove` traces to a criteria delta.
 - **Testable** — each AC is observable/verifiable as written (else it's a criteria gap → escalate as a decision).
-- **Blast radius covered** — dependents and crossed boundaries have evidence or an explicit out‑of‑scope note.
+- **Blast radius covered (regression)** — every blast‑radius surface is either owned by an active AC, carries a **behavior‑preservation** witness (or explicit `none-yet`), or has an explicit `out-of-scope` note. A silently uncovered touched surface is a regression hole, not a pass.
 - **No unresolved blocking decision** — open decisions are answered, deferred, or out‑of‑scope.
 
 Otherwise → **Not ready**: a resumable agenda; write no plan. Never partial.

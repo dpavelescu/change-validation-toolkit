@@ -17,7 +17,7 @@ The blast radius (which surfaces), the Validation Plan's `local-gate`/`ci-gate` 
 
 ## Process (resolve → scope → run → check → record)
 1. **Resolve** the commands from the Source‑Map `build-commands` (parity‑checked vs `ci-config`). A critical unresolvable command → blocking **limitation**; never guess the invocation.
-2. **Scope** to the blast radius and the `gate` — the **minimal sufficient** slice via selective invocation (`local-gate` for `gate=local`; widen to `ci-gate` for `gate=ci`). Never run the whole suite.
+2. **Scope** to the blast radius and the `gate` — the **minimal sufficient** slice via selective invocation (`local-gate` for `gate=local`; widen to `ci-gate` for `gate=ci`). The slice runs **both** witness duties: criterion witnesses (the ACs) **and** behavior‑preservation (regression) witnesses across the blast radius. Never run the whole suite.
 3. **Run & observe** — execute; per surface record `outcome` + the behavior it `witnessed`. Sort each non‑pass: **clean fail → loop input**, **can't‑run → limitation**. Do not edit anything.
 4. **Determinism check** — re‑run the slice; flaky disagreement → **quarantine** the surface + raise a **limitation** (never pass noise on as behavior).
 5. **Record** the run in‑repo (committed) for local↔CI parity; hand observations to **`characterize-baseline`** (pin / re‑observe) or the forthcoming loop.
