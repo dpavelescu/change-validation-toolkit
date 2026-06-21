@@ -41,7 +41,11 @@
 | coding-guidelines | `docs/engineering/guidelines.md` | repo | `*` | supporting | advisory | `conventions` | recommends, never binds |
 | testing-strategy | `.github/skills/testing-strategy` + `TESTING-STRATEGY.md` | repo | `*` | critical | normative | `expected-evidence` | the human‑owned Strategy |
 | acceptance-criteria | `<tracker link>` or `docs/stories/<id>.md` | url or repo | `*` | critical | normative | `correctness` | the story's ACs; source‑agnostic (link or in‑repo); read‑only — humans own the content, the Criteria Ledger owns identity |
-| tests | `src/test/**`, `**/*.spec.tsx` | repo | `*` | critical | descriptive | `—` | witnesses, not a source of truth (reconciliation target) |
+| tests (unit) | `src/test/java/**/*Test.java` | repo | `*` | critical | descriptive | `—` | scope: symbol; found by reachability/coverage |
+| tests (integration) | `src/test/java/**/*IT.java`, `src/test/integration/**` | repo | `*` | critical | descriptive | `—` | scope: module/service; reachability/coverage or surface participation |
+| tests (contract) | `src/test/**/contract/**`, `pacts/**` | repo | `rest-api`, `event-consumer`, `event-producer`, `cross-service` | critical | descriptive | `—` | scope: contract; implicated by `api-spec`/`event-schema` changes |
+| tests (e2e) | `e2e/**`, `cypress/**` | repo | `*` | supporting | descriptive | `—` | scope: flow/system; implicated by any in‑scope surface in a covered flow — NOT call‑graph reachable |
+| tests (component) | `**/*.spec.tsx`, `**/*.test.tsx` | repo | `react-ui` | critical | descriptive | `—` | scope: component; found by reachability/coverage |
 | build-commands | `./mvnw test`, `npm test`, `pom.xml`, `package.json` | command:`./mvnw -q test` | `*` | critical | normative | `build-and-run` | install/build/test + selective‑run; defers to `ci-config` for parity |
 | ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | normative | `build-and-run` | parity authority: local must match what CI runs |
 | runbook | `docs/runbooks/**` | repo | `cross-service`, `db-migration` | supporting | descriptive | `operational-behavior` | |

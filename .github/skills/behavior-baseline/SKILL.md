@@ -38,7 +38,7 @@ reconciliation:                            # produced post-change, via the Execu
 
 1. **Scope** the surfaces from the blast radius — **minimal**, the smallest sufficient set, never "pin everything." This includes blast‑radius surfaces **no acceptance criterion owns** (the plan's behavior‑preservation track) — pinning them is exactly how regression in untouched‑but‑reachable code is caught. (`internal-refactor` is the limit case: every surface is of this kind.)
 2. **Per surface**, define the observation contract: what is observable for its change‑type (HTTP response + status for `rest-api`; emitted payload for `event-producer`; persisted state and old‑vs‑new coexistence for `db-migration`; rendered output for `react-ui`; the contract itself for `cross-service`).
-3. **Pin** behavior by observing current code at `captured-at`; record `pinned-behavior`. Discover related existing tests **read‑only** via the Source‑Map `tests` kind.
+3. **Pin** behavior by observing current code at `captured-at`; record `pinned-behavior`. Discover related existing tests **read‑only** via **test‑impact analysis** over the Source‑Map's typed `tests` entries — reachability/coverage for fine‑grained tests, **surface/flow participation for `e2e`/`system`** (so a system‑level test a changed surface participates in is pinned too, even though it isn't call‑graph‑reachable).
 4. **Determinism gate** — non‑reproducible / flaky behavior is **not** baselined: quarantine the surface and raise a **limitation** (you cannot pin what you cannot reproduce; baselining noise would lie).
 
 ## Reconciliation procedure (post‑change)

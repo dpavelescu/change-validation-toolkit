@@ -29,8 +29,18 @@ The change‑types are the **key** the Testing Strategy and Validation Rules are
 
 Scope **what the change touches transitively** — the callers, consumers, and contracts downstream of the diff. Blast radius drives later minimality (smallest sufficient evidence set) and tells the Source‑Map which sources to retrieve. Record it as: changed surfaces → direct dependents → contract/consumer boundaries crossed.
 
+### How affected existing tests are found (test‑impact analysis)
+
+Blast radius is computed **from the code**, never from a stored story↔test link — so a change that touches a *previous* story's code is caught **because it reaches that code**, with nothing to maintain and nothing to go stale. The affected tests are re‑discovered every change, per **test type** (from the Source‑Map's typed `tests` entries):
+
+- **Fine‑grained** (`unit`, `component`, `integration`) — **static reachability** (changed symbol → call/import graph) and/or a **coverage map** (`test → lines`; the diff's lines → the tests that cover them).
+- **Contract** — implicated when a contract source it pins (`api-spec`/`event-schema`) is in the blast radius.
+- **System / e2e** — implicated by **surface/flow participation**: any in‑scope surface that participates in a flow the test covers. Their impact is **system‑level and not call‑graph‑reachable** (they cross HTTP/queue hops), so they are found by *where they live + what flows they cover*, not by reachability. A coverage map, where available, catches every type uniformly.
+
+The link is recomputed from the code each change (stale‑proof); no story reference is kept. This — not an AC id — is what detects impact on a prior story's tests; the **behavior‑baseline** then confirms which of them actually moved.
+
 A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the behavior baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
 
 ## Output (consumed by Validation Rules + the forthcoming Plan)
 
-`change-types[]` · `blast-radius` (changed surfaces, dependents, boundaries) · `source-kinds-needed[]` (from the matched Rules) · `notes` (refactor/baseline flags, multi‑type interactions).
+`change-types[]` · `blast-radius` (changed surfaces, dependents, boundaries) · `affected-tests[]` (existing tests the change reaches, **by type** — unit/integration/contract/e2e/component; system/e2e by flow participation) · `source-kinds-needed[]` (from the matched Rules) · `notes` (refactor/baseline flags, multi‑type interactions).
