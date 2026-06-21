@@ -4,7 +4,33 @@
 
 This is the canonical, tool‑neutral reference. The Copilot / Claude builds are derived from it; if they disagree, this playbook wins.
 
-> **Scope of this milestone — Foundation.** The four foundation pieces are specified in full here: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, and **Change Classification**. The later layers (Validation Plan, test reconciliation, local/CI execution, auto‑fix) are described at the level needed to keep the model coherent and are marked *forthcoming*.
+> **Status.** Built and specified end‑to‑end through **Test Reconciliation**: the Testing Strategy, the derived Validation Rules, the Source‑Map Manifest, Change Classification, the Criteria Ledger, the Validation Plan, the Characterization Baseline, the Execution Runner, and Test Reconciliation. Only the **auto‑fix loop** and the **Evidence Ledger** (the last two steps) remain forthcoming — described here at the level needed to keep the model coherent.
+
+---
+
+## What this is, in plain terms
+
+Every code change has to be *trusted* before it ships. Normally a person decides what to test, writes the tests, runs them, and — when something breaks — digs into why. This toolkit does that derivation and that loop for you, and it is built to stay **honest** about it.
+
+The whole idea in one sentence: **start from what the change is supposed to do, work out what evidence would prove it does that, produce that evidence, and bother a human only for a genuine judgment call — never to debug.**
+
+Here is the entire flow on a concrete example — a change that *"adds an email field to the user signup endpoint."*
+
+1. **Classify the change.** It's a REST API change; note what it touches (the signup endpoint and anything downstream). → *Change Classification*
+2. **Look up the rules.** For a REST API change, the team's testing approach says what confidence matters — the endpoint behaves, errors map correctly, the public API stays compatible. → *Validation Rules*, derived from the *Testing Strategy*
+3. **Pin the requirements.** Each acceptance criterion ("accepts a valid email", "rejects a malformed one") gets a stable ID that survives rewording, so everything can point back to it. → *Criteria Ledger*
+4. **Make a plan.** Per requirement: what evidence is needed, which test provides it, and which existing tests should stay, change, or go. → *Validation Plan*
+5. **Photograph today's behavior.** Before touching anything, record how the code behaves now — so later we can tell *"this changed because we meant it to"* from *"this broke by accident."* → *Characterization Baseline*
+6. **Run the project's own tests** to take that photograph, and again after the change. → *Execution Runner*
+7. **Write or adjust the tests** — in a separate step that looks only at the *requirements*, never at the new code, so a test stays an honest check rather than a rubber stamp. → *Test Reconciliation*
+8. *(coming next)* **If a test fails, fix the code and re‑run — automatically, in a loop** — instead of handing the failure to a person; and keep a plain‑language **record** of what was checked and why. → *auto‑fix loop* + *Evidence Ledger*
+
+Two promises run through all of it:
+
+- **A failing test is a signal to keep working, not a reason to call a human.** People are asked only to make *decisions* (e.g. "these two requirements contradict each other — which wins?"), never to fix broken code.
+- **A test is changed only because the requirement behind it changed** — never quietly edited to make a red result turn green. That single rule is what keeps the whole thing trustworthy.
+
+That's the toolkit. The rest of this document is the precise machinery behind those eight steps.
 
 ---
 
@@ -27,30 +53,29 @@ Validation is not a phase appended after implementation. It is a control loop, d
 
 ```
 architecture + technology specifics
-        │  (Testing Strategy: define-testing-strategy)
+        │  (Testing Strategy: define-testing-strategy)                        ✅
         ▼
-testing strategy / baseline rules
-        │  (regenerate, never hand-edit beside it)
-        ▼
-validation rules  (thin, machine-usable, per change-type)
+testing strategy  ──►  validation rules  (thin, machine-usable, per type)    ✅
         │  + the change + its criteria + discovered sources
         ▼
-story-level validation plan  (AC → witness map, test fates)
+change classification → criteria ledger → validation plan                    ✅
+   (types + blast radius)   (stable AC IDs)   (AC → witness map, test fates)
         │
         ▼
-tests (materialized / reconciled against the existing suite)        ── forthcoming
+characterization baseline   +   execution runner                             ✅
+   (pin current behavior)        (run the project's own suite)
         │
         ▼
-local execution → diagnose → fix → rerun                            ── forthcoming
+test reconciliation  (materialize / adjust witnesses, honestly)              ✅
         │
         ▼
-CI execution (same plan, wider scope, constrained autonomy)         ── forthcoming
+auto-fix loop:  diagnose → fix → rerun   (local, then CI)                    ── forthcoming
         │
         ▼
-evidence ledger → human review (behavior + decisions, not internals)
+evidence ledger → human review (behavior + decisions, not internals)         ── forthcoming
 ```
 
-**Foundation** covers the top three boxes and the cross‑cutting **Source‑Map Manifest** that every box reads from; **Phase 2** adds the **Criteria Ledger** and the story‑level **Validation Plan**. From *tests* down is still forthcoming.
+**Foundation** covers strategy → rules → classification, plus the cross‑cutting **Source‑Map Manifest** every box reads from. **Phase 2** adds the **Criteria Ledger** and the **Validation Plan**. **Phase 3** adds the **Characterization Baseline**, the **Execution Runner**, and **Test Reconciliation**. Only the **auto‑fix loop** and the **Evidence Ledger** remain forthcoming.
 
 ---
 
@@ -64,9 +89,9 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Change Classification** | per change | tool | ✅ |
 | **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
 | **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
-| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — specified; capture via the runner) |
-| **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — specified; first piece that runs) |
-| **Test Reconciliation** (witnesses + record) | per change | tool (independent test‑implementer) | ✅ (Phase 3 — specified) |
+| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — built; capture via the runner) |
+| **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — built; first piece that runs) |
+| **Test Reconciliation** (witnesses + record) | per change | tool (independent test‑implementer) | ✅ (Phase 3 — built) |
 | Evidence Ledger | per change | tool | forthcoming |
 
 **Hard rule:** *Validation Rules is regenerated from the Strategy, never hand‑maintained beside it.* Two hand‑edited documents drift, and the agent then enforces rules the strategy has abandoned.
@@ -122,7 +147,7 @@ For an incoming change, classify it into one or more **change‑types** and comp
 
 - A change may be **multiple types** (e.g. an endpoint that also emits an event).
 - **Blast radius drives minimality** later — the smallest sufficient evidence set, not "run everything."
-- Output is structured and feeds the (forthcoming) Validation Plan.
+- Output is structured and feeds the **Validation Plan** (Phase 2).
 
 See the **change‑taxonomy** skill for the types and classification heuristics; `change-classifier` is the agent that produces this.
 
@@ -163,7 +188,7 @@ Two consequences make this more than bookkeeping:
 - **The ID lifecycle *is* the criteria‑delta detector.** "Did this criterion move?" — the signal test reconciliation depends on — falls out of the match step for free.
 - **Humans never write the test tag either.** When the toolkit generates or updates a test, it stamps the `AC‑N` tag from the ledger. IDs are immutable not by discipline but because only the tool assigns them, and it only matches / adds / retires — never renumbers.
 
-(Annotation convention for tests — native tag `@Tag("AC‑N")` / `[AC‑N]`, extracted by one `AC‑[0-9]+` regex — is specified with the forthcoming execution layer; the human is not in that loop.)
+(Annotation convention for tests — native tag `@Tag("AC‑N")` / `[AC‑N]`, extracted by one `AC‑[0-9]+` regex — is stamped from the ledger by `implement-tests` during Test Reconciliation; the human is not in that loop.)
 
 ## Minimum‑clarity gate
 

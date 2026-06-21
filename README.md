@@ -21,17 +21,19 @@ architecture + technology  ──►  Testing Strategy  ──►  Validation Ru
                                                               │
                               Source-Map Manifest ────────────┤  (resolves source kinds → locations)
                                                               ▼
-                                        Change Classification (types + blast radius)
+                            Change Classification (types + blast radius)
                                                               │
                                                               ▼
-        Validation Plan → execution runner → characterization baseline → reconcile tests → auto-fix → evidence
+            Criteria Ledger → Validation Plan → Characterization Baseline → Test Reconciliation → [auto-fix loop → Evidence Ledger]
 ```
+
+The **Execution Runner** is the shared substrate underneath: it runs the project's *own* suite to take the baseline's "before" snapshot and to gather evidence for test reconciliation. Bracketed stages are *forthcoming*.
 
 Each arrow has a **minimum‑clarity gate**: if the source is too thin to derive honestly, the toolkit clarifies before proceeding rather than inventing.
 
 ---
 
-## What's built (Foundation + Phase 2)
+## What's built (Foundation + Phase 2 + Phase 3)
 
 ```
 README.md
@@ -82,7 +84,7 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 
 ---
 
-## Onboarding (Foundation)
+## Onboarding (Foundation → Phase 3)
 
 1. **Copy the build** (`.github/agents/` + `.github/skills/`) into your project, and **copy `source-map.manifest.md`** to your repo root.
 2. **Fill the Source‑Map** with your real source locations (architecture, specs, schemas, tests, CI config).
