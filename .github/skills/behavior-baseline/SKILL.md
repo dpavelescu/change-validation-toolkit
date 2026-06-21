@@ -3,7 +3,7 @@ name: behavior-baseline
 description: >-
   The schema and capture/reconcile procedure for the Behavior Baseline — the per-change
   snapshot of current brownfield behavior that lets a behavior delta be sorted into justified (a
-  criterion moved) vs regression (none did). The behavior-level enforcement of the auto-fix honesty
+  criterion moved) vs regression (none did). The behavior-level enforcement of the honesty
   rule. Used by capture-baseline; confirms the Validation Plan's provisional fates. Phase 3.
 ---
 
@@ -49,7 +49,7 @@ Re‑observe each in‑scope surface and compare to `pinned-behavior`:
 |---|---|---|
 | no behavior delta | `preserved` | confirms a `keep`; no test change earns justification |
 | delta maps to an AC that `moved` / is new / `retired` in the Criteria Identity | **`justified(AC‑N)`** | confirms the plan's provisional `change`/`add`/`remove`; recorded as evidence |
-| delta with **no** matching criteria delta | **`regression`** | **loop input** (auto‑fix / finding) — never a handoff |
+| delta with **no** matching criteria delta | **`regression`** | **loop input** (correction loop / finding) — never a handoff |
 | delta crosses a public contract / ownership boundary | **`boundary-decision`** | structured question (legitimate human decision) |
 | surface can't be re‑observed (can't run / reproduce) | **`limitation`** | toolkit gap logged; never normalized as human‑in‑the‑loop |
 
@@ -59,7 +59,7 @@ A provisional `change` fate from the Validation Plan is **honest only if its sur
 
 - **Baseline immutability** — once captured the baseline is read‑only; never widen it after the fact to make a delta look "expected" (the behavior analogue of *no silent supersession*).
 - **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC in the Criteria Identity; absent that match it is a `regression`.
-- **Regression is loop input, not a handoff** — an unjustified delta feeds the auto‑fix loop / surfaces as a finding — a toolkit task, never normalized as human‑in‑the‑loop — *unless* it crosses a public contract / ownership boundary, which is a **decision** (structured question).
+- **Regression is loop input, not a handoff** — an unjustified delta feeds the correction loop / surfaces as a finding — a toolkit task, never normalized as human‑in‑the‑loop — *unless* it crosses a public contract / ownership boundary, which is a **decision** (structured question).
 - **Can't capture → limitation** — can't run / build / reproduce is a toolkit gap, logged as such, never a handoff.
 - **Minimality** — pin the blast radius only.
 - **Refactor is sharpest** — `internal-refactor` carries no criteria delta by definition, so the baseline is its **primary** evidence: every behavior delta is, necessarily, a regression.

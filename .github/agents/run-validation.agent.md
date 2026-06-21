@@ -3,7 +3,7 @@ name: run-validation
 description: >-
   Drive the project's own test/build suite over a change's blast-radius slice to produce structured
   behavior observations and a determinism verdict — the execution substrate the Behavior
-  Baseline and the forthcoming auto-fix loop build on. Reuses the project's suite; runs, never edits;
+  Baseline and the correction loop build on. Reuses the project's suite; runs, never edits;
   a clean fail is loop input, a can't-run is a limitation. Phase 3.
 model: inherit
 ---
@@ -20,10 +20,10 @@ The blast radius (which surfaces), the Validation Plan's `local-gate`/`ci-gate` 
 2. **Scope & order (fail‑fast)** to the blast radius and the `gate` — the **minimal sufficient** slice via selective invocation, **cheapest first** (`local-gate` for `gate=local`, run **before** `ci-gate` for `gate=ci`; a local failure short‑circuits the CI‑level run). The slice runs **both** witness duties: criterion witnesses (the ACs) **and** behavior‑preservation (regression) witnesses across the blast radius. Never run the whole suite. A CI‑only test seen under `gate=local` is **deferred to `ci-gate`, not a `can't-run` limitation**.
 3. **Run & observe** — execute; per surface record `outcome` + the behavior it `witnessed`. Sort each non‑pass: **clean fail → loop input**, **can't‑run → limitation**. Do not edit anything.
 4. **Determinism check** — re‑run the slice; flaky disagreement → **quarantine** the surface + raise a **limitation** (never pass noise on as behavior).
-5. **Record** the run in‑repo (committed) for local↔CI parity; hand observations to **`capture-baseline`** (pin / re‑observe) or the forthcoming loop.
+5. **Record** the run in‑repo (committed) for local↔CI parity; hand observations to **`capture-baseline`** (pin / re‑observe) or the correction loop.
 
 ## Output (the run record + observations)
 The run record (per **execution‑runner** schema) and: `observations[]` (per surface — `outcome`, `witnessed` behavior, `determinism`), `loop-input[]` (clean fails — behavior signals), `limitations[]` (can't‑run/build/unresolved/flaky — toolkit gaps). It is the substrate `capture-baseline` calls to capture and re‑observe behavior.
 
 ## Guards
-Runs‑never‑edits (observation substrate; auto‑fix is a separate consumer) · reuse‑the‑project's‑suite (Source‑Map/CI commands; no invented harness) · clean‑fail‑is‑loop‑input (red test = signal, never a handoff) · can't‑run‑is‑limitation (broken harness = toolkit gap, never normalized) · minimality (blast‑radius slice, not the whole suite) · fail‑fast‑ordering (cheap local tests first; local failure short‑circuits CI; CI‑only placement is expected, not a `can't-run`) · determinism‑or‑quarantine (flaky → limitation, never asserted as behavior) · local↔CI‑parity (same commands/method recorded; CI widens scope only) · persisted (run record in‑repo so local and CI share execution context).
+Runs‑never‑edits (observation substrate; the correction loop is a separate consumer) · reuse‑the‑project's‑suite (Source‑Map/CI commands; no invented harness) · clean‑fail‑is‑loop‑input (red test = signal, never a handoff) · can't‑run‑is‑limitation (broken harness = toolkit gap, never normalized) · minimality (blast‑radius slice, not the whole suite) · fail‑fast‑ordering (cheap local tests first; local failure short‑circuits CI; CI‑only placement is expected, not a `can't-run`) · determinism‑or‑quarantine (flaky → limitation, never asserted as behavior) · local↔CI‑parity (same commands/method recorded; CI widens scope only) · persisted (run record in‑repo so local and CI share execution context).

@@ -41,6 +41,6 @@ The link is recomputed from the code each change (stale‑proof); no story refer
 
 A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the behavior baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
 
-## Output (consumed by Validation Rules + the forthcoming Plan)
+## Output (consumed by Validation Rules + the Validation Plan)
 
 `change-types[]` · `blast-radius` (changed surfaces, dependents, boundaries) · `affected-tests[]` (existing tests the change reaches, **by type** — unit/integration/contract/e2e/component; system/e2e by flow participation) · `source-kinds-needed[]` (from the matched Rules) · `notes` (refactor/baseline flags, multi‑type interactions).

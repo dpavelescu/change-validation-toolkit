@@ -42,7 +42,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 - **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
 - **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
 - **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
-- **Closes the loop** *(coming next)*. When a test fails, it diagnoses and fixes the *code* and re‑runs — instead of handing the failure back — and keeps a plain‑language record of what was checked and why.
+- **Drives correction to green — by handoff.** When a test fails, it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human, or your own implementation agent), then **re‑validates** after the fix and iterates until green. It **never writes production code itself** — that's a separate concern — and never hands a person broken code to debug; it owns the tests, the evidence, and the honest diagnosis. *(The lasting audit trail of what was checked is the one piece still coming.)*
 
 > **The capability you should understand: finding affected tests without links.**
 > When a change touches code that an old story's tests cover, those tests are found **because the change reaches that code** — discovered fresh every time from the code itself (call graph and/or coverage), never from a stored "this change relates to story X" reference. References rot; this can't, because there's nothing to keep. System‑level tests (end‑to‑end, integration) are caught too, by the *flows* they exercise — which is why the toolkit is told where each kind of test lives.
@@ -60,7 +60,7 @@ A change flows through the toolkit roughly like this. You don't have to drive ea
 5. **Photograph today's behavior** so intended change can be told from accidental breakage.
 6. **Run your own tests** to take that photograph and, after the change, to gather evidence.
 7. **Write or adjust the tests** — from the requirements, never the new code.
-8. **Close the loop** *(coming next)* — fix failing code, re‑run, and record what was checked.
+8. **Drive correction to green** — diagnose each failure into a **fix‑request** for whoever implements, re‑validate after the fix, and iterate; escalate a *decision* only if the criteria or a contract must change. *(The lasting audit record is still coming.)*
 
 ### When it comes to you — and when it doesn't
 
@@ -118,9 +118,9 @@ For a change, it tells you: what evidence each requirement has (and any with non
 
 ## Where it is today
 
-**Available and specified end‑to‑end through test reconciliation:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, and writing/adjusting tests honestly.
+**Available and specified end‑to‑end through the correction loop:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, writing/adjusting tests honestly, and **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit).
 
-**Coming next:** the self‑closing **auto‑fix loop** (diagnose a failure, fix the code, re‑run — proposing fixes as commits, never silent edits to protected branches) and the **audit trail** of what was checked and why, so a human review is fast.
+**Coming next:** the **Evidence Ledger** — the lasting audit trail of what was checked and why, so a human review is fast.
 
 ---
 
@@ -165,7 +165,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Produces:** findings + a recommendation (ready to capture / Not ready)
 - **Delegated by:** `plan-validation`
 
-### Execute a change — *Phase 3; runs your suite (auto‑fix loop forthcoming)*
+### Execute a change — *Phase 3; runs your suite, drives correction*
 
 **`capture-baseline`** — **Photograph current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
 - **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
@@ -188,6 +188,13 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Needs:** the Validation Plan · the Criteria Identity · the Behavior Baseline · the Source‑Map `tests`
 - **Produces:** the materialized/adjusted tests + a reconciliation record
 
+**`drive-correction`** — Drive a failing change **to green by handoff**: diagnose each failure into a structured **fix‑request** for whoever implements (a human or any implementation agent), re‑assess impact, re‑validate, and iterate. **Never writes production code.** Resumable — emits handoffs and pauses; re‑invoked after each external fix.
+- **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `fix-requests=<path>` · `max-iterations=<n>`
+- **Uses skills:** `correction-loop`
+- **Delegates to:** `run-validation`, `change-classifier` *(re‑assess)*, `capture-baseline` *(sort)*, `implement-tests` *(test fixes)*
+- **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (loop‑input)
+- **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · a **decision** · an **escalation** (no‑progress diagnosis)
+
 ### The skills (operational reference each agent uses)
 
 | Skill | What it specifies |
@@ -201,6 +208,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `behavior-baseline` | the behavior snapshot + capture/reconcile + the honesty rule |
 | `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
 | `test-reconciliation` | the fate→action mapping + criteria provenance + honesty lock |
+| `correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 
