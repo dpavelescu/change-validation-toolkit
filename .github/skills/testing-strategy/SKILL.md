@@ -10,6 +10,8 @@ description: >-
 
 The Testing Strategy is **human‑owned** and **architecture‑aware** — it reflects the real system, not a generic one. It is the source the per‑change validation plans are *derived from*; it is not invented per story. Keep it expressed as **expected evidence per change‑type**, not as a list of tools.
 
+It is **authored in full when none exists** (greenfield) and updated as architecture moves — always the human‑owned **source of truth**, from which the thin AI‑facing **Validation Rules** are derived. The toolkit never produces only the derived layer: the AI context is a projection of a real, reviewable, human‑owned Strategy, never a free‑standing machine artifact.
+
 ## Structure (one section per change‑type)
 
 For each change‑type in the **change‑taxonomy**, the Strategy states:
@@ -45,4 +47,4 @@ Assess against these — checking what's **missing** as much as present. Each is
 
 ## Gate
 
-The Strategy is ready to generate Rules from when every checklist item is Met or explicitly Deferred/Out‑of‑scope. A type left **Open** is a gap that will surface later as an unclassifiable change with no rule — close it at the Strategy, not by guessing downstream.
+The Strategy is ready to generate Rules from when every checklist item is Met or explicitly Deferred/Out‑of‑scope. A type left **Open** is a gap that will surface later as an unclassifiable change with no rule — close it at the Strategy, not by guessing downstream. Internal **inconsistencies** (contradictory expectations, a source kind that won't resolve) are surfaced to the human the same way — **one at a time** — never silently resolved, and the AI‑facing Rules are never generated over an unresolved gap or inconsistency.

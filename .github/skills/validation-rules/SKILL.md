@@ -45,3 +45,5 @@ escalates-as-decision: [ <conditions> ]   # e.g. ownership boundary, public-cont
 ## Coverage check
 
 A rule set is complete when **every change‑type the Strategy covers has an entry**, every `required-evidence` item traces to the Strategy, and every `source-kind` referenced exists (or is flaggable) in the Source‑Map. A change‑type present in the taxonomy but absent from the Rules is a generation gap — fix at the Strategy/derivation, not downstream.
+
+**Generate only over a clean Strategy.** A gap (a missing/Open change‑type) or an **inconsistency** (contradictory expectations, a `source-kind` that won't resolve) is **surfaced to the human as a decision — one at a time — before generation**, never generated over. The Rules are a faithful projection; they cannot be more coherent than the Strategy they derive from, so the Strategy is made coherent first.

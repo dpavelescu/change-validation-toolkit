@@ -112,6 +112,8 @@ It says, per change‑type, **what confidence matters** — e.g.:
 - **React UI** → component behavior, user‑visible flows, accessibility‑sensitive interactions, mocked API states.
 - **Cross‑service behavior** → contract verification, consumer‑driven expectations, end‑to‑end flow of the affected path.
 
+**Created, not just projected.** When no Strategy exists, the toolkit **authors the full human‑owned Strategy** from the architecture — clarifying genuinely‑open expectations **one question at a time** — and only then derives the thin AI‑facing **Validation Rules** from it. It never produces only the machine layer: the human‑owned Strategy is the source of truth (the `normative` owner of the `expected-evidence` claim), and the Rules are its regenerable projection. A **gap or inconsistency** found while authoring or deriving is surfaced to the human as a **decision, one at a time** — the Rules are never generated over it (a projection can be no more coherent than its source).
+
 See the **testing‑strategy** skill for the authoring structure and coverage checklist, and the **change‑taxonomy** skill for the canonical change‑types.
 
 ---
