@@ -45,7 +45,7 @@ open-decisions:    [ escalations blocking completeness ]
 ## Derivation procedure
 
 1. **Take** the Change Classification (types, blast radius, resolved sources) and the **Criteria IDs** (active ACs with stable IDs).
-2. **Per active AC**, pull `required-evidence` from the Validation Rules for the matched change‑type(s).
+2. **Per active AC**, pull `required-evidence` from the Validation Rules for the matched change‑type(s), then **check it is *sufficient* to prove *this* criterion** — not merely that some rule applies. If the generic type‑evidence doesn't suffice for what the AC means (a story‑specific need, or an NFR/security aspect the Strategy doesn't cover), that's a **Strategy gap**: surface it and **propose a Strategy addition** (don't silently under‑test). The Strategy still wins; the plan only proposes.
 3. **Map a witness** to each AC: discover related existing tests **read‑only** (via the Source‑Map `tests` kind) and set `witness`. Where confidence can't be proven pre‑merge, set `kind: runtime-monitor` and list it under `non-automatable` — **never fake a green test**. An AC with no witness yet → `none-yet` (a coverage gap, surfaced, not hidden).
 4. **Propose fates** for related existing tests — **provisional**:
    - AC `moved` → `change` (the test now defends an outdated wording)
@@ -63,6 +63,7 @@ open-decisions:    [ escalations blocking completeness ]
 The plan is ready when:
 
 - **Coverage** — every active AC has a `witness` (test, runtime‑monitor, manual) or an explicit `none-yet` with a reason.
+- **Sufficiency** — each AC's evidence actually *proves* it (incl. its NFR/security aspects), not just that a witness exists; an AC needing evidence the Strategy doesn't cover is a **Strategy gap** (propose an extension), not a silent under‑test.
 - **Fate justification** — every proposed `change`/`remove` traces to a criteria delta.
 - **Testable** — each AC is observable/verifiable as written (else it's a criteria gap → escalate as a decision).
 - **Blast radius covered (regression)** — every blast‑radius surface is either owned by an active AC, carries a **behavior‑preservation** witness (or explicit `none-yet`), or has an explicit `out-of-scope` note. A silently uncovered touched surface is a regression hole, not a pass.

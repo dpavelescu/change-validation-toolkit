@@ -78,5 +78,6 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 - **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
 - **Re‑align, don't inherit** — an implementation‑coupled existing test is **re‑aligned by default** (`repair` → assert behavior; re‑tag to a criterion if owned), and **deleted only when it guards nothing observable**, as a human‑approved `decision`. Signal is never the end state — it always carries the action.
 - **No faked green** — non‑automatable → admitted runtime witness, never a fake pass.
+- **Idiomatic & data‑backed** — witnesses are authored in the project's own frameworks (learned from the typed `tests` exemplars + `coding-guidelines`), with fixtures from `test-data`; an un‑authorable framework/type or un‑buildable test data is a *limitation*, surfaced, never faked.
 - **Un‑observable AC → decision; can't‑author → limitation** — the standard decision/limitation split.
 - **Persisted** — witnesses and the reconciliation record live in‑repo so local and CI share them.

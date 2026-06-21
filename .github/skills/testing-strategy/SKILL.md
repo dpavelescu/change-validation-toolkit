@@ -10,6 +10,8 @@ The Testing Strategy is **human‑owned** and **architecture‑aware** — it re
 
 It is **authored in full when none exists** (greenfield) and updated as architecture moves — always the human‑owned **source of truth**, from which the thin AI‑facing **Validation Rules** are derived. The toolkit never produces only the derived layer: the AI context is a projection of a real, reviewable, human‑owned Strategy, never a free‑standing machine artifact.
 
+**Human‑seeded, agent‑extendable.** The Strategy is generic per change‑type, but a specific story can reveal evidence the generic rule doesn't anticipate. When it does, the toolkit **surfaces a proposed Strategy addition** (a decision for the human to approve), exactly as the Source‑Map is agent‑extendable — so the Strategy *improves from real stories* instead of silently under‑testing them. The Strategy still wins; the toolkit only proposes.
+
 ## Structure (one section per change‑type)
 
 For each change‑type in the **change‑taxonomy**, the Strategy states:
@@ -32,8 +34,9 @@ Assess against these — checking what's **missing** as much as present. Each is
 5. **Local/CI roles distinct (fail‑fast)** — fast low‑level tests run locally first; cross‑boundary/infra tests are the CI gate; the order is cheap→expensive so failures surface early.
 6. **Test‑level discipline (anti‑brittleness)** — evidence is specified at the **lowest sufficient level**; integration/e2e are justified by what only they prove, not used by default; the brittleness/cost of over‑using high‑level tests is explicitly controlled.
 7. **Risk modifiers stated** — public‑contract, regulated, and cross‑team cases call for stronger evidence.
-8. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑witness alternative — it does not pretend everything automates.
-9. **Traceability expectation** — states that evidence traces back to acceptance criteria (the authoritative fixed point).
+8. **Non‑functional & security per type** — security (authz, input validation, secrets), performance/latency budgets, accessibility, and reliability are stated as **expected evidence or risk‑modifiers per change‑type** (or admitted as runtime‑monitors), so cross‑cutting concerns aren't left implicit. *(A story‑specific NFR is still an acceptance criterion; this covers the ones that apply to a whole change‑type.)*
+9. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑witness alternative — it does not pretend everything automates.
+10. **Traceability expectation** — states that evidence traces back to acceptance criteria (the authoritative fixed point).
 
 ## Architecture‑aware defaults (starting expectations — tailor, don't accept blindly)
 

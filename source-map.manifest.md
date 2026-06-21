@@ -24,7 +24,7 @@
 | `authoritative-for` | the claim categories this source is the canonical truth for; `—` if none |
 | `notes` | optional — version, owner, caveats |
 
-**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
+**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `test-data` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
 
 **Claim categories** (what a source can be *authoritative‑for*): `correctness` (acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `build-and-run` · `conventions` · `operational-behavior`. The **implementation is never authoritative** for a claim a normative source owns.
 
@@ -41,6 +41,7 @@
 | coding-guidelines | `docs/engineering/guidelines.md` | repo | `*` | supporting | advisory | `conventions` | recommends, never binds |
 | testing-strategy | `.github/skills/testing-strategy` + `TESTING-STRATEGY.md` | repo | `*` | critical | normative | `expected-evidence` | the human‑owned Strategy |
 | acceptance-criteria | `<tracker link>` or `docs/stories/<id>.md` | url or repo | `*` | critical | normative | `correctness` | the story's ACs; source‑agnostic (link or in‑repo); read‑only — humans own the content, the Criteria IDs owns the ids |
+| test-data | `src/test/resources/fixtures/**`, `**/factories/**`, `**/__fixtures__/**` | repo | `*` | supporting | descriptive | `—` | fixtures / factories / seed data tests build on; un‑buildable test data → a *limitation* |
 | tests (unit) | `src/test/java/**/*Test.java` | repo | `*` | critical | descriptive | `—` | scope: symbol; **runs: local (fast, first)**; found by reachability/coverage |
 | tests (component) | `**/*.spec.tsx`, `**/*.test.tsx` | repo | `react-ui` | critical | descriptive | `—` | scope: component; **runs: local (fast, first)**; found by reachability/coverage |
 | tests (contract) | `src/test/**/contract/**`, `pacts/**` | repo | `rest-api`, `event-consumer`, `event-producer`, `cross-service` | critical | descriptive | `—` | scope: contract; **runs: local**; implicated by `api-spec`/`event-schema` changes |

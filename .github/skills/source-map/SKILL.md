@@ -11,7 +11,7 @@ The Source‑Map makes source discovery **navigable and deterministic** — and,
 
 ## Canonical kinds
 
-`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
+`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `test-data` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
 
 ## Claims & authority
 
