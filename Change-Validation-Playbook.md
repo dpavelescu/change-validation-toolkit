@@ -62,6 +62,7 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Validation Rules** (thin op layer, per change‑type) | **generated from Strategy** | tool | ✅ |
 | **Source‑Map Manifest** | stable, agent‑extendable | human‑seeded | ✅ |
 | **Change Classification** | per change | tool | ✅ |
+| **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | forthcoming |
 | Validation Plan | per change | tool (human‑reviewed if risky) | forthcoming |
 | Characterization Baseline | per change (brownfield) | tool | forthcoming |
 | Evidence Ledger | per change | tool | forthcoming |
@@ -135,6 +136,32 @@ This is the cross‑cutting principle that keeps the toolkit autonomous **withou
 A limitation must never masquerade as human‑in‑the‑loop. This is what stops the system from quietly accreting handoffs that hide its own gaps.
 
 ---
+
+## Criteria identity — the ledger
+
+The criteria are the authoritative fixed point, so tests must trace to them by a **stable identifier** (`AC‑1`, `AC‑2`…). But **humans do not maintain those IDs** — hand‑maintaining immutable IDs across reworded, reordered, split, or merged stories is fragile and would silently lie the moment it slipped.
+
+Instead, **content and identity are split:**
+
+- **The human owns content** — writes acceptance criteria in prose, in the story (tracker or in‑repo), edits freely, never types an ID.
+- **The toolkit owns identity** — assigns and maintains the IDs in a tool‑managed **Criteria Ledger** (in‑repo, committed, travels with the change). The story stays the source of truth for *what the criteria say*; the ledger is the source of truth for *which criterion is which*.
+
+On every change the toolkit reconciles the story's current ACs against the ledger — the **same supersession machinery as the work‑item‑preparation‑toolkit's answer ledger**:
+
+| Situation | Action | ID outcome |
+|---|---|---|
+| matches an existing AC (even reworded) | match | **same ID preserved** |
+| reworded enough to change meaning | match + flag | same ID, **marked "moved"** |
+| genuinely new | assign | new ID |
+| removed from story | retire | ID retired |
+| ambiguous (same criterion reworded, or new?) | **escalate as a decision** | human answers a question |
+
+Two consequences make this more than bookkeeping:
+
+- **The ID lifecycle *is* the criteria‑delta detector.** "Did this criterion move?" — the signal test reconciliation depends on — falls out of the match step for free.
+- **Humans never write the test tag either.** When the toolkit generates or updates a test, it stamps the `AC‑N` tag from the ledger. IDs are immutable not by discipline but because only the tool assigns them, and it only matches / adds / retires — never renumbers.
+
+(Annotation convention for tests — native tag `@Tag("AC‑N")` / `[AC‑N]`, extracted by one `AC‑[0-9]+` regex — is specified with the forthcoming execution layer; the human is not in that loop.)
 
 ## Minimum‑clarity gate
 
