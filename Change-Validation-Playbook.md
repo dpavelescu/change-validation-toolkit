@@ -64,7 +64,7 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Change Classification** | per change | tool | ✅ |
 | **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
 | **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
-| Characterization Baseline | per change (brownfield) | tool | forthcoming |
+| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — specified; capture needs the runner) |
 | Evidence Ledger | per change | tool | forthcoming |
 
 **Hard rule:** *Validation Rules is regenerated from the Strategy, never hand‑maintained beside it.* Two hand‑edited documents drift, and the agent then enforces rules the strategy has abandoned.
@@ -169,8 +169,27 @@ No derivation runs on a source too thin to derive honestly. If the criteria for 
 
 ---
 
+## Phase 3 — Characterization Baseline (the honesty rule, made checkable)
+
+The invariant says *tests are witnesses to criteria* and a test may change **only because a criterion moved**. Phase 2 enforces that at the level of *wording* (the Criteria Ledger's `moved` flag) and *intent* (the plan reviewer rejects any `change`/`remove` fate not tracing to a criteria delta). Neither has looked at **behavior**. The Characterization Baseline closes that gap: it pins **current observable behavior** of the change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** sorts into exactly one of:
+
+- **Justified** — the delta maps to a criteria delta (an AC `moved`, new, or `retired`). The behavior changed because a criterion moved; the witnessing test legitimately changes. This **confirms** the Validation Plan's provisional `change`/`add`/`remove` fate — now against *fact*, not just intent.
+- **Regression** — the behavior changed but **no criterion moved**. This is **loop input** — it feeds the (forthcoming) auto‑fix loop or surfaces as a finding — **never a human handoff**. (One exception: a delta crossing a public contract or ownership boundary is a legitimate **decision** → structured question.)
+
+This is the **auto‑fix honesty rule** made checkable: *a test goes green by moving with a criterion, never by being edited because it went red.* An `internal-refactor` — which carries no criteria delta by definition — makes the rule sharpest: every behavior delta is, necessarily, a regression, so the baseline *is* a refactor's primary evidence.
+
+It reuses machinery already in the toolkit rather than inventing parallel concepts: the **blast radius** (from Change Classification) scopes what to pin — minimal, smallest sufficient set; the **Source‑Map** resolves where surfaces, tests, and contracts live; the **match / justified‑move / regression** sort is the same supersession idiom as the Criteria Ledger, run over *behaviors* instead of *criterion text*.
+
+**Lifetime & honesty.** The baseline is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior. Once captured it is **immutable** — you never widen the baseline after the fact to make a regression look "expected" (the behavior analogue of *no silent supersession*).
+
+**The execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. So the piece splits: **planning the baseline** (which surfaces, what is observable, how to capture) is advisory and lands now, like the rest of the toolkit; **capture and reconcile** run with the forthcoming execution runner. Capture over **non‑deterministic** behavior is refused, not faked — a flaky surface is quarantined and raised as a **limitation** (you cannot pin what you cannot reproduce), never silently baselined into noise.
+
+See the **characterization‑baseline** skill for the schema and the capture/reconcile procedure; `characterize-baseline` is the agent that produces it.
+
+---
+
 ## What's forthcoming (kept coherent, not yet built)
 
-- **Test reconciliation** against the existing brownfield suite, justified by a criteria delta against a **characterization baseline** — a test changes only because a criterion moved, never because it went red.
+- **Test reconciliation** against the existing brownfield suite — materializing or adjusting tests per the plan's fates, each delta justified against the **Characterization Baseline** (above): a test changes only because a criterion moved, never because it went red.
 - **Local/CI execution & auto‑fix** — the self‑closing loop; CI runs the same plan with constrained autonomy and proposes fixes as commits, never silent edits to protected branches.
 - **Evidence Ledger** — the audit trail of justified test changes that makes human review fast.

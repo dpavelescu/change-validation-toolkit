@@ -24,7 +24,7 @@ The change‑types are the **key** the Testing Strategy and Validation Rules are
 
 - **Behavior over location.** A change under `controller/` that only renames a private method is `internal-refactor`, not `rest-api`.
 - **Multi‑type is normal.** An endpoint that also emits an event is `rest-api` + `event-producer`. Tag all that apply.
-- **Refactor needs a baseline.** `internal-refactor` carries no criteria delta, so its evidence is *behavior‑preservation* — flag it for a characterization baseline (forthcoming layer).
+- **Refactor needs a baseline.** `internal-refactor` carries no criteria delta, so its evidence is *behavior‑preservation* — flag it for the **Characterization Baseline**, where every behavior delta is, by definition, a regression (see the **characterization‑baseline** skill).
 - **Unknown type → blocking gap.** If the change fits no type and no Strategy rule covers it, that's a Strategy gap (a *decision* to extend the taxonomy/Strategy), not a guess.
 
 ## Blast radius
