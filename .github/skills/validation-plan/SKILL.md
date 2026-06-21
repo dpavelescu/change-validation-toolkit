@@ -12,7 +12,7 @@ The Validation Plan states **what evidence is needed to trust this change** alon
 
 ```
 change-ref:        <diff|branch|PR>
-change-types:      [ ... ]              # from change-classifier
+change-types:      [ ... ]              # from classify-change
 blast-radius:      <changed surfaces · dependents · boundaries crossed>
 strategy-version:  <provenance of the Rules used>
 

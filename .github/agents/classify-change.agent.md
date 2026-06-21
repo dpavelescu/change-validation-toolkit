@@ -1,5 +1,5 @@
 ---
-name: change-classifier
+name: classify-change
 description: >-
   Classify an incoming change into one or more change-types, scope its blast radius, and resolve the
   source kinds the matched Validation Rules need (via the Source-Map). The entry of every per-change

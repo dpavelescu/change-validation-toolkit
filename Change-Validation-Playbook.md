@@ -57,7 +57,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 | You run | When | It orchestrates underneath (subagents) |
 |---|---|---|
 | **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
-| **`plan-validation`** | per change — to plan | `change-classifier` · `reconcile-criteria` · `validation-plan-reviewer` |
+| **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `validation-plan-reviewer` |
 | **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `implement-tests` · `run-validation` |
 
 End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → write tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
@@ -126,7 +126,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 ### Plan a change — *advisory; nothing runs or is edited*
 
-**`change-classifier`** — Classify a change into types, compute its **blast radius** (test‑impact analysis — including which existing tests it reaches), resolve the sources it needs, and record which source is **authoritative** for each crossed claim.
+**`classify-change`** — Classify a change into types, compute its **blast radius** (test‑impact analysis — including which existing tests it reaches), resolve the sources it needs, and record which source is **authoritative** for each crossed claim.
 - **Args:** `change=<diff|branch|PR|description>` · `criteria=<acceptance criteria|link>` *(optional)*
 - **Uses skills:** `change-taxonomy`, `validation-rules`, `source-map`
 - **Needs:** the change · the Validation Rules · the Source‑Map
@@ -142,7 +142,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
 - **Args:** `change=<diff|branch|PR>` · `story=<link|file>` · `classification=<path>` *(reuse)*
 - **Uses skills:** `validation-plan`, `change-taxonomy`
-- **Delegates to:** `change-classifier`, `reconcile-criteria`, `validation-plan-reviewer`
+- **Delegates to:** `classify-change`, `reconcile-criteria`, `validation-plan-reviewer`
 - **Needs:** the change · the story · the Validation Rules · the Source‑Map
 - **Produces:** the Validation Plan (a draft you approve) — or *Not ready* with a resumable agenda
 
@@ -179,7 +179,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 **`drive-correction`** — Drive a failing change **to green by handoff**: diagnose each failure into a structured **fix‑request** for whoever implements (a human or any implementation agent), re‑assess impact, re‑validate, and iterate. **Never writes production code.** Resumable — emits handoffs and pauses; re‑invoked after each external fix.
 - **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `fix-requests=<path>` · `max-iterations=<n>`
 - **Uses skills:** `correction-loop`
-- **Delegates to:** `run-validation`, `change-classifier` *(re‑assess)*, `capture-baseline` *(sort)*, `implement-tests` *(test fixes)*
+- **Delegates to:** `run-validation`, `classify-change` *(re‑assess)*, `capture-baseline` *(sort)*, `implement-tests` *(test fixes)*
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (loop‑input)
 - **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 

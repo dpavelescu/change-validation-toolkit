@@ -3,7 +3,7 @@ name: change-taxonomy
 description: >-
   The canonical change-type taxonomy and classification heuristics for the change-validation
   toolkit — how to classify an incoming change into one or more types and scope its blast radius.
-  Used by change-classifier and by define-testing-strategy (rules are keyed by these types).
+  Used by classify-change and by define-testing-strategy (rules are keyed by these types).
 ---
 
 The change‑types are the **key** the Testing Strategy and Validation Rules are organized by. A change may map to **several** types at once. Classify by what the diff *touches and changes in behavior*, not by file location alone.

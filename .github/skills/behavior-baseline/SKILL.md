@@ -16,7 +16,7 @@ The Behavior Baseline pins **current observable behavior** of a change's blast�
 ```
 baseline-ref:      <change-ref>
 captured-at:       <pre-change commit/state the behavior was pinned from>
-scope:             <blast-radius surfaces pinned — minimal>   # from change-classifier
+scope:             <blast-radius surfaces pinned — minimal>   # from classify-change
 strategy-version:  <provenance of the Rules in force>
 
 surfaces:                                  # one block per pinned surface in the blast radius
