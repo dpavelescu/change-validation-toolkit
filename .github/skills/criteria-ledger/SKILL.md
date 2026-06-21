@@ -1,42 +1,49 @@
 ---
 name: criteria-ledger
 description: >-
-  The schema and reconciliation (supersession) procedure for the Criteria Ledger — the tool-managed
-  record that gives each acceptance criterion a stable, immutable ID. Humans own the prose; the
-  toolkit owns identity. Used by reconcile-criteria and read by plan-validation. Phase 2.
+  The schema and reconciliation procedure for the Criteria Ledger — the per-change record that gives
+  each acceptance criterion a stable id for the duration of one change's validation. Humans own the
+  prose; the toolkit owns identity. Scoped to the change (not a durable, cross-change, or growing
+  artifact). Used by reconcile-criteria and read by plan-validation. Phase 2.
 ---
 
-The Criteria Ledger makes acceptance‑criterion identity **stable without human effort**. The human owns the *content* (prose ACs in the story); the toolkit owns *identity* (the `AC‑N` IDs). The story stays the source of truth for what the criteria say; the ledger is the source of truth for which criterion is which. It is per‑change, **persisted in‑repo, committed, and travels with the change**.
+The Criteria Ledger gives each acceptance criterion a **stable id for one change's validation run**, so the plan, the tests, the runner, and the evidence all point at the same criterion — locally and again in CI. The human owns the *content* (prose ACs in the story); the toolkit owns *identity* (the ids).
 
-## Entry schema (one per acceptance criterion)
+**Scope — per‑change run state, not a durable record.** It lives with the change (on its branch) so local and CI agree on the ids, and is **discarded after merge**. It does *not* accumulate across changes or live in `main`. Two changes have independent ledgers — nothing shared, namespaced, or grown over time. Two jobs are deliberately **not** the ledger's:
+
+- **Cross‑change continuity.** When a *later* change touches code an earlier change's tests cover, those tests are found by the **blast radius** (test‑impact analysis) and reconciled by the **Behavior Baseline** — by surface, never by a remembered id. The ledger never links across changes.
+- **Durable audit.** The lasting "this test validated this criterion" trail is the **Evidence Ledger** (forthcoming), not this.
+
+## Entry schema (one per acceptance criterion, for this change)
 
 ```
-ac-id:       AC-<n>            # tool-assigned, IMMUTABLE; never renumbered, retired IDs never reused
-text:        <current criterion, normalized from the story>
-status:      active | moved | retired
-source-ref:  <where in the story/tracker it came from>
-witnesses:   [ <test-ref | "runtime-monitor" | "none-yet"> ]   # populated by the Validation Plan
-history:     [ { event: assigned|moved|retired, note, prior-text? } ]
+ac-id:       AC-<n>          # stable for THIS change's run (local↔CI); not durable, not cross-change
+text:        <current criterion, from the story>
+status:      new | unchanged | moved | retired    # relation to the existing suite, for fate selection
+source-ref:  <where in the story it came from>     # optional, read-only trace
 ```
 
-## Reconciliation procedure (story ACs → ledger)
+No `witnesses` field — the **Validation Plan** owns the AC→witness map. No accumulating `history` — the durable audit is the Evidence Ledger.
 
-Run on every change. **Read the story; never modify it.** For each AC currently in the story, match against the ledger's active entries:
+## Reconciliation procedure (story ACs → ids)
 
-| Situation | Action | ID outcome |
+**Read the story; never modify it.** For each AC currently in the story, assign a stable id and classify it for fate selection — against **the existing tests the change reaches** (from the blast radius), or against this change's prior run‑state when re‑running (local→CI):
+
+| Situation | Status | Drives the plan's fate |
 |---|---|---|
-| matches an existing active AC (even reworded) | match | **same ID preserved** |
-| matches but meaning shifted | match + record | same ID, `status: moved`, history note |
-| no match — genuinely new | assign next ID | new `active` entry |
-| an active ledger AC has no match in the story | retire | `status: retired`, history note |
-| ambiguous — same criterion reworded, or a new one? | **escalate as a decision** | human answers; no silent guess |
+| an existing test already covers it, unchanged | `unchanged` | `keep` |
+| an existing test covers it but the wording shifts its meaning | `moved` | `change` — **provisional** |
+| nothing covers it yet | `new` | `add` |
+| an existing test covers a criterion no longer in the story | `retired` | `remove` — **provisional** |
+| ambiguous — same criterion reworded, or a new one? | — | **escalate as a decision** (no silent guess) |
 
-The **`moved` flag is the criteria‑delta signal** the Validation Plan and (later) test reconciliation depend on — it marks "this criterion's witness may legitimately change."
+`moved` and `retired` are **provisional within the change** — the **Behavior Baseline confirms** whether behavior actually moved (justified) or it's a regression. The id is just the handle that lets the plan, tests, and baseline talk about the same criterion.
 
 ## Guards
 
-- **Identity immutability** — only match / assign / retire. Never renumber an AC; never reuse a retired ID.
-- **No silent supersession** — every `moved` or `retired` carries a history note; nothing changes meaning invisibly.
-- **Ambiguous match → decision** — a borderline "same or new?" is escalated as a structured question, never resolved by guess (per the escalation model).
-- **Human owns content** — the story is read‑only here; the ledger never edits the criteria, only tracks their identity.
-- **Persisted** — the ledger is written to the repo so local and CI see identical IDs.
+- **Per‑change scope** — ids are stable for one change's run (local↔CI) and discarded after merge; never a durable, cross‑change, or global record.
+- **Human owns content** — the story is read‑only; the ledger tracks identity, never edits the criteria.
+- **Provisional delta** — `moved`/`retired` are confirmed by the Behavior Baseline, not asserted here.
+- **Ambiguous → decision** — a borderline "same or new?" is a structured question, never a guess.
+- **Cross‑change is the baseline's job** — impact on a prior change's tests is found by blast radius + Behavior Baseline (by surface), not by this ledger.
+- **No accumulation** — no growing history here; the durable audit trail is the Evidence Ledger.

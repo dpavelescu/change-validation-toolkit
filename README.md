@@ -44,7 +44,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
   agents/
     define-testing-strategy         author/update the Strategy + generate the Rules (human in loop)
     change-classifier               classify a change → types + blast radius + needed sources
-    reconcile-criteria              maintain stable AC IDs in the Criteria Ledger (Phase 2)
+    reconcile-criteria              give ACs stable per-change ids (local↔CI, not durable) (Phase 2)
     plan-validation                 derive the Validation Plan: AC→witness, fates, gates (Phase 2)
     validation-plan-reviewer        gate the plan: coverage + fate justification (Phase 2)
     capture-baseline           pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
@@ -55,7 +55,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     validation-rules                Rule schema + derivation from the Strategy
     change-taxonomy                 the change-types + classification heuristics
     source-map                      manifest schema + deterministic discovery procedure
-    criteria-ledger                 ledger schema + reconciliation/supersession (Phase 2)
+    criteria-ledger                 per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
     behavior-baseline       baseline schema + capture/reconcile + the honesty rule (Phase 3)
     execution-runner                run-record schema + resolve/run/observe + clean-fail vs can't-run (Phase 3)

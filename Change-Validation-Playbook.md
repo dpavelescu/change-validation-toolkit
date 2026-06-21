@@ -144,11 +144,11 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Needs:** the change · the Validation Rules · the Source‑Map
 - **Produces:** change‑types · blast radius · affected tests (by type) · needed sources · claim authorities
 
-**`reconcile-criteria`** — Give each acceptance criterion a **stable id** by reconciling the story's ACs against the Criteria Ledger (match / move / add / retire). Read‑only on the story.
-- **Args:** `story=<link|file>` · `ledger=<path>` *(default `.validation/<change>/criteria.md`)*
+**`reconcile-criteria`** — Give each acceptance criterion a **stable id for this change's run** (`new`/`unchanged`/`moved`/`retired` vs the existing suite). Read‑only on the story; ids are **per‑change** (stable across local↔CI, discarded after merge) — *not* a durable or cross‑change record.
+- **Args:** `story=<link|file>` · `classification=<path>` *(affected tests)* · `ledger=<path>` *(this change's run state; default `.validation/<change>/criteria.md`)*
 - **Uses skills:** `criteria-ledger`, `source-map`
-- **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the prior ledger if any
-- **Produces:** the updated Criteria Ledger + a delta summary (new / moved / retired)
+- **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the existing tests the change reaches (from the blast radius)
+- **Produces:** the per‑change Criteria Ledger + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
 - **Delegated by:** `plan-validation`
 
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
@@ -196,7 +196,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `validation-rules` | the Rule schema + deriving Rules from the Strategy |
 | `source-map` | source locations + **authority** (who owns which claim) + typed tests |
 | `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
-| `criteria-ledger` | stable AC ids + the match/move/add/retire reconciliation |
+| `criteria-ledger` | per‑change stable AC ids + new/unchanged/moved/retired classification |
 | `validation-plan` | the plan schema + derivation + AC→witness mapping |
 | `behavior-baseline` | the behavior snapshot + capture/reconcile + the honesty rule |
 | `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
