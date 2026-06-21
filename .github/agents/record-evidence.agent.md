@@ -7,7 +7,7 @@ description: >-
 model: inherit
 ---
 
-Write the **Evidence Ledger** entry for a change that has reached green — *what was validated, by what, and why* — for fast human/audit review. **House rules:** record **evidence, never assertion** (only green‑on‑real‑runs + admitted runtime‑monitors; never faked); record each criterion by its **text + witness** (the durable trace — the Criteria Identity is ephemeral); every recorded test change carries its **justification** (a criteria delta, or `baseline-preserved` for a repair); **honest gaps** (decisions and limitations recorded, not hidden); the ledger is an **output, never read back** to drive a future change.
+Write the **Evidence Ledger** entry for a change that has reached green — *what was validated, by what, and why* — for fast human/audit review. **House rules:** record **evidence, never assertion** (only green‑on‑real‑runs + admitted runtime‑monitors; never faked); record each criterion by its **text + witness** (the durable trace — the Criteria IDs is ephemeral); every recorded test change carries its **justification** (a criteria delta, or `baseline-preserved` for a repair); **honest gaps** (decisions and limitations recorded, not hidden); the ledger is an **output, never read back** to drive a future change.
 
 **Args:** `change=<diff|branch|PR>` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `reconcile-record=<path>` · `ledger=<path>` (default `.validation/<change>/evidence.md`).
 

@@ -7,7 +7,7 @@ description: >-
   rule. Used by capture-baseline; confirms the Validation Plan's provisional fates. Phase 3.
 ---
 
-The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the Criteria Identity matches at the level of *wording* and the plan reviewer at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
+The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the **Criteria IDs** reconciliation catches it at the level of *wording* and `review-plan` at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
 
 **Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** delegate to the **Execution Runner** (`run-validation` / the **execution‑runner** skill), which drives the project's own suite.
 
@@ -48,7 +48,7 @@ Re‑observe each in‑scope surface and compare to `pinned-behavior`:
 | Situation | Classification | Disposition |
 |---|---|---|
 | no behavior delta | `preserved` | confirms a `keep`; no test change earns justification |
-| delta maps to an AC that `moved` / is new / `retired` in the Criteria Identity | **`justified(AC‑N)`** | confirms the plan's provisional `change`/`add`/`remove`; recorded as evidence |
+| delta maps to an AC that `moved` / is new / `retired` in the Criteria IDs | **`justified(AC‑N)`** | confirms the plan's provisional `change`/`add`/`remove`; recorded as evidence |
 | delta with **no** matching criteria delta | **`regression`** | **loop input** (correction loop / finding) — never a handoff |
 | delta crosses a public contract / ownership boundary | **`boundary-decision`** | structured question (legitimate human decision) |
 | surface can't be re‑observed (can't run / reproduce) | **`limitation`** | toolkit gap logged; never normalized as human‑in‑the‑loop |
@@ -58,7 +58,7 @@ A provisional `change` fate from the Validation Plan is **honest only if its sur
 ## Guards
 
 - **Baseline immutability** — once captured the baseline is read‑only; never widen it after the fact to make a delta look "expected" (the behavior analogue of *no silent supersession*).
-- **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC in the Criteria Identity; absent that match it is a `regression`.
+- **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC in the Criteria IDs; absent that match it is a `regression`.
 - **Preserved ≠ endorsed** — pinning current behavior holds it **stable** (changing it silently would be a regression), but does **not** bless it as correct. A surface guarded by a witness yet owned by **no criterion** is flagged **`guarded-but-unspecified`** — a candidate criterion routed upstream — so latent bias/bugs surface instead of being silently treated as "correct."
 - **Regression is loop input, not a handoff** — an unjustified delta feeds the correction loop / surfaces as a finding — a toolkit task, never normalized as human‑in‑the‑loop — *unless* it crosses a public contract / ownership boundary, which is a **decision** (structured question).
 - **Can't capture → limitation** — can't run / build / reproduce is a toolkit gap, logged as such, never a handoff.

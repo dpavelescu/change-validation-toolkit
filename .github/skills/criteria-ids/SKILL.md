@@ -1,17 +1,17 @@
 ---
-name: criteria-identity
+name: criteria-ids
 description: >-
-  The schema and reconciliation procedure for the Criteria Identity — the per-change record that gives
+  The schema and reconciliation procedure for the Criteria IDs — the per-change record that gives
   each acceptance criterion a stable id for the duration of one change's validation. Humans own the
   prose; the toolkit owns identity. Scoped to the change (not a durable, cross-change, or growing
   artifact). Used by reconcile-criteria and read by plan-validation. Phase 2.
 ---
 
-The Criteria Identity gives each acceptance criterion a **stable id for one change's validation run**, so the plan, the tests, the runner, and the evidence all point at the same criterion — locally and again in CI. The human owns the *content* (prose ACs in the story); the toolkit owns *identity* (the ids).
+The **Criteria IDs** are the per‑change record that gives each acceptance criterion a **stable id** (`AC-1`, `AC-2`…) for one change's validation run, so the plan, the tests, the runner, and the evidence all point at the same criterion — locally and again in CI. The human owns the *content* (prose ACs in the story); the toolkit owns *identity* (the ids).
 
 **Scope — per‑change run state, not a durable record.** It lives with the change (on its branch) so local and CI agree on the ids, and is **discarded after merge**. It does *not* accumulate across changes or live in `main`. Two changes have independent records — nothing shared, namespaced, or grown over time. Two jobs are deliberately **not** its:
 
-- **Cross‑change continuity.** When a *later* change touches code an earlier change's tests cover, those tests are found by the **blast radius** (test‑impact analysis) and reconciled by the **Behavior Baseline** — by surface, never by a remembered id. The criteria identity never links across changes.
+- **Cross‑change continuity.** When a *later* change touches code an earlier change's tests cover, those tests are found by the **blast radius** (test‑impact analysis) and reconciled by the **Behavior Baseline** — by surface, never by a remembered id. The criteria IDs never links across changes.
 - **Durable audit.** The lasting "this test validated this criterion" trail is the **Evidence Ledger**, not this.
 
 ## Entry schema (one per acceptance criterion, for this change)
@@ -45,5 +45,5 @@ No `witnesses` field — the **Validation Plan** owns the AC→witness map. No a
 - **Human owns content** — the story is read‑only; the toolkit tracks the ids, never edits the criteria.
 - **Provisional delta** — `moved`/`retired` are confirmed by the Behavior Baseline, not asserted here.
 - **Ambiguous → decision** — a borderline "same or new?" is a structured question, never a guess.
-- **Cross‑change is the baseline's job** — impact on a prior change's tests is found by blast radius + Behavior Baseline (by surface), not by this criteria identity.
+- **Cross‑change is the baseline's job** — impact on a prior change's tests is found by blast radius + Behavior Baseline (by surface), not by this criteria IDs.
 - **No accumulation** — no growing history here; the durable audit trail is the Evidence Ledger.

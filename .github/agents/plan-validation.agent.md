@@ -2,7 +2,7 @@
 name: plan-validation
 description: >-
   Derive the per-change Validation Plan — the AC→witness map, required evidence, provisional test
-  fates, and local/CI gates — from a Change Classification, the Criteria Identity, and the Validation
+  fates, and local/CI gates — from a Change Classification, the Criteria IDs, and the Validation
   Rules. Advisory: runs/edits nothing. Gated by a reviewer lens. Phase 2.
 model: inherit
 agents: ['classify-change','reconcile-criteria','review-plan']
@@ -17,9 +17,9 @@ The change, the story, the generated **Validation Rules**, the **Source‑Map Ma
 
 ## Process (classify → identity → derive → gate)
 1. **Classify** — run/reuse **`classify-change`** → change‑types, blast radius, resolved sources. An uncovered type is a **Strategy gap** (route to `define-testing-strategy`), not a guess.
-2. **Identity** — delegate **`reconcile-criteria`** (pass the classification's affected tests) → the **per‑change** Criteria Identity (stable ids for this run) + a **provisional** delta summary (`moved`/`retired` confirmed later by the Baseline). **Entry gate:** no criteria → **Not ready** (route to the work‑item‑preparation‑toolkit); don't plan against invented correctness.
+2. **Identity** — delegate **`reconcile-criteria`** (pass the classification's affected tests) → the **per‑change** Criteria IDs (one stable handle per AC, for this run) + a **provisional** delta summary (`moved`/`retired` confirmed later by the Baseline). **Entry gate:** no criteria → **Not ready** (route to the work‑item‑preparation‑toolkit); don't plan against invented correctness.
 3. **Derive** — apply the **validation‑plan** skill: per active AC pull `required-evidence` from the Rules; map a `witness` (discover related tests **read‑only**; `runtime-monitor` for non‑automatable; `none-yet` for gaps); propose **provisional** fates (AC `moved`→change, `retired`→remove, unchanged→keep, new→add), each `change`/`remove` tracing to a criteria delta. Then **cover the blast radius (regression)**: each surface **no active AC owns** gets a **behavior‑preservation** witness — existing→`keep`, `none-yet`→`add` a regression witness (provenance the baseline) — or an explicit `out-of-scope` note (minimal set). Split `local-gate`/`ci-gate` over both tracks. **Compatibility evidence checks against the authoritative source**, not the implementation — backward‑compatibility for a contract is verified against the `normative` owner (`api-spec`/`event-schema`/`data-model`); a change *to* that contract is a **decision** (per `classify-change`'s `claim-authorities`). **Classify the affected existing tests** (`coverage-alignment`) so brownfield bias is visible and actioned: `implementation-coupled` → `repair` (re‑align) by default, `remove-recommendation` only if they guard nothing observable (a human‑approved decision) — never just flagged.
-4. **Gate & capture** — delegate **`review-plan`** over the assembled plan + criteria identity; resolve its findings. When coverage is met, fates are justified, ACs are testable, and blast radius is covered → capture the **Validation Plan** as a **draft pending approval** (fates marked provisional). Otherwise → **Not ready**: a resumable agenda; write no plan.
+4. **Gate & capture** — delegate **`review-plan`** over the assembled plan + criteria IDs; resolve its findings. When coverage is met, fates are justified, ACs are testable, and blast radius is covered → capture the **Validation Plan** as a **draft pending approval** (fates marked provisional). Otherwise → **Not ready**: a resumable agenda; write no plan.
 
 ## Output (one of)
 The **Validation Plan** (per the **validation‑plan** schema — criteria track + behavior‑preservation track + local/CI gates, fates provisional), a **draft pending approval** · or **Not ready** (a resumable agenda + the reviewer's findings, write no plan) · plus any `decision`/`limitation` raised, per the **escalation** skill.

@@ -4,7 +4,7 @@
 
 Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. The tool‑neutral **Playbook** is the human guide (purpose, capabilities, usage); the **skills** and **agents** are the self‑contained build that implements it.
 
-> **Status — Foundation + Phase 2 + Phase 3 complete, Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Identity**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself), and the **Evidence Ledger** (the durable audit trail of what was validated and why). The model is complete end‑to‑end; the parallel `.claude/` build follows.
+> **Status — Foundation + Phase 2 + Phase 3 complete, Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria IDs**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself), and the **Evidence Ledger** (the durable audit trail of what was validated and why). The model is complete end‑to‑end; the parallel `.claude/` build follows.
 
 ---
 
@@ -24,7 +24,7 @@ architecture + technology  ──►  Testing Strategy  ──►  Validation Ru
                             Change Classification (types + blast radius)
                                                               │
                                                               ▼
-        Criteria Identity → Validation Plan → Behavior Baseline → Test Reconciliation → Correction Loop → Evidence Ledger
+        Criteria IDs → Validation Plan → Behavior Baseline → Test Reconciliation → Correction Loop → Evidence Ledger
 ```
 
 The **Execution Runner** is the shared substrate underneath: it runs the project's *own* suite to take the baseline's "before" snapshot and to gather evidence for test reconciliation. The model is complete end‑to‑end; the parallel `.claude/` build is what's next.
@@ -57,7 +57,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     validation-rules                Rule schema + derivation from the Strategy
     change-taxonomy                 the change-types + classification heuristics
     source-map                      manifest schema + deterministic discovery procedure
-    criteria-identity               per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
+    criteria-ids               per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
     behavior-baseline               baseline schema + capture/reconcile + the honesty rule (Phase 3)
     execution-runner                run-record schema + resolve/run/observe + clean-fail vs can't-run (Phase 3)

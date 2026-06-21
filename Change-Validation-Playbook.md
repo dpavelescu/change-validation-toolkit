@@ -134,9 +134,9 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 **`reconcile-criteria`** — Give each acceptance criterion a **stable id for this change's run** (`new`/`unchanged`/`moved`/`retired` vs the existing suite). Read‑only on the story; ids are **per‑change** (stable across local↔CI, discarded after merge) — *not* a durable or cross‑change record.
 - **Args:** `story=<link|file>` · `classification=<path>` *(affected tests)* · `criteria-ids=<path>` *(this change's run state; default `.validation/<change>/criteria.md`)*
-- **Uses skills:** `criteria-identity`, `source-map`
+- **Uses skills:** `criteria-ids`, `source-map`
 - **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the existing tests the change reaches (from the blast radius)
-- **Produces:** the per‑change Criteria Identity + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
+- **Produces:** the per‑change Criteria IDs + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
 - **Delegated by:** `plan-validation`
 
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
@@ -148,8 +148,8 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 **`review-plan`** — *gate lens* — Review the assembled plan before capture: coverage, fate justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
 - **Args:** none of its own (invoked by `plan-validation`)
-- **Uses skills:** `validation-plan`, `criteria-identity`
-- **Needs:** the assembled plan · the Criteria Identity
+- **Uses skills:** `validation-plan`, `criteria-ids`
+- **Needs:** the assembled plan · the Criteria IDs
 - **Produces:** findings + a recommendation (ready to capture / Not ready)
 - **Delegated by:** `plan-validation`
 
@@ -159,7 +159,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
 - **Uses skills:** `behavior-baseline`, `change-taxonomy`
 - **Delegates to:** `run-validation`
-- **Needs:** the plan's behavior‑preservation track · the classification · the criteria identity deltas · the pre‑change state
+- **Needs:** the plan's behavior‑preservation track · the classification · the criteria IDs deltas · the pre‑change state
 - **Produces:** the Behavior Baseline + a delta reconciliation
 
 **`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a determinism verdict. The execution substrate; runs, never edits.
@@ -173,7 +173,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Args:** `change` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
 - **Uses skills:** `test-reconciliation`
 - **Delegates to:** `run-validation`
-- **Needs:** the Validation Plan · the Criteria Identity · the Behavior Baseline · the Source‑Map `tests`
+- **Needs:** the Validation Plan · the Criteria IDs · the Behavior Baseline · the Source‑Map `tests`
 - **Produces:** the materialized/adjusted tests + a reconciliation record
 
 **`drive-correction`** — Drive a failing change **to green by handoff**: diagnose each failure into a structured **fix‑request** for whoever implements (a human or any implementation agent), re‑assess impact, re‑validate, and iterate. **Never writes production code.** Resumable — emits handoffs and pauses; re‑invoked after each external fix.
@@ -198,7 +198,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `validation-rules` | the Rule schema + deriving Rules from the Strategy |
 | `source-map` | source locations + **authority** (who owns which claim) + typed tests |
 | `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
-| `criteria-identity` | per‑change stable AC ids + new/unchanged/moved/retired classification |
+| `criteria-ids` | per‑change stable AC ids + new/unchanged/moved/retired classification |
 | `validation-plan` | the plan schema + derivation + AC→witness mapping |
 | `behavior-baseline` | the behavior snapshot + capture/reconcile + the honesty rule |
 | `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
