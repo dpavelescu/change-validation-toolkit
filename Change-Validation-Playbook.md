@@ -124,12 +124,84 @@ For a change, it tells you: what evidence each requirement has (and any with non
 
 ---
 
-## Under the hood
+## The toolkit — agents & skills (catalog)
 
-This Playbook is the concept; the running build lives under `.github/`, and each piece is self‑contained:
+This Playbook is the concept; the running build lives under `.github/`. Below is every **agent** you can run — its purpose, arguments, the **skills** it uses, what it depends on, and what it produces — followed by a one‑line index of the skills. Each agent is self‑contained; you run them in the order below.
 
-- **agents** orchestrate the work and apply review lenses (classify a change, plan the evidence, capture behavior, run the suite, write the tests).
-- **skills** are the operational reference each agent uses (the structures, procedures, and guard‑rails).
-- **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for.
+### Set up once
+
+**`define-testing-strategy`** — Author or update the human‑owned **Testing Strategy** (authoring one from your architecture **if you don't have it**) and generate the derived **Validation Rules**. Run when architecture or technology patterns change, not per story.
+- **Args:** `mode=author|update` *(inferred if omitted)* · `scope=change-types|all`
+- **Uses skills:** `testing-strategy`, `validation-rules`, `change-taxonomy`, `source-map`
+- **Needs:** your architecture sources (`architecture`, `api-spec`, `event-schema`, `data-model`, `coding-guidelines`, `ci-config`) via the Source‑Map
+- **Produces:** the Testing Strategy + Validation Rules (a draft you approve)
+
+### Plan a change — *advisory; nothing runs or is edited*
+
+**`change-classifier`** — Classify a change into types, compute its **blast radius** (test‑impact analysis — including which existing tests it reaches), resolve the sources it needs, and record which source is **authoritative** for each crossed claim.
+- **Args:** `change=<diff|branch|PR|description>` · `criteria=<acceptance criteria|link>` *(optional)*
+- **Uses skills:** `change-taxonomy`, `validation-rules`, `source-map`
+- **Needs:** the change · the Validation Rules · the Source‑Map
+- **Produces:** change‑types · blast radius · affected tests (by type) · needed sources · claim authorities
+
+**`reconcile-criteria`** — Give each acceptance criterion a **stable id** by reconciling the story's ACs against the Criteria Ledger (match / move / add / retire). Read‑only on the story.
+- **Args:** `story=<link|file>` · `ledger=<path>` *(default `.validation/<change>/criteria.md`)*
+- **Uses skills:** `criteria-ledger`, `source-map`
+- **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the prior ledger if any
+- **Produces:** the updated Criteria Ledger + a delta summary (new / moved / retired)
+- **Delegated by:** `plan-validation`
+
+**`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
+- **Args:** `change=<diff|branch|PR>` · `story=<link|file>` · `classification=<path>` *(reuse)*
+- **Uses skills:** `validation-plan`, `change-taxonomy`
+- **Delegates to:** `change-classifier`, `reconcile-criteria`, `validation-plan-reviewer`
+- **Needs:** the change · the story · the Validation Rules · the Source‑Map
+- **Produces:** the Validation Plan (a draft you approve) — or *Not ready* with a resumable agenda
+
+**`validation-plan-reviewer`** — *gate lens* — Review the assembled plan before capture: coverage, fate justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
+- **Args:** none of its own (invoked by `plan-validation`)
+- **Uses skills:** `validation-plan`, `criteria-ledger`
+- **Needs:** the assembled plan · the Criteria Ledger
+- **Produces:** findings + a recommendation (ready to capture / Not ready)
+- **Delegated by:** `plan-validation`
+
+### Execute a change — *Phase 3; runs your suite (auto‑fix loop forthcoming)*
+
+**`capture-baseline`** — **Photograph current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
+- **Args:** `change` · `classification=<path>` · `plan=<path>` · `ledger=<path>` · `baseline=<path>`
+- **Uses skills:** `behavior-baseline`, `change-taxonomy`
+- **Delegates to:** `run-validation`
+- **Needs:** the plan's behavior‑preservation track · the classification · the ledger deltas · the pre‑change state
+- **Produces:** the Behavior Baseline + a delta reconciliation
+
+**`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a determinism verdict. The execution substrate; runs, never edits.
+- **Args:** `change` · `classification=<path>` · `plan=<path>` · `gate=local|ci` · `run-record=<path>`
+- **Uses skills:** `execution-runner`
+- **Needs:** the blast radius · the plan's local/CI gates · the Source‑Map `build-commands`/`ci-config`/`tests`
+- **Produces:** a run record + observations · loop‑input (clean fails) · limitations
+- **Used by:** `capture-baseline`, `implement-tests`
+
+**`implement-tests`** — Materialize and adjust the **witnessing tests** per the plan's fates — criterion witnesses from the criteria, regression witnesses from the baseline. The **independent test‑implementer**; never edits production code.
+- **Args:** `change` · `plan=<path>` · `ledger=<path>` · `baseline=<path>`
+- **Uses skills:** `test-reconciliation`
+- **Delegates to:** `run-validation`
+- **Needs:** the Validation Plan · the Criteria Ledger · the Behavior Baseline · the Source‑Map `tests`
+- **Produces:** the materialized/adjusted tests + a reconciliation record
+
+### The skills (operational reference each agent uses)
+
+| Skill | What it specifies |
+|---|---|
+| `testing-strategy` | authoring the architecture‑aware Strategy + the coverage checklist |
+| `validation-rules` | the Rule schema + deriving Rules from the Strategy |
+| `source-map` | source locations + **authority** (who owns which claim) + typed tests |
+| `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
+| `criteria-ledger` | stable AC ids + the match/move/add/retire reconciliation |
+| `validation-plan` | the plan schema + derivation + AC→witness mapping |
+| `behavior-baseline` | the behavior snapshot + capture/reconcile + the honesty rule |
+| `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
+| `test-reconciliation` | the fate→action mapping + criteria provenance + honesty lock |
+
+**`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 
 A `.claude/` build will follow the same shape once this stabilises. If you're extending the toolkit, start in the skills — they're terse and self‑describing.
