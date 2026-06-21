@@ -29,14 +29,14 @@ Bounded and coherent: *what's wrong · the witness · what you may not break · 
 ## Loop procedure (resumable — one pass per invocation)
 
 1. **Validate** — `run-validation` over the affected slice (fail‑fast: local first). **Green & complete → done** (evidence → the Evidence Ledger).
-2. **Re‑assess (on re‑invocation after a fix)** — the diff moved, so impact moved: incrementally update the blast radius / affected tests over the fix's delta (not a full re‑plan). A material scope change (new surfaces/criteria) → route back to `plan-validation`.
-3. **Sort each clean fail by the Behavior Baseline** — the honesty gate:
+2. **Re‑assess (on re‑invocation after a fix)** — the diff moved, so impact moved: incrementally update the blast radius / affected tests over the fix's delta (not a full re‑plan). A material scope change (new surfaces/criteria) → **return `re-plan`** (re‑run `plan-validation`, then resume); the loop never re‑plans itself.
+3. **Sort each clean fail by the Behavior Baseline** — map the test to the surface its witness defends, then read the baseline (the honesty gate):
    - behavior **moved**, no criterion owns it → **regression**
    - behavior **moved**, a criterion owns it → **justified**
-   - behavior **preserved**, test red → **brittle** (coupled to internal structure the fix changed)
+   - behavior **preserved**, test red → **brittle** (it asserted internal structure the fix changed)
 4. **Route:**
    - **regression** / **failing‑criterion** → emit a **`fix-request`** (code fix, external).
-   - **justified** / **brittle** → adjust/repair the witness via `implement-tests` (baseline‑gated, then re‑validate) — never to force green.
+   - **justified** → `change` the witness (a criteria delta justifies it); **brittle** → `repair` it (decouple from internals, asserted behavior unchanged, gated by the baseline's `preserved` verdict). Both via `implement-tests`, then re‑validate — never to force green.
 5. **Hand off & pause** — write the open `fix-request`s + the re‑assessment; **return control**. A human or any implementation agent applies them and re‑invokes.
 6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **no progress** after `max-iterations` (a test stays red across re‑invocations, or fixes oscillate) → **escalate a diagnosis** (a limitation), never loop silently.
 
@@ -46,5 +46,5 @@ Bounded and coherent: *what's wrong · the witness · what you may not break · 
 - **Baseline is the gate** — `regression` vs `brittle` is decided by *behavior preservation*, never by the red result; a real regression can't be relabelled "brittle."
 - **Witness never edited to pass** — test changes go through `implement-tests`, justified by a criteria delta (`justified`) or behavior preservation (`brittle`).
 - **Re‑assess on every fix** — a fix ripples; impact is re‑evaluated incrementally (minimal), and a material scope change re‑plans.
-- **No silent loop** — every pass ends in green, a handoff, a decision, or an escalation; bounded by `max-iterations`.
+- **No silent loop** — every pass ends in green, a handoff, a re‑plan, a decision, or an escalation; bounded by `max-iterations`.
 - **Decision vs limitation** — criteria/contract change → decision; can't‑resolve / oscillation → escalate a diagnosis, never broken code to a human.

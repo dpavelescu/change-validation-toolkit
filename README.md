@@ -4,7 +4,7 @@
 
 Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. The tool‑neutral **Playbook** is the human guide (purpose, capabilities, usage); the **skills** and **agents** are the self‑contained build that implements it.
 
-> **Status — Foundation + Phase 2 + Phase 3 (most of it), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Identity**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), and the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself). Still forthcoming: the Evidence Ledger. The `.claude/` build follows once this stabilizes.
+> **Status — Foundation + Phase 2 + Phase 3 (through the correction loop), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Identity**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), and the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself). Still forthcoming: the Evidence Ledger. The `.claude/` build follows once this stabilizes.
 
 ---
 
@@ -47,7 +47,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     reconcile-criteria              give ACs stable per-change ids (local↔CI, not durable) (Phase 2)
     plan-validation                 derive the Validation Plan: AC→witness, fates, gates (Phase 2)
     validation-plan-reviewer        gate the plan: coverage + fate justification (Phase 2)
-    capture-baseline           pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
+    capture-baseline                pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
     run-validation                  drive the project's own suite over the blast radius → observations + determinism (Phase 3)
     implement-tests                 independent test-implementer: materialize witnesses from criteria, never the impl (Phase 3)
     drive-correction                drive to green via fix-request handoffs (never writes prod code); re-assess + re-validate (Phase 3)
@@ -56,9 +56,9 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     validation-rules                Rule schema + derivation from the Strategy
     change-taxonomy                 the change-types + classification heuristics
     source-map                      manifest schema + deterministic discovery procedure
-    criteria-identity                 per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
+    criteria-identity               per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
-    behavior-baseline       baseline schema + capture/reconcile + the honesty rule (Phase 3)
+    behavior-baseline               baseline schema + capture/reconcile + the honesty rule (Phase 3)
     execution-runner                run-record schema + resolve/run/observe + clean-fail vs can't-run (Phase 3)
     test-reconciliation             fate→action + criteria provenance + the honesty lock (Phase 3)
     correction-loop                 diagnose → fix-request handoff → re-assess → re-validate (Phase 3)
@@ -68,7 +68,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
 
 ## The four foundation pieces
 
-1. **Testing Strategy** — human‑owned, **architecture‑aware** source of truth for expected evidence, keyed by change‑type (REST API, SNS/SQS consumer, DB migration, React UI, cross‑service, refactor). Evidence, not tools.
+1. **Testing Strategy** — human‑owned, **architecture‑aware** source of truth for expected evidence, keyed by change‑type (REST API, SNS/SQS consumer, SNS/SQS producer, DB migration, React UI, cross‑service, refactor). Evidence, not tools.
 2. **Validation Rules** — the thin, machine‑usable projection of the Strategy. **Generated from it, never hand‑edited beside it** (regenerate on change; version‑stamped).
 3. **Source‑Map Manifest** — maps *source kinds → locations → what each is **authoritative for** → which change‑types need them*, so agents **discover sources deterministically** and **resolve a claim against its owner** instead of guessing. Records authority (`normative`/`descriptive`/`advisory`) so the API contract, event contract, boundaries, and expected evidence each have a declared source of truth — and the implementation is never it. Critical + unretrievable = blocking.
 4. **Change Classification** — classify a change into types and scope its **blast radius**, selecting which Rules apply and which sources to retrieve. The entry of every per‑change activity.
@@ -91,7 +91,7 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 1. **Copy the build** (`.github/agents/` + `.github/skills/`) into your project, and **copy `source-map.manifest.md`** to your repo root.
 2. **Fill the Source‑Map** with your real source locations (architecture, specs, schemas, tests, CI config).
 3. **Run `define-testing-strategy`** — it retrieves your architecture and **authors the full human‑owned Strategy from scratch if you don't have one** (or updates an existing one), per change‑type, clarifying the genuinely‑open expectations **one question at a time** and surfacing any gap/inconsistency for your decision. Only then does it **generate the derived Validation Rules** (the thin AI‑facing layer). You own and approve the Strategy; the Rules are its projection.
-   *(Then, per change, you run only the two entry points below — each orchestrates the inner agents as subagents.)*
+   *(Then, per change, you run only the two per‑change entry points below — `plan-validation` and `drive-correction` — each orchestrating the inner agents as subagents.)*
 4. **Run `plan-validation`** on the change + its story → a reviewed **Validation Plan**. Underneath it runs `change-classifier` (types + blast radius), `reconcile-criteria` (stable per‑change AC ids), and `validation-plan-reviewer` (the gate). Review and approve.
 5. **Run `drive-correction`** to execute and correct. Underneath it runs `capture-baseline` (photograph behavior), `implement-tests` (materialize witnesses), and `run-validation` (your own suite, local‑first). For each red test it emits a structured **fix‑request** for whoever implements the code, then **pauses**; after the fix you re‑invoke it. It re‑assesses impact and re‑sorts red tests via the baseline (`regression` vs `brittle`), iterating to green — **never writing production code**, never handing you broken code (only a *decision* if criteria or a contract must change). Its evidence feeds the **Evidence Ledger** — *forthcoming*.
 

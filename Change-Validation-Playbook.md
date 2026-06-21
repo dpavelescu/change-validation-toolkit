@@ -178,7 +178,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Uses skills:** `correction-loop`
 - **Delegates to:** `run-validation`, `change-classifier` *(re‑assess)*, `capture-baseline` *(sort)*, `implement-tests` *(test fixes)*
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (loop‑input)
-- **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · a **decision** · an **escalation** (no‑progress diagnosis)
+- **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 
 ### The skills (operational reference each agent uses)
 

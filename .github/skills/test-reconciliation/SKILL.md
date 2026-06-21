@@ -23,6 +23,7 @@ Test Reconciliation turns the Validation Plan's **provisional fates** into **rea
 | `keep` | AC unchanged | leave the witness untouched | — |
 | `remove` | AC `retired` | remove / retire the witness | the criteria identity `retired` delta — **never a red result** |
 | (regression) | blast‑radius surface no active AC owns (refactor = every surface) | author/keep a test pinning the **baseline** behavior | the pinned baseline; a divergence is a **caught regression** (loop input), never a test edit |
+| (repair) | *execution‑time, from the correction loop:* **brittle** — behavior **preserved** but the test is red (it asserted internal structure a fix changed) | **decouple** the witness from the internals — **the asserted behavior unchanged** | the baseline's `preserved` verdict — **not** a criteria delta |
 
 ## The honesty lock (three keys)
 
@@ -32,6 +33,8 @@ A test `change`/`remove` is honest only when all three agree:
 - **Runner** — the evidence is *observed*, never asserted.
 
 A test edited **because it went red, with no criteria delta**, is **regression‑laundering** and is forbidden — the same guard the plan reviewer applies to *fates*, now enforced on *actual test edits*. If behavior genuinely changed without a criterion moving, that is a **regression** (loop input) or a **criteria gap** (decision) — never a silent test edit.
+
+**Repair is not a behavior change** (so it's not laundering). The lock governs edits that alter *what behavior a test accepts*. A **`repair`** — decoupling a brittle test from internal structure a fix legitimately changed — does **not** alter the asserted behavior, so it's justified by the Baseline's **`preserved`** verdict instead of a criteria delta. The guard still bites: you may repair **only** when behavior is preserved; a red test whose behavior *moved* is a regression or a justified `change`, never a "repair."
 
 ## Done = evidence, never assertion
 
@@ -56,7 +59,7 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 
 - **Independent witness** — tests are authored by the test‑implementer, never by the producer of the change; the implementer never writes its own witnesses.
 - **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl; impl is read for wiring only, flagged.
-- **Honesty lock** — every `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden.
+- **Honesty lock** — every behavior‑altering `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden. A **`repair`** is the only edit without a criteria delta, and only when the baseline says `preserved` (the asserted behavior is unchanged).
 - **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Criteria Identity** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the criteria identity; humans never type it.
 - **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input, never a softened test or a handoff.
 - **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
