@@ -1,0 +1,46 @@
+---
+name: validation-rules
+description: >-
+  The schema and derivation procedure for Validation Rules — the thin, machine-usable projection of
+  the Testing Strategy, keyed by change-type, that agents act on. Used by define-testing-strategy to
+  generate Rules from the Strategy, and downstream to select the evidence a classified change needs.
+---
+
+*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
+
+Validation Rules are the **operational layer**: a thin, structured projection of the Strategy that an agent can act on directly. The Strategy is prose for humans; the Rules are addressable by change‑type and name exactly what's required.
+
+## The hard rule
+
+**Rules are GENERATED from the Strategy, never hand‑edited beside it.** When the Strategy moves, regenerate. Two hand‑maintained documents drift, and the agent then enforces expectations the Strategy abandoned. Every generated rule set records the Strategy version it was derived from.
+
+## Rule schema (one entry per change‑type)
+
+```
+change-type:        <taxonomy key>
+required-evidence:  [ { id, what, why (traces to which confidence in the Strategy) } ]
+source-kinds:       [ <kind> ]            # resolved to locations via the Source-Map
+local-gate:         [ <evidence ids that must pass locally before PR> ]
+ci-gate:            [ <evidence ids the broader CI gate adds> ]
+risk-modifiers:     [ { when, stronger-evidence } ]   # e.g. public-contract, regulated, cross-team
+non-automatable:    [ { what, runtime-witness } ]     # evidence that can't be proven pre-merge
+escalates-as-decision: [ <conditions> ]   # e.g. ownership boundary, public-contract change
+```
+
+- **`required-evidence`** items carry a `why` that traces to a confidence stated in the Strategy — the rule is a projection, not a new opinion.
+- **`source-kinds`** are kinds, not paths; the Source‑Map Manifest resolves them per project.
+- **`escalates-as-decision`** pre‑declares the conditions that are legitimate human decisions for this type (feeds the escalation model so limitations never masquerade as decisions).
+
+## Derivation procedure (Strategy → Rules)
+
+1. For each change‑type section in the Strategy, emit one rule entry.
+2. Turn each "what confidence matters" + "required evidence" line into `required-evidence` items with a `why` back‑reference.
+3. Map the Strategy's source kinds into `source-kinds`.
+4. Split the Strategy's local/CI roles into `local-gate` / `ci-gate`.
+5. Lift risk modifiers and non‑automatable admissions verbatim into their fields.
+6. Pre‑declare `escalates-as-decision` from the Strategy's ownership/contract/regulated notes.
+7. Stamp the source Strategy version.
+
+## Coverage check
+
+A rule set is complete when **every change‑type the Strategy covers has an entry**, every `required-evidence` item traces to the Strategy, and every `source-kind` referenced exists (or is flaggable) in the Source‑Map. A change‑type present in the taxonomy but absent from the Rules is a generation gap — fix at the Strategy/derivation, not downstream.
