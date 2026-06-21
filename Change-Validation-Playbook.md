@@ -2,7 +2,7 @@
 
 **Turn a change into the evidence needed to trust it — derived from a testing strategy, executed local‑first then in CI, and self‑correcting — so a failing test becomes loop input, not a human handoff.**
 
-This is the canonical, tool‑neutral reference. The Copilot / Claude builds are derived from it; if they disagree, this playbook wins.
+This is the **human guide** to the toolkit — its purpose, what it does, and how to use it. It is tool‑neutral: the `.github/` build (agents + skills) implements it for GitHub Copilot, and a `.claude/` build will follow. Read this to understand the toolkit; the agents and skills are the running build, each self‑contained.
 
 > **Status.** Built and specified end‑to‑end through **Test Reconciliation**: the Testing Strategy, the derived Validation Rules, the Source‑Map Manifest, Change Classification, the Criteria Ledger, the Validation Plan, the Behavior Baseline, the Execution Runner, and Test Reconciliation. Only the **auto‑fix loop** and the **Evidence Ledger** (the last two steps) remain forthcoming — described here at the level needed to keep the model coherent.
 

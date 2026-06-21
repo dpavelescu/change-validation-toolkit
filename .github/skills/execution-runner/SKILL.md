@@ -7,8 +7,6 @@ description: >-
   Used by run-validation; feeds the Behavior Baseline. Phase 3.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 The Execution Runner is the toolkit's **execution substrate** — the first piece that *runs* anything (everything before it proposes, never runs or edits). It drives **the project's own suite** (resolved via the Source‑Map, never a parallel harness invented by the toolkit) over the change's blast‑radius slice, and returns **structured observations**: what ran, what each result witnesses about behavior, and whether it reproduces. It **runs but never edits** — observation only; deciding what to *do* with a result belongs to the Behavior Baseline (pin/reconcile) and the forthcoming auto‑fix loop. Per‑change, **recorded in‑repo and committed** so CI replays the same scope and commands (local↔CI parity).
 
 **The execution split that defines the layer.** Every non‑pass result is sorted into exactly one bin — this is the operational form of the toolkit's "no artificial handoffs" stance, applied to execution outcomes:

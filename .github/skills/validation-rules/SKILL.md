@@ -6,8 +6,6 @@ description: >-
   generate Rules from the Strategy, and downstream to select the evidence a classified change needs.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 Validation Rules are the **operational layer**: a thin, structured projection of the Strategy that an agent can act on directly. The Strategy is prose for humans; the Rules are addressable by change‑type and name exactly what's required.
 
 ## The hard rule

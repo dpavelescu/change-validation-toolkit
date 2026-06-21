@@ -6,8 +6,6 @@ description: >-
   toolkit owns identity. Used by reconcile-criteria and read by plan-validation. Phase 2.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 The Criteria Ledger makes acceptance‑criterion identity **stable without human effort**. The human owns the *content* (prose ACs in the story); the toolkit owns *identity* (the `AC‑N` IDs). The story stays the source of truth for what the criteria say; the ledger is the source of truth for which criterion is which. It is per‑change, **persisted in‑repo, committed, and travels with the change**.
 
 ## Entry schema (one per acceptance criterion)

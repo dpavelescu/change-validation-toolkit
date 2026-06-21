@@ -7,8 +7,6 @@ description: >-
   Used whenever an agent must locate or establish authority over architecture, specs, schemas, tests, or CI config.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; the fillable instance is `source-map.manifest.md`. If they disagree, the playbook wins.*
-
 The Source‑Map makes source discovery **navigable and deterministic** — and, more fundamentally, it records **authority**: *which source is the source of truth for which category of claim, and how binding that source is*. Validation Rules reference sources by **kind**; the manifest resolves a kind to a concrete **location** and declares what that source is **authoritative for**. Agents never search blindly for a source the map can resolve, and never treat a non‑authoritative source — least of all the implementation — as the truth for a claim some authority owns.
 
 ## Canonical kinds

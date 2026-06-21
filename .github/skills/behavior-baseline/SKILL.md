@@ -7,8 +7,6 @@ description: >-
   rule. Used by capture-baseline; confirms the Validation Plan's provisional fates. Phase 3.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the Criteria Ledger checks identity at the level of *wording* and the plan reviewer at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
 
 **Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** delegate to the **Execution Runner** (`run-validation` / the **execution‑runner** skill), which drives the project's own suite.

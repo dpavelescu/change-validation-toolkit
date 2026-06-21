@@ -7,8 +7,6 @@ description: >-
   implement-tests; evidence comes from the runner. Phase 3.
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 Test Reconciliation turns the Validation Plan's **provisional fates** into **real witnesses** along both of the plan's tracks: a **criterion witness** for each active AC (intended behavior) and a **regression witness** for each blast‑radius surface no AC owns (unchanged behavior). It materializes new tests and adjusts existing ones so every active AC and every touched surface has a witness that traces to it, then hands them to the **Execution Runner** for evidence. It is owned by an **independent test‑implementer** (`implement-tests`) — never the producer of the production change — because a witness authored by the thing it judges is no witness at all. Its authority for *what to assert* is the **Criteria Ledger** (or, for regression witnesses, the **pinned baseline**) — **never the new implementation**. Per‑change, in‑repo, committed.
 
 **The two provenances (and the one that's forbidden).**

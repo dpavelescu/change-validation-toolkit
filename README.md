@@ -2,7 +2,7 @@
 
 **Turn a change into the evidence needed to trust it — derived from a testing strategy, executed local‑first then in CI, and self‑correcting — so a failing test becomes loop input, not a human handoff.**
 
-Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. Same idiom — a tool‑neutral **Playbook** is canonical, **skills** are derived reference, **agents** orchestrate and apply lenses.
+Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. The tool‑neutral **Playbook** is the human guide (purpose, capabilities, usage); the **skills** and **agents** are the self‑contained build that implements it.
 
 > **Status — Foundation + Phase 2 + Phase 3 (most of it), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Ledger**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the auto‑fix honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), and **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl). Still forthcoming: the auto‑fix loop and the Evidence Ledger. The `.claude/` build follows once this stabilizes.
 
@@ -37,7 +37,7 @@ Each arrow has a **minimum‑clarity gate**: if the source is too thin to derive
 
 ```
 README.md
-Change-Validation-Playbook.md       ← canonical, tool-neutral reference
+Change-Validation-Playbook.md       ← the human guide (purpose, capabilities, usage)
 source-map.manifest.md              ← fillable source-map instance (copy into your project)
 
 .github/                            ← GitHub Copilot build
@@ -99,4 +99,4 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 
 ## Learn more
 
-The [Change‑Validation Playbook](Change-Validation-Playbook.md) — the canonical reference: the operating principle, the full derivation chain, the artifacts, the escalation model, and the foundation in depth.
+The [Change‑Validation Playbook](Change-Validation-Playbook.md) — the human guide to the toolkit: the operating principle, the full derivation chain, the artifacts, the escalation model, and the foundation in depth.

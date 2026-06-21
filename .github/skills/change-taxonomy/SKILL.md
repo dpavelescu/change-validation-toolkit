@@ -6,8 +6,6 @@ description: >-
   Used by change-classifier and by define-testing-strategy (rules are keyed by these types).
 ---
 
-*Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
-
 The change‑types are the **key** the Testing Strategy and Validation Rules are organized by. A change may map to **several** types at once. Classify by what the diff *touches and changes in behavior*, not by file location alone.
 
 ## Change‑types
