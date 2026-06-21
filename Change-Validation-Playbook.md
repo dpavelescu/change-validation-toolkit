@@ -32,7 +32,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 
 ### Set up once — about your system, not any one change
 
-- **Captures your testing strategy.** What kinds of evidence make a change trustworthy *in your system* — and **if you don't have a written strategy, it authors one with you** from your architecture, asking one question at a time only where the answer genuinely isn't decided. The strategy stays human‑owned; you approve it.
+- **Captures your testing strategy.** What kinds of evidence make a change trustworthy *in your system* — and **if you don't have a written strategy, it authors one with you** from your architecture, asking one question at a time only where the answer genuinely isn't decided. It favours the **lowest test level that gives solid confidence** and pushes back on slow, brittle end‑to‑end tests where a focused unit or component test would do. The strategy stays human‑owned; you approve it.
 - **Learns where truth lives.** A map of your sources — architecture, API specs, event schemas, tests, CI — and, crucially, **which source is authoritative for what** (the API spec defines the contract; the code doesn't). So when something has to be checked, it checks against the owner, not a guess.
 
 ### Every change — automatically
@@ -41,7 +41,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 - **Works out the evidence the change needs.** Two things, separately: that the **new behavior works** (your acceptance criteria) and that **nothing around it broke** (a regression guard over everything the change reaches).
 - **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
 - **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
-- **Runs your own test suite.** Not an invented harness — your suite — and it distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
+- **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
 - **Closes the loop** *(coming next)*. When a test fails, it diagnoses and fixes the *code* and re‑runs — instead of handing the failure back — and keeps a plain‑language record of what was checked and why.
 
 > **The capability you should understand: finding affected tests without links.**

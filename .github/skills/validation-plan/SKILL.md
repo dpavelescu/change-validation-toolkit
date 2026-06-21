@@ -49,7 +49,7 @@ open-decisions:    [ escalations blocking completeness ]
    - AC new / `none-yet` → `add`
    - **Every `change`/`remove` rationale must trace to a criteria delta** — never to a test result. (Result‑driven test edits are an execution‑time concern and are forbidden as a *plan* justification.)
 5. **Cover the blast radius (regression).** List each blast‑radius surface **no active AC owns** — **minimal**, the smallest sufficient set, not every transitive node. Give each a **behavior‑preservation** witness: an existing test → `keep`; none yet → `add` a **regression witness** (provenance: the pinned baseline, *never* the change). A surface deliberately excluded gets an explicit **`out-of-scope`** note. (`internal-refactor` is the limit case: *every* surface is behavior‑preservation, since no AC moved.)
-6. **Set gates** — split required evidence (both tracks) into `local-gate` / `ci-gate` per the Rules.
+6. **Set gates (lowest level, fail‑fast).** Choose each witness at the **lowest test level that proves it** — don't reach for integration/e2e where a unit/component/contract test gives the same guarantee (brittleness control). Then split both tracks into `local-gate` / `ci-gate` by level + runnability: fast low‑level tests run **locally first**; cross‑boundary / infra‑dependent tests (integration, e2e) that can't run locally are `ci-gate`. CI‑only by necessity is **expected, not a coverage gap**.
 7. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a behavior baseline, by `implement-tests`) happens at execution.
 
 ## Gate (readiness to capture the plan)
@@ -60,6 +60,7 @@ The plan is ready when:
 - **Fate justification** — every proposed `change`/`remove` traces to a criteria delta.
 - **Testable** — each AC is observable/verifiable as written (else it's a criteria gap → escalate as a decision).
 - **Blast radius covered (regression)** — every blast‑radius surface is either owned by an active AC, carries a **behavior‑preservation** witness (or explicit `none-yet`), or has an explicit `out-of-scope` note. A silently uncovered touched surface is a regression hole, not a pass.
+- **Lowest sufficient level** — each witness is at the lowest level that proves it; any integration/e2e is justified by what only it can verify, not chosen by default.
 - **No unresolved blocking decision** — open decisions are answered, deferred, or out‑of‑scope.
 
 Otherwise → **Not ready**: a resumable agenda; write no plan. Never partial.
