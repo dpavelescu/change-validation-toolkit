@@ -1,258 +1,135 @@
-# Change‑Validation Playbook
+# Change‑Validation Toolkit — Playbook
 
-**Turn a change into the evidence needed to trust it — derived from a testing strategy, executed local‑first then in CI, and self‑correcting — so a failing test becomes loop input, not a human handoff.**
+> **Turn a change into the evidence needed to trust it** — derived from how your system is built, produced and checked against your real code, and self‑correcting, so a failing test becomes the system's next task, not yours.
 
-This is the **human guide** to the toolkit — its purpose, what it does, and how to use it. It is tool‑neutral: the `.github/` build (agents + skills) implements it for GitHub Copilot, and a `.claude/` build will follow. Read this to understand the toolkit; the agents and skills are the running build, each self‑contained.
-
-> **Status.** Built and specified end‑to‑end through **Test Reconciliation**: the Testing Strategy, the derived Validation Rules, the Source‑Map Manifest, Change Classification, the Criteria Ledger, the Validation Plan, the Behavior Baseline, the Execution Runner, and Test Reconciliation. Only the **auto‑fix loop** and the **Evidence Ledger** (the last two steps) remain forthcoming — described here at the level needed to keep the model coherent.
+This is the guide to **what the toolkit is for, what it does, and how to use it** — written for the people who adopt and run it. It is tool‑neutral; the agents and skills under `.github/` are the build that implements it (see [Under the hood](#under-the-hood) at the end).
 
 ---
 
-## What this is, in plain terms
+## Why it exists
 
-Every code change has to be *trusted* before it ships. Normally a person decides what to test, writes the tests, runs them, and — when something breaks — digs into why. This toolkit does that derivation and that loop for you, and it is built to stay **honest** about it.
+Every change has to be **trusted** before it ships, and today that trust is expensive and manual. Someone decides what to test, writes the tests, runs them, and — when something breaks — stops to debug. Two deeper problems hide behind that:
 
-The whole idea in one sentence: **start from what the change is supposed to do, work out what evidence would prove it does that, produce that evidence, and bother a human only for a genuine judgment call — never to debug.**
+- **Tests drift from intent.** Over time a test ends up asserting *whatever the code does*, not *what the change was supposed to do*. When it goes red, it's edited until it's green again — quietly laundering a regression into "expected."
+- **Brownfield changes break things silently.** A small change can alter behavior nobody thought to re‑check, in code that some *other*, unrelated story originally built.
 
-Here is the entire flow on a concrete example — a change that *"adds an email field to the user signup endpoint."*
+The toolkit's bet is simple: **a change should carry its own evidence.** Starting from what the change is supposed to do, it works out what would prove that, produces the proof against your real system, and keeps the loop closed itself — so a red test is the next thing *it* works on, not a ticket back to you.
 
-1. **Classify the change.** It's a REST API change; note what it touches (the signup endpoint and anything downstream). → *Change Classification*
-2. **Look up the rules.** For a REST API change, the team's testing approach says what confidence matters — the endpoint behaves, errors map correctly, the public API stays compatible. → *Validation Rules*, derived from the *Testing Strategy*
-3. **Pin the requirements.** Each acceptance criterion ("accepts a valid email", "rejects a malformed one") gets a stable ID that survives rewording, so everything can point back to it. → *Criteria Ledger*
-4. **Make a plan.** Per requirement: what evidence is needed, which test provides it, and which existing tests should stay, change, or go. → *Validation Plan*
-5. **Photograph today's behavior.** Before touching anything, record how the code behaves now — so later we can tell *"this changed because we meant it to"* from *"this broke by accident."* → *Behavior Baseline*
-6. **Run the project's own tests** to take that photograph, and again after the change. → *Execution Runner*
-7. **Write or adjust the tests** — in a separate step that looks only at the *requirements*, never at the new code, so a test stays an honest check rather than a rubber stamp. → *Test Reconciliation*
-8. *(coming next)* **If a test fails, fix the code and re‑run — automatically, in a loop** — instead of handing the failure to a person; and keep a plain‑language **record** of what was checked and why. → *auto‑fix loop* + *Evidence Ledger*
+### Why you can trust the output
 
-Two promises run through all of it:
+Four rules make the result trustworthy rather than merely automated. They're worth knowing, because they're *why* you can rely on what it produces:
 
-- **A failing test is a signal to keep working, not a reason to call a human.** People are asked only to make *decisions* (e.g. "these two requirements contradict each other — which wins?"), never to fix broken code.
-- **A test is changed only because the requirement behind it changed** — never quietly edited to make a red result turn green. That single rule is what keeps the whole thing trustworthy.
-
-That's the toolkit. The rest of this document is the precise machinery behind those eight steps.
+- **Your acceptance criteria are the fixed point.** "Correct" is defined by what the change is meant to do — never by what the code happens to do.
+- **The implementation is the only thing it rewrites.** Tests and fixtures bend around the criteria; the criteria never bend around the code.
+- **Every test traces to a criterion.** A test exists to defend one specific expectation. It's a witness, never the source of truth.
+- **You make decisions; you never debug.** It asks you a question only when the *criteria themselves* are genuinely unresolvable — it never hands you broken code to fix.
 
 ---
 
-## The operating principle (the invariant everything obeys)
+## What it does for you
 
-For any change:
+Think of it as a set of capabilities, not a pile of files. Some you set up once; the rest run on every change.
 
-- **Criteria are authoritative.** What "correct" means for the change is the fixed point.
-- **Implementation is the only freely‑mutable element.** Tests, fixtures, harness are negotiable around the criteria; the criteria are not.
-- **Tests are witnesses to criteria** — never the source of truth. A test exists to defend a criterion; it earns its place by tracing to one.
-- **Humans decide, they don't debug.** A human is engaged only when the *criteria themselves* are unresolvable — never handed a broken implementation to fix.
+### Set up once — about your system, not any one change
 
-Everything below is mechanism in service of this invariant.
+- **Captures your testing strategy.** What kinds of evidence make a change trustworthy *in your system* — and **if you don't have a written strategy, it authors one with you** from your architecture, asking one question at a time only where the answer genuinely isn't decided. The strategy stays human‑owned; you approve it.
+- **Learns where truth lives.** A map of your sources — architecture, API specs, event schemas, tests, CI — and, crucially, **which source is authoritative for what** (the API spec defines the contract; the code doesn't). So when something has to be checked, it checks against the owner, not a guess.
 
----
+### Every change — automatically
 
-## The derivation chain (the spine)
+- **Finds the real blast radius.** It works out everything the change touches — *including which existing tests it affects, even tests written for old, unrelated work* — by analysing the code, with **no links for you to maintain** (more on this below).
+- **Works out the evidence the change needs.** Two things, separately: that the **new behavior works** (your acceptance criteria) and that **nothing around it broke** (a regression guard over everything the change reaches).
+- **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
+- **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
+- **Runs your own test suite.** Not an invented harness — your suite — and it distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
+- **Closes the loop** *(coming next)*. When a test fails, it diagnoses and fixes the *code* and re‑runs — instead of handing the failure back — and keeps a plain‑language record of what was checked and why.
 
-Validation is not a phase appended after implementation. It is a control loop, derived top‑down and executed bottom‑up. Each arrow is an activity; each arrow has a **minimum‑clarity gate** in front of it — if the source for an arrow is too thin to derive honestly, the toolkit clarifies before proceeding rather than inventing.
-
-```
-architecture + technology specifics
-        │  (Testing Strategy: define-testing-strategy)                        ✅
-        ▼
-testing strategy  ──►  validation rules  (thin, machine-usable, per type)    ✅
-        │  + the change + its criteria + discovered sources
-        ▼
-change classification → criteria ledger → validation plan                    ✅
-   (types + blast radius)   (stable AC IDs)   (AC → witness map, test fates)
-        │
-        ▼
-behavior baseline   +   execution runner                             ✅
-   (pin current behavior)        (run the project's own suite)
-        │
-        ▼
-test reconciliation  (materialize / adjust witnesses, honestly)              ✅
-        │
-        ▼
-auto-fix loop:  diagnose → fix → rerun   (local, then CI)                    ── forthcoming
-        │
-        ▼
-evidence ledger → human review (behavior + decisions, not internals)         ── forthcoming
-```
-
-**Foundation** covers strategy → rules → classification, plus the cross‑cutting **Source‑Map Manifest** every box reads from. **Phase 2** adds the **Criteria Ledger** and the **Validation Plan**. **Phase 3** adds the **Behavior Baseline**, the **Execution Runner**, and **Test Reconciliation**. Only the **auto‑fix loop** and the **Evidence Ledger** remain forthcoming.
+> **The capability you should understand: finding affected tests without links.**
+> When a change touches code that an old story's tests cover, those tests are found **because the change reaches that code** — discovered fresh every time from the code itself (call graph and/or coverage), never from a stored "this change relates to story X" reference. References rot; this can't, because there's nothing to keep. System‑level tests (end‑to‑end, integration) are caught too, by the *flows* they exercise — which is why the toolkit is told where each kind of test lives.
 
 ---
 
-## The artifacts
+## How it works
 
-| Artifact | Lifetime | Owner | Foundation? |
-|---|---|---|---|
-| **Testing Strategy** | stable | human | ✅ |
-| **Validation Rules** (thin op layer, per change‑type) | **generated from Strategy** | tool | ✅ |
-| **Source‑Map Manifest** | stable, agent‑extendable | human‑seeded | ✅ |
-| **Change Classification** | per change | tool | ✅ |
-| **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
-| **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
-| **Behavior Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — built; capture via the runner) |
-| **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — built; first piece that runs) |
-| **Test Reconciliation** (witnesses + record) | per change | tool (independent test‑implementer) | ✅ (Phase 3 — built) |
-| Evidence Ledger | per change | tool | forthcoming |
+A change flows through the toolkit roughly like this. You don't have to drive each step by hand once it's set up — but it helps to know what's happening.
 
-**Hard rule:** *Validation Rules is regenerated from the Strategy, never hand‑maintained beside it.* Two hand‑edited documents drift, and the agent then enforces rules the strategy has abandoned.
+1. **Classify the change** and find everything it touches (its blast radius), including the existing tests it reaches.
+2. **Look up the rules** — for this kind of change, what evidence your strategy says matters.
+3. **Pin the requirements** — give each acceptance criterion a stable handle so tests and evidence can point at it.
+4. **Make a plan** — per requirement, what evidence is needed and which test provides it; plus a regression guard for everything touched that no requirement covers.
+5. **Photograph today's behavior** so intended change can be told from accidental breakage.
+6. **Run your own tests** to take that photograph and, after the change, to gather evidence.
+7. **Write or adjust the tests** — from the requirements, never the new code.
+8. **Close the loop** *(coming next)* — fix failing code, re‑run, and record what was checked.
 
----
+### When it comes to you — and when it doesn't
 
-## Foundation piece 1 — Testing Strategy
+This is the part worth internalising, because it's how the toolkit stays autonomous without quietly dumping work back on you. Every time a human is involved, it's exactly one of two things:
 
-The Strategy is the **human‑owned source of truth** for what evidence the organization expects, **keyed by architecture and change‑type**. It is not a generic QA document and not invented per story; it is the thing story‑level plans are *derived from*.
+- **A decision (it needs your judgment).** The criteria are ambiguous or contradict each other; the change crosses into another team's contract; something is unsafe. → It asks you a **clear question**. You answer a question — you're never handed broken code.
+- **A limitation (its own gap to close).** It can't run a test, reproduce a failure, or build a fixture. → That's the **toolkit's** problem to fix, logged as such. It is *never* quietly reframed as "a human will handle this case."
 
-A Strategy is **architecture‑aware**: it must reflect the real system, not a generic one. For this context that means Java/Spring Boot microservices, a React frontend, REST APIs, SNS/SQS eventing, service‑owned schemas (no cross‑service DB access), CQRS/query services, contract‑ or schema‑based integration, a CI/CD model, and regulated‑environment traceability.
-
-It says, per change‑type, **what confidence matters** — e.g.:
-
-- **REST API** → controller behavior, service logic, error mapping, backward‑compatible contract changes, OpenAPI/schema consistency.
-- **SNS/SQS consumer** → event‑contract compatibility, deserialization, idempotency, retry/dead‑letter, ordering assumptions, version tolerance.
-- **DB migration** → backward compatibility, rollback/forward strategy, old‑vs‑new application‑version compatibility.
-- **React UI** → component behavior, user‑visible flows, accessibility‑sensitive interactions, mocked API states.
-- **Cross‑service behavior** → contract verification, consumer‑driven expectations, end‑to‑end flow of the affected path.
-
-**Created, not just projected.** When no Strategy exists, the toolkit **authors the full human‑owned Strategy** from the architecture — clarifying genuinely‑open expectations **one question at a time** — and only then derives the thin AI‑facing **Validation Rules** from it. It never produces only the machine layer: the human‑owned Strategy is the source of truth (the `normative` owner of the `expected-evidence` claim), and the Rules are its regenerable projection. A **gap or inconsistency** found while authoring or deriving is surfaced to the human as a **decision, one at a time** — the Rules are never generated over it (a projection can be no more coherent than its source).
-
-See the **testing‑strategy** skill for the authoring structure and coverage checklist, and the **change‑taxonomy** skill for the canonical change‑types.
+A failing test is **neither** of those — it's just the loop's next input. You hear about it only if it turns into a genuine decision.
 
 ---
 
-## Foundation piece 2 — Validation Rules (derived)
+## How to use it
 
-The Rules are a **thin, machine‑usable projection** of the Strategy — the agent's operational layer. Where the Strategy is prose for humans, the Rules are structured, per change‑type, and directly actionable: *given a change of type X touching Y, the required evidence is Z, the local gate is …, the CI gate is …*.
+### Getting started
 
-- **Derived, not authored.** Generated from the Strategy by `define-testing-strategy`; regenerated when the Strategy moves.
-- **Per change‑type**, addressable by the classifier's output.
-- **Names the sources** each rule needs (by kind), which the Source‑Map resolves to locations.
+1. **Add the build to your repo** and fill in the **source map** — point it at where your architecture, specs, schemas, tests, and CI config live.
+2. **Run the strategy step.** It drafts (or updates) your testing strategy from your architecture, clarifying the few genuinely‑open expectations one question at a time, and you approve the result.
+3. **Point it at a change** — a diff, branch, or PR — together with the story's acceptance criteria. It classifies, plans, and (in the execution phase) produces, runs, and self‑corrects the evidence.
 
-See the **validation‑rules** skill for the rule schema and the derivation procedure.
+### What it needs from you
 
----
+- **Real acceptance criteria.** If a change has no criteria, you're not validating yet — you're still clarifying *what* to build (that's the companion work‑item‑preparation toolkit's job). It will say so rather than invent correctness.
+- **A runnable suite.** It validates by running your tests; if it can't run them, that's a gap it reports, not something it papers over.
+- **A seeded source map.** It resolves sources deterministically instead of guessing — but you provide the initial locations.
 
-## Foundation piece 3 — Source‑Map Manifest
+### Where it's the strongest fit
 
-A first‑class artifact that maps **source kinds → where they live → what they are authoritative for → which change‑types need them**, so agents **discover the sources they need deterministically** instead of guessing. It is the "considerate of sources" discipline made navigable.
+Brownfield systems where regressions hide, where the same code is touched by many unrelated stories over time, and where "did this change break something we forgot about?" is a real and recurring fear. That's exactly the case its blast‑radius and behavior‑baseline capabilities are built for.
 
-Kinds include: architecture docs, API specs (OpenAPI), event schemas, coding/testing guidelines, the Testing Strategy itself, existing‑test locations, build/run commands, CI config, data models, runbooks/observability.
+### How to read what it gives you
 
-- **Authority is the point.** Beyond *where* a source lives, the map records **what it is the authority for** — which source is the source of truth for which **category of claim** (the API contract → `api-spec`, service boundaries → `architecture`, the expected evidence → `testing-strategy`), and how binding it is: `normative` **defines** correctness, `descriptive` **describes** the system, `advisory` **recommends**. This lets the toolkit resolve a claim against its owner instead of guessing — and, crucially, it **never treats the implementation as the authority** for a claim a normative source owns (the invariant, restated at the source layer). A claim with **no** authoritative source is a **gap** to clarify; two **normative** sources contradicting on the same claim is a **decision** to escalate.
-- **Human‑seeded, agent‑extendable.** A human supplies the initial map; agents may propose additions when they discover a needed source not yet listed.
-- **Criticality‑aware.** A *critical* source that can't be retrieved is **blocking** — the same rule as a missing one (mirrors prepare‑work‑item's source guard). (Criticality — *blocking if missing* — is orthogonal to authority — *how binding its claims are*: a source can be critical but merely descriptive, or advisory but always present.)
-
-See the **source‑map** skill for the manifest schema and the discovery procedure, and `source-map.manifest.md` for the fillable template.
+For a change, it tells you: what evidence each requirement has (and any with none yet), what it ran and what passed, what it **couldn't** do and why (its own gaps), and any **decisions** it needs from you. Nothing is reported as "done" without evidence behind it.
 
 ---
 
-## Foundation piece 4 — Change Classification
+## Example
 
-For an incoming change, classify it into one or more **change‑types** and compute its **blast radius** (what the diff touches transitively). This is the entry of every per‑change activity: it selects which Validation Rules apply and, via the Source‑Map, which sources to retrieve.
+*The following is one illustration on a specific stack — not a fixed menu. What counts as "the evidence a REST change needs" comes from **your** strategy, not from the toolkit.*
 
-- A change may be **multiple types** (e.g. an endpoint that also emits an event).
-- **Blast radius drives minimality** later — the smallest sufficient evidence set, not "run everything."
-- **Blast radius drives regression coverage** — surfaces it reaches that *no acceptance criterion owns* still need a **behavior‑preservation witness** (a regression guard). The ACs scope intended‑behavior evidence; the blast radius scopes unchanged‑behavior evidence.
-- Output is structured and feeds the **Validation Plan** (Phase 2).
+> **A team adds an email field to the signup endpoint** (a Spring Boot + React + SNS/SQS system).
+>
+> 1. It's classified as a REST API change. The blast radius includes the signup endpoint, the shared `UserService` it calls, and — found from the code, not from any stored link — an **end‑to‑end signup test written months ago for a different story**.
+> 2. The strategy says a REST change here needs: the endpoint behaves, errors map correctly, and the public contract stays backward‑compatible. Backward‑compatibility is checked against the **API spec** (the contract's owner), not the controller code.
+> 3. The new acceptance criteria — "accepts a valid email," "rejects a malformed one" — each get a stable handle.
+> 4. The plan: a test for each new criterion, *plus* a regression guard on `UserService` and that old e2e flow, which no new criterion covers.
+> 5. Current behavior is photographed first. After the change, the e2e flow still passing is evidence the change didn't break it; if it had changed with no criterion asking for it, that's a **regression** — the loop's next task, not a question for you.
+> 6. The new tests are written from the criteria. One fails because the code doesn't validate email yet → that's loop input; the code gets fixed and re‑run. None of it edits a test to force it green.
 
-See the **change‑taxonomy** skill for the types and classification heuristics; `change-classifier` is the agent that produces this.
+> **A pure refactor** (no behavior is supposed to change). There are no new criteria, so *every* behavior the change touches must stay identical. The behavior photograph **is** the evidence: any difference at all is a regression.
 
----
-
-## The escalation model (decision vs limitation)
-
-This is the cross‑cutting principle that keeps the toolkit autonomous **without artificial human‑in‑the‑loop**. Every time a human is engaged, the reason is sorted into exactly one bin:
-
-- **Decision (legitimate).** The criteria are ambiguous or contradictory, an ownership boundary is crossed (another team's contract), a design choice is unsafe, a public contract must change. → Emit a **structured question**. The human answers a question; they never receive broken code.
-- **Limitation (illegitimate).** The toolkit can't run a test, can't reproduce a failure, can't build a fixture, lost context between local and CI, lacks access. → This is a **toolkit gap to close**, logged as such — never normalized into "a human handles this case."
-
-A limitation must never masquerade as human‑in‑the‑loop. This is what stops the system from quietly accreting handoffs that hide its own gaps.
+> **A caught regression.** A change tweaks a shared helper and, with nothing asking for it, an old order‑history endpoint starts returning a different total. No criterion justifies that delta → it's flagged as a regression and fixed, before anyone ships it.
 
 ---
 
-## Criteria identity — the ledger
+## Where it is today
 
-The criteria are the authoritative fixed point, so tests must trace to them by a **stable identifier** (`AC‑1`, `AC‑2`…). But **humans do not maintain those IDs** — hand‑maintaining immutable IDs across reworded, reordered, split, or merged stories is fragile and would silently lie the moment it slipped.
+**Available and specified end‑to‑end through test reconciliation:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, and writing/adjusting tests honestly.
 
-Instead, **content and identity are split:**
-
-- **The human owns content** — writes acceptance criteria in prose, in the story (tracker or in‑repo), edits freely, never types an ID.
-- **The toolkit owns identity** — assigns and maintains the IDs in a tool‑managed **Criteria Ledger** (in‑repo, committed, travels with the change). The story stays the source of truth for *what the criteria say*; the ledger is the source of truth for *which criterion is which*.
-
-On every change the toolkit reconciles the story's current ACs against the ledger — the **same supersession machinery as the work‑item‑preparation‑toolkit's answer ledger**:
-
-| Situation | Action | ID outcome |
-|---|---|---|
-| matches an existing AC (even reworded) | match | **same ID preserved** |
-| reworded enough to change meaning | match + flag | same ID, **marked "moved"** |
-| genuinely new | assign | new ID |
-| removed from story | retire | ID retired |
-| ambiguous (same criterion reworded, or new?) | **escalate as a decision** | human answers a question |
-
-Two consequences make this more than bookkeeping:
-
-- **The ID lifecycle *is* the criteria‑delta detector.** "Did this criterion move?" — the signal test reconciliation depends on — falls out of the match step for free.
-- **Humans never write the test tag either.** When the toolkit generates or updates a test, it stamps the `AC‑N` tag from the ledger. IDs are immutable not by discipline but because only the tool assigns them, and it only matches / adds / retires — never renumbers.
-
-(Annotation convention for tests — native tag `@Tag("AC‑N")` / `[AC‑N]`, extracted by one `AC‑[0-9]+` regex — is stamped from the ledger by `implement-tests` during Test Reconciliation; the human is not in that loop.)
-
-## Minimum‑clarity gate
-
-No derivation runs on a source too thin to derive honestly. If the criteria for a change don't exist, you are not in the validation loop yet — you are in clarification (see the companion **work‑item‑preparation‑toolkit**). Foundation's gate is narrower but the same in spirit: a Strategy with no rule for a change‑type, or a Source‑Map missing a critical source, blocks the dependent step until seeded.
+**Coming next:** the self‑closing **auto‑fix loop** (diagnose a failure, fix the code, re‑run — proposing fixes as commits, never silent edits to protected branches) and the **audit trail** of what was checked and why, so a human review is fast.
 
 ---
 
-## Phase 3 — Behavior Baseline (the honesty rule, made checkable)
+## Under the hood
 
-The invariant says *tests are witnesses to criteria* and a test may change **only because a criterion moved**. Phase 2 enforces that at the level of *wording* (the Criteria Ledger's `moved` flag) and *intent* (the plan reviewer rejects any `change`/`remove` fate not tracing to a criteria delta). Neither has looked at **behavior**. The Behavior Baseline closes that gap: it pins **current observable behavior** of the change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** sorts into exactly one of:
+This Playbook is the concept; the running build lives under `.github/`, and each piece is self‑contained:
 
-- **Justified** — the delta maps to a criteria delta (an AC `moved`, new, or `retired`). The behavior changed because a criterion moved; the witnessing test legitimately changes. This **confirms** the Validation Plan's provisional `change`/`add`/`remove` fate — now against *fact*, not just intent.
-- **Regression** — the behavior changed but **no criterion moved**. This is **loop input** — it feeds the (forthcoming) auto‑fix loop or surfaces as a finding — **never a human handoff**. (One exception: a delta crossing a public contract or ownership boundary is a legitimate **decision** → structured question.)
+- **agents** orchestrate the work and apply review lenses (classify a change, plan the evidence, capture behavior, run the suite, write the tests).
+- **skills** are the operational reference each agent uses (the structures, procedures, and guard‑rails).
+- **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for.
 
-This is the **auto‑fix honesty rule** made checkable: *a test goes green by moving with a criterion, never by being edited because it went red.* An `internal-refactor` — which carries no criteria delta by definition — makes the rule sharpest: every behavior delta is, necessarily, a regression, so the baseline *is* a refactor's primary evidence.
-
-It reuses machinery already in the toolkit rather than inventing parallel concepts: the **blast radius** (from Change Classification) scopes what to pin — minimal, smallest sufficient set; the **Source‑Map** resolves where surfaces, tests, and contracts live; the **match / justified‑move / regression** sort is the same supersession idiom as the Criteria Ledger, run over *behaviors* instead of *criterion text*.
-
-**Lifetime & honesty.** The baseline is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior. Once captured it is **immutable** — you never widen the baseline after the fact to make a regression look "expected" (the behavior analogue of *no silent supersession*).
-
-**The execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. So the piece splits: **planning the baseline** (which surfaces, what is observable, how to capture) is advisory and lands now, like the rest of the toolkit; **capture and reconcile** delegate to the **Execution Runner** (below). Capture over **non‑deterministic** behavior is refused, not faked — a flaky surface is quarantined and raised as a **limitation** (you cannot pin what you cannot reproduce), never silently baselined into noise.
-
-See the **behavior‑baseline** skill for the schema and the capture/reconcile procedure; `capture-baseline` is the agent that produces it.
-
----
-
-## Phase 3 — Execution Runner (the first thing that runs)
-
-Up to here every artifact is advisory — it proposes, it never runs or edits. The Behavior Baseline needs *observed* behavior, so something must finally execute. That is the **Execution Runner**: the substrate that drives **the project's own suite** — resolved through the Source‑Map (the `build-commands` kind, parity‑checked against `ci-config`), never a harness the toolkit invents — over the change's blast‑radius slice, and returns **structured observations**: what ran, what each result witnesses about behavior, and whether it reproduces. It **runs but does not edit** — observation only; what to *do* with a result belongs to the baseline's reconciliation and the forthcoming auto‑fix loop.
-
-One distinction defines the layer, and it is the operational form of the whole "no artificial handoffs" stance applied to execution outcomes:
-
-- A **clean fail** — the test ran and asserted false — is **loop input**, a behavior signal. It is never escalated to a human. *(This is the playbook's founding line — "a failing test becomes loop input, not a human handoff" — made literal.)*
-- A **can't‑run** — couldn't build, run, or resolve the command — is a **limitation**, a toolkit gap logged as such. It is never normalized into "a human handles this case."
-
-A red test and a broken harness look identical at a glance; conflating them is exactly how a toolkit quietly accretes handoffs that hide its own gaps. The runner refuses to — it sorts every non‑pass into **signal or gap**.
-
-Two more disciplines keep it honest. **Minimality** — it runs the blast‑radius slice via selective invocation, never the whole suite. **Determinism or quarantine** — it re‑runs; a flaky surface is quarantined and raised as a limitation, never passed to the baseline as truth, because you cannot witness what you cannot reproduce. And because the run record is **persisted in‑repo and committed**, CI replays the identical scope and commands — local↔CI parity becomes a recorded fact, not a hope (closing the playbook's standing worry about "lost context between local and CI").
-
-See the **execution‑runner** skill for the run‑record schema and the resolve/run/observe procedure; `run-validation` is the agent that drives it, and `capture-baseline` calls it to pin and re‑observe behavior.
-
----
-
-## Phase 3 — Test Reconciliation (witnesses, authored honestly)
-
-The Validation Plan proposes **fates** (`add`/`change`/`keep`/`remove`) for each AC's witness, but provisionally. Test Reconciliation makes them real: it **materializes new tests and adjusts existing ones** so every active criterion has a witness that traces to it, then hands them to the Runner for evidence. It is the step that finally writes test code — and *who* writes it, and *from what*, is load‑bearing.
-
-**Two witness duties.** A witness defends one of two things, on two different scopes. A **criterion witness** defends an acceptance criterion — *intended* behavior — and its scope is the ACs. A **regression witness** defends *unchanged* behavior — and its scope is the **blast radius**, the surfaces the change reaches but no AC speaks to. Acceptance criteria cover what the change is *supposed* to do; the blast radius is where it might *accidentally* break something. The Validation Plan carries both — a `criteria` track and a `behavior-preservation` track — so a surface that's merely *touched* (a shared method, a downstream consumer) gets a regression guard even though no criterion mentions it. (`internal-refactor` is the limit case: no criterion moved, so *every* surface is a regression witness, and the baseline is the whole of its evidence.)
-
-**An independent witness.** Tests are authored by a dedicated test‑implementer (`implement-tests`), **never by the producer of the change**. The invariant holds that implementation is the only freely‑mutable element and tests are witnesses to criteria; if the same will writes both, the witness collapses into the thing it judges and silently becomes a witness to the *implementation* instead of the *criterion*. So the test‑implementer's authority for *what to assert* is the **Criteria Ledger** (criterion witnesses) — or the **pinned baseline** (regression witnesses) — and **never the new implementation**. (It may read the impl for mechanical wiring — how to invoke a surface — but not to decide what is correct; that read is flagged.)
-
-**The honesty lock.** A test `change`/`remove` is honest only when three independent keys agree: the **Ledger** carries a criteria delta (`moved`/`retired`) to justify it, the **Baseline** classifies the behavior delta as `justified` rather than `regression`, and the **Runner** *observes* the evidence rather than it being asserted. A test edited **because it went red, with no criteria delta**, is regression‑laundering and is forbidden — the same guard the plan reviewer applies to fates, now enforced on real test edits. If behavior changed without a criterion moving, that is a regression (loop input) or a criteria gap (decision) — never a quiet test edit.
-
-**Done is evidence, not assertion.** An AC's witness is satisfied only on **green evidence from the Runner**. A red witness with no implementation yet is not a failure to hand off — it is **loop input** for the implementer, whose production change is the freely‑mutable element. A non‑automatable AC is **admitted** as a runtime witness, never faked green. This is why a witness cannot be declared done without running it, and why the test must be implemented to close the loop: the evidence *is* the test, run.
-
-See the **test‑reconciliation** skill for the fate→action mapping and the honesty lock; `implement-tests` is the test‑implementer that performs it and calls `run-validation` for evidence.
-
----
-
-## What's forthcoming (kept coherent, not yet built)
-
-- **Auto‑fix loop (local/CI)** — the self‑closing loop *on top of* the Execution Runner: a clean fail is diagnosed, a fix proposed as a commit and re‑run — never a silent edit to a protected branch; CI runs the same plan with constrained autonomy.
-- **Evidence Ledger** — the audit trail of justified test changes that makes human review fast.
+A `.claude/` build will follow the same shape once this stabilises. If you're extending the toolkit, start in the skills — they're terse and self‑describing.
