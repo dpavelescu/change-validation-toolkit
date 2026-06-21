@@ -33,9 +33,9 @@ testing strategy / baseline rules
         │  (regenerate, never hand-edit beside it)
         ▼
 validation rules  (thin, machine-usable, per change-type)
-        │  + the change + its criteria + discovered sources        ── forthcoming
+        │  + the change + its criteria + discovered sources
         ▼
-story-level validation plan  (AC → witness map, test fates)        ── forthcoming
+story-level validation plan  (AC → witness map, test fates)
         │
         ▼
 tests (materialized / reconciled against the existing suite)        ── forthcoming
@@ -50,7 +50,7 @@ CI execution (same plan, wider scope, constrained autonomy)         ── forth
 evidence ledger → human review (behavior + decisions, not internals)
 ```
 
-**Foundation covers the top three boxes** plus the cross‑cutting **Source‑Map Manifest** that every box reads from.
+**Foundation** covers the top three boxes and the cross‑cutting **Source‑Map Manifest** that every box reads from; **Phase 2** adds the **Criteria Ledger** and the story‑level **Validation Plan**. From *tests* down is still forthcoming.
 
 ---
 
@@ -62,8 +62,8 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Validation Rules** (thin op layer, per change‑type) | **generated from Strategy** | tool | ✅ |
 | **Source‑Map Manifest** | stable, agent‑extendable | human‑seeded | ✅ |
 | **Change Classification** | per change | tool | ✅ |
-| **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | forthcoming |
-| Validation Plan | per change | tool (human‑reviewed if risky) | forthcoming |
+| **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
+| **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
 | Characterization Baseline | per change (brownfield) | tool | forthcoming |
 | Evidence Ledger | per change | tool | forthcoming |
 
@@ -171,7 +171,6 @@ No derivation runs on a source too thin to derive honestly. If the criteria for 
 
 ## What's forthcoming (kept coherent, not yet built)
 
-- **Validation Plan** — per‑change derivation from Rules + criteria: AC→witness map, test fates (keep/change/add/remove), local & CI gates.
 - **Test reconciliation** against the existing brownfield suite, justified by a criteria delta against a **characterization baseline** — a test changes only because a criterion moved, never because it went red.
 - **Local/CI execution & auto‑fix** — the self‑closing loop; CI runs the same plan with constrained autonomy and proposes fixes as commits, never silent edits to protected branches.
 - **Evidence Ledger** — the audit trail of justified test changes that makes human review fast.

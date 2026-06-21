@@ -4,7 +4,7 @@
 
 Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. Same idiom — a tool‑neutral **Playbook** is canonical, **skills** are derived reference, **agents** orchestrate and apply lenses.
 
-> **Status — Foundation milestone, Copilot build.** The four foundation pieces are built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, and **Change Classification**. The execution half (Validation Plan → test reconciliation → local/CI auto‑fix → evidence) is specified in the Playbook and *forthcoming*. The `.claude/` build follows once this stabilizes.
+> **Status — Foundation + Phase 2 (Validation Plan), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Ledger**, and the per‑change **Validation Plan** (advisory — runs/edits nothing). The execution half (test reconciliation → local/CI auto‑fix → evidence) is specified in the Playbook and *forthcoming*. The `.claude/` build follows once this stabilizes.
 
 ---
 
@@ -31,7 +31,7 @@ Each arrow has a **minimum‑clarity gate**: if the source is too thin to derive
 
 ---
 
-## What's built (Foundation)
+## What's built (Foundation + Phase 2)
 
 ```
 README.md
@@ -42,11 +42,16 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
   agents/
     define-testing-strategy         author/update the Strategy + generate the Rules (human in loop)
     change-classifier               classify a change → types + blast radius + needed sources
+    reconcile-criteria              maintain stable AC IDs in the Criteria Ledger (Phase 2)
+    plan-validation                 derive the Validation Plan: AC→witness, fates, gates (Phase 2)
+    validation-plan-reviewer        gate the plan: coverage + fate justification (Phase 2)
   skills/                           (derived, auto-loaded reference)
     testing-strategy                Strategy structure + coverage checklist
     validation-rules                Rule schema + derivation from the Strategy
     change-taxonomy                 the change-types + classification heuristics
     source-map                      manifest schema + deterministic discovery procedure
+    criteria-ledger                 ledger schema + reconciliation/supersession (Phase 2)
+    validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
 ```
 
 ---
@@ -77,7 +82,8 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 2. **Fill the Source‑Map** with your real source locations (architecture, specs, schemas, tests, CI config).
 3. **Run `define-testing-strategy`** — it retrieves your architecture, drafts the Strategy per change‑type, clarifies the few genuinely‑open expectations, and **generates the Validation Rules**. Review and approve.
 4. **Run `change-classifier`** on a change — it returns the change‑types, blast radius, and the resolved sources the next phase will need.
-5. Hand the classification to the **Validation Plan** phase — *forthcoming*.
+5. **Run `plan-validation`** on the change + its story — it reconciles the acceptance criteria into stable AC IDs (**Criteria Ledger**), then produces a reviewed **Validation Plan**: per‑AC required evidence, an AC→witness map, provisional test fates, and the local/CI gates. Review and approve.
+6. Hand the plan to the **execution** phase (test reconciliation → local/CI auto‑fix) — *forthcoming*.
 
 ---
 
