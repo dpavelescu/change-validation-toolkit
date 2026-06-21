@@ -12,7 +12,7 @@ The Source‑Map makes source discovery **navigable and deterministic**. Validat
 
 ## Canonical kinds
 
-`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `ci-config` · `runbook` · `observability`
+`architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
 
 ## Entry schema
 
@@ -38,3 +38,4 @@ The Source‑Map makes source discovery **navigable and deterministic**. Validat
 - **Resolve by kind, not by guess** — the whole point is determinism; a blind repo search defeats it.
 - **Criticality is honored** — a critical source mirrors prepare‑work‑item's source guard: unretrievable is treated exactly like missing.
 - **Agent‑extension is explicit** — agents propose additions; humans seed and confirm. The map stays trustworthy because nothing enters it silently.
+- **`build-commands` is how the runner runs** — the (Phase 3) Execution Runner resolves its install/build/test invocations and selective‑run syntax from `build-commands`, cross‑checked against `ci-config` for local↔CI parity. It never guesses the test command any more than it guesses a file path; an unresolvable critical command is a blocking *limitation*.

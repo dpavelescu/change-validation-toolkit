@@ -21,7 +21,7 @@
 | `criticality` | `critical` (missing → blocking) · `supporting` |
 | `notes` | optional — version, owner, caveats |
 
-**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `ci-config` · `runbook` · `observability`
+**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `tests` · `build-commands` · `ci-config` · `runbook` · `observability`
 
 ## Entries — FILL THESE IN
 
@@ -36,6 +36,7 @@
 | coding-guidelines | `docs/engineering/guidelines.md` | repo | `*` | supporting | |
 | testing-strategy | `.github/skills/testing-strategy` + `TESTING-STRATEGY.md` | repo | `*` | critical | the human‑owned Strategy |
 | tests | `src/test/**`, `**/*.spec.tsx` | repo | `*` | critical | existing suite (reconciliation target) |
+| build-commands | `./mvnw test`, `npm test`, `pom.xml`, `package.json` | command:`./mvnw -q test` | `*` | critical | install/build/test + selective‑run syntax; `ci-config` is the parity anchor for the runner |
 | ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | local↔CI parity reference |
 | runbook | `docs/runbooks/**` | repo | `cross-service`, `db-migration` | supporting | |
 | observability | `<dashboards/alerts url>` | url | `cross-service` | supporting | for runtime‑witness items |

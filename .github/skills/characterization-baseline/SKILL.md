@@ -11,7 +11,7 @@ description: >-
 
 The Characterization Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the Criteria Ledger checks identity at the level of *wording* and the plan reviewer at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
 
-**Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** run with the forthcoming execution runner.
+**Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** delegate to the **Execution Runner** (`run-validation` / the **execution‑runner** skill), which drives the project's own suite.
 
 ## Schema
 
@@ -29,7 +29,7 @@ surfaces:                                  # one block per pinned surface in the
     determinism:       deterministic | quarantined(<reason>)          # flaky → not baselined
     related-witnesses: [ <test-ref> ... ]             # existing tests defending it (read-only discovery)
 
-reconciliation:                            # produced post-change, at execution (forthcoming runner)
+reconciliation:                            # produced post-change, via the Execution Runner (run-validation)
   - surface-id:        ...
     observed-delta:    <how post-change behavior differs from pinned-behavior, or "none">
     classification:    preserved | justified(<AC-N>) | regression | boundary-decision

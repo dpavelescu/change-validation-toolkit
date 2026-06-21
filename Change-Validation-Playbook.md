@@ -64,7 +64,8 @@ evidence ledger → human review (behavior + decisions, not internals)
 | **Change Classification** | per change | tool | ✅ |
 | **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
 | **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
-| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — specified; capture needs the runner) |
+| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — specified; capture via the runner) |
+| **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — specified; first piece that runs) |
 | Evidence Ledger | per change | tool | forthcoming |
 
 **Hard rule:** *Validation Rules is regenerated from the Strategy, never hand‑maintained beside it.* Two hand‑edited documents drift, and the agent then enforces rules the strategy has abandoned.
@@ -182,14 +183,31 @@ It reuses machinery already in the toolkit rather than inventing parallel concep
 
 **Lifetime & honesty.** The baseline is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior. Once captured it is **immutable** — you never widen the baseline after the fact to make a regression look "expected" (the behavior analogue of *no silent supersession*).
 
-**The execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. So the piece splits: **planning the baseline** (which surfaces, what is observable, how to capture) is advisory and lands now, like the rest of the toolkit; **capture and reconcile** run with the forthcoming execution runner. Capture over **non‑deterministic** behavior is refused, not faked — a flaky surface is quarantined and raised as a **limitation** (you cannot pin what you cannot reproduce), never silently baselined into noise.
+**The execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. So the piece splits: **planning the baseline** (which surfaces, what is observable, how to capture) is advisory and lands now, like the rest of the toolkit; **capture and reconcile** delegate to the **Execution Runner** (below). Capture over **non‑deterministic** behavior is refused, not faked — a flaky surface is quarantined and raised as a **limitation** (you cannot pin what you cannot reproduce), never silently baselined into noise.
 
 See the **characterization‑baseline** skill for the schema and the capture/reconcile procedure; `characterize-baseline` is the agent that produces it.
+
+---
+
+## Phase 3 — Execution Runner (the first thing that runs)
+
+Up to here every artifact is advisory — it proposes, it never runs or edits. The Characterization Baseline needs *observed* behavior, so something must finally execute. That is the **Execution Runner**: the substrate that drives **the project's own suite** — resolved through the Source‑Map (the `build-commands` kind, parity‑checked against `ci-config`), never a harness the toolkit invents — over the change's blast‑radius slice, and returns **structured observations**: what ran, what each result witnesses about behavior, and whether it reproduces. It **runs but does not edit** — observation only; what to *do* with a result belongs to the baseline's reconciliation and the forthcoming auto‑fix loop.
+
+One distinction defines the layer, and it is the operational form of the whole "no artificial handoffs" stance applied to execution outcomes:
+
+- A **clean fail** — the test ran and asserted false — is **loop input**, a behavior signal. It is never escalated to a human. *(This is the playbook's founding line — "a failing test becomes loop input, not a human handoff" — made literal.)*
+- A **can't‑run** — couldn't build, run, or resolve the command — is a **limitation**, a toolkit gap logged as such. It is never normalized into "a human handles this case."
+
+A red test and a broken harness look identical at a glance; conflating them is exactly how a toolkit quietly accretes handoffs that hide its own gaps. The runner refuses to — it sorts every non‑pass into **signal or gap**.
+
+Two more disciplines keep it honest. **Minimality** — it runs the blast‑radius slice via selective invocation, never the whole suite. **Determinism or quarantine** — it re‑runs; a flaky surface is quarantined and raised as a limitation, never passed to the baseline as truth, because you cannot witness what you cannot reproduce. And because the run record is **persisted in‑repo and committed**, CI replays the identical scope and commands — local↔CI parity becomes a recorded fact, not a hope (closing the playbook's standing worry about "lost context between local and CI").
+
+See the **execution‑runner** skill for the run‑record schema and the resolve/run/observe procedure; `run-validation` is the agent that drives it, and `characterize-baseline` calls it to pin and re‑observe behavior.
 
 ---
 
 ## What's forthcoming (kept coherent, not yet built)
 
 - **Test reconciliation** against the existing brownfield suite — materializing or adjusting tests per the plan's fates, each delta justified against the **Characterization Baseline** (above): a test changes only because a criterion moved, never because it went red.
-- **Local/CI execution & auto‑fix** — the self‑closing loop; CI runs the same plan with constrained autonomy and proposes fixes as commits, never silent edits to protected branches.
+- **Auto‑fix loop (local/CI)** — the self‑closing loop *on top of* the Execution Runner: a clean fail is diagnosed, a fix proposed as a commit and re‑run — never a silent edit to a protected branch; CI runs the same plan with constrained autonomy.
 - **Evidence Ledger** — the audit trail of justified test changes that makes human review fast.
