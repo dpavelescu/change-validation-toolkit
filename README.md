@@ -46,7 +46,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     classify-change               classify a change → types + blast radius + needed sources
     reconcile-criteria              give ACs stable per-change ids (local↔CI, not durable) (Phase 2)
     plan-validation                 derive the Validation Plan: AC→witness, fates, gates (Phase 2)
-    validation-plan-reviewer        gate the plan: coverage + fate justification (Phase 2)
+    review-plan        gate the plan: coverage + fate justification (Phase 2)
     capture-baseline                pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
     run-validation                  drive the project's own suite over the blast radius → observations + determinism (Phase 3)
     implement-tests                 independent test-implementer: materialize witnesses from criteria, never the impl (Phase 3)
@@ -94,7 +94,7 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 2. **Fill the Source‑Map** with your real source locations (architecture, specs, schemas, tests, CI config).
 3. **Run `define-testing-strategy`** — it retrieves your architecture and **authors the full human‑owned Strategy from scratch if you don't have one** (or updates an existing one), per change‑type, clarifying the genuinely‑open expectations **one question at a time** and surfacing any gap/inconsistency for your decision. Only then does it **generate the derived Validation Rules** (the thin AI‑facing layer). You own and approve the Strategy; the Rules are its projection.
    *(Then, per change, you run only the two per‑change entry points below — `plan-validation` and `drive-correction` — each orchestrating the inner agents as subagents.)*
-4. **Run `plan-validation`** on the change + its story → a reviewed **Validation Plan**. Underneath it runs `classify-change` (types + blast radius), `reconcile-criteria` (stable per‑change AC ids), and `validation-plan-reviewer` (the gate). Review and approve.
+4. **Run `plan-validation`** on the change + its story → a reviewed **Validation Plan**. Underneath it runs `classify-change` (types + blast radius), `reconcile-criteria` (stable per‑change AC ids), and `review-plan` (the gate). Review and approve.
 5. **Run `drive-correction`** to execute and correct. Underneath it runs `capture-baseline` (photograph behavior), `implement-tests` (materialize witnesses), and `run-validation` (your own suite, local‑first). For each red test it emits a structured **fix‑request** for whoever implements the code, then **pauses**; after the fix you re‑invoke it. It re‑assesses impact and re‑sorts red tests via the baseline (`regression` vs `brittle`), iterating to green — **never writing production code**, never handing you broken code (only a *decision* if criteria or a contract must change). On green it delegates `record-evidence` to write the durable **Evidence Ledger** — *what was validated, by what, and why* — so review is about behavior and decisions, not internals.
 
 ---

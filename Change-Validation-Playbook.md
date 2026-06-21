@@ -57,7 +57,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 | You run | When | It orchestrates underneath (subagents) |
 |---|---|---|
 | **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
-| **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `validation-plan-reviewer` |
+| **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `review-plan` |
 | **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `implement-tests` · `run-validation` |
 
 End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → write tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
@@ -142,11 +142,11 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
 - **Args:** `change=<diff|branch|PR>` · `story=<link|file>` · `classification=<path>` *(reuse)*
 - **Uses skills:** `validation-plan`, `change-taxonomy`
-- **Delegates to:** `classify-change`, `reconcile-criteria`, `validation-plan-reviewer`
+- **Delegates to:** `classify-change`, `reconcile-criteria`, `review-plan`
 - **Needs:** the change · the story · the Validation Rules · the Source‑Map
 - **Produces:** the Validation Plan (a draft you approve) — or *Not ready* with a resumable agenda
 
-**`validation-plan-reviewer`** — *gate lens* — Review the assembled plan before capture: coverage, fate justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
+**`review-plan`** — *gate lens* — Review the assembled plan before capture: coverage, fate justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
 - **Args:** none of its own (invoked by `plan-validation`)
 - **Uses skills:** `validation-plan`, `criteria-identity`
 - **Needs:** the assembled plan · the Criteria Identity

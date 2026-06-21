@@ -1,5 +1,5 @@
 ---
-name: validation-plan-reviewer
+name: review-plan
 description: >-
   Gate an assembled Validation Plan before capture — AC→witness coverage, criteria-delta
   justification for every change/remove fate, AC testability, and blast-radius coverage. Read-only
