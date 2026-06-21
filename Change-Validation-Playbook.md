@@ -61,21 +61,21 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 
 End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → write tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
 
-### The flow, in four scenarios
+### Scenarios it supports
 
-*(Illustrations on a Spring Boot + React + SNS/SQS stack — the specifics always come from **your** strategy, not the toolkit.)*
+These are the classes of change the toolkit handles end‑to‑end — each stated as a capability, then shown with a concrete example.
 
-**① A new feature — "add an email field to signup."**
-Classified as a REST change; the blast radius includes the endpoint, the shared `UserService`, and an old end‑to‑end test found *from the code*, not any stored link. The plan: a test per new criterion ("accepts valid," "rejects malformed"), plus a regression guard on what's merely touched. `drive-correction` runs them; the criterion test is red (feature not built) → it emits a **fix‑request** and pauses; you (or your impl agent) write the code and re‑invoke; it goes green. **No test was edited to pass.**
+**① A new feature (new acceptance criteria).** It plans the required evidence, writes a witness for each criterion, and drives the unmet ones to green via fix‑requests — never editing a test to pass.
+> *Example — "add an email field to signup":* classified as a REST change; the blast radius pulls in the endpoint, the shared `UserService`, and an old end‑to‑end test found *from the code*. The new criterion tests are red (feature not built) → fix‑request → you (or your impl agent) implement and re‑invoke → green.
 
-**② A regression caught — a shared helper is tweaked.**
-Nothing in the story asked for it, but an old order‑history endpoint now returns a different total. The baseline photographed it beforehand; the delta maps to **no criterion → regression →** a fix‑request, before anyone ships. The old test needed no stored link — the change *reached its code*.
+**② A change that risks untouched‑but‑reachable code.** Its blast radius and behavior baseline catch a regression even in code some *other*, unrelated story built — with no links for you to maintain.
+> *Example — a shared helper is tweaked:* nothing in the story asked for it, but an old order‑history endpoint now returns a different total. The delta maps to **no criterion → regression**, caught before anyone ships.
 
-**③ A pure refactor — behavior must stay identical.**
-No new criteria, so *every* touched behavior must match the photograph; the baseline **is** the evidence — any difference is a regression.
+**③ A pure refactor (no behavior change intended).** Behavior‑preservation is the entire evidence: every touched behavior must match the pre‑change photograph; any difference is a regression.
+> *Example:* an `extract method` cleanup — the baseline pins every reachable surface beforehand and confirms each is identical after.
 
-**④ A fix breaks a brittle unit test — the loop stays honest.**
-A fix extracts a method; a unit test bound to the old internals goes red, but the endpoint's **behavior is preserved** (the baseline confirms). So it's **brittle**, not a regression: the loop repairs the test (decoupling it) — *gated by the preserved behavior*, never by the red result. A real regression could never be relabelled this way; the baseline is the gate.
+**④ A fix that breaks a brittle test.** The loop tells a real regression from a test merely coupled to internal structure: if the baseline says behavior is **preserved**, the test is *brittle* and gets repaired (decoupled); if behavior **moved** with no criterion, it's a regression to fix. The baseline is the gate — a regression can never be relabelled "brittle."
+> *Example:* a fix extracts a method; a unit test bound to the old internals goes red while the endpoint's behavior is unchanged → repaired, not laundered.
 
 ### When it comes to you — and when it doesn't
 
