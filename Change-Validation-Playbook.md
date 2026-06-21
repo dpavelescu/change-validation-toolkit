@@ -87,6 +87,8 @@ Every human touch is exactly one of two things — this is what keeps it autonom
 
 A failing test is **neither** — it's just the loop's next input. You hear about it only if it becomes a decision.
 
+Both arrive in a **structured** shape (the **escalation** skill), not loose prose: a *decision* carries its question, the context that forces it, the owning authority, and what it blocks; a *limitation* carries the gap, what it blocked, and what would close it. So they're fast to review and they land in the Evidence Ledger.
+
 ---
 
 ## What it needs from you
@@ -203,6 +205,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `test-reconciliation` | the fate→action mapping + criteria provenance + honesty lock |
 | `correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
 | `evidence-ledger` | the durable audit trail: criteria → witness → evidence; output, never read back |
+| `escalation` | the structured shape of a decision (a question) vs a limitation (a toolkit gap) |
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 

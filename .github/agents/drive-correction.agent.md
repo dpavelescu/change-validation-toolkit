@@ -13,7 +13,7 @@ Drive a red change to green **without writing production code** — diagnose, em
 **Args:** `change=<diff|branch|PR>` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `fix-requests=<path>` (default `.validation/<change>/fix-requests.md`) · `max-iterations=<n>`.
 
 ## Inputs (retrieve, don't assume)
-The Validation Plan, the Behavior Baseline, and the latest run record (the `loop-input` clean fails). Apply the **correction‑loop** skill. *(Delegates to `run-validation`, `change-classifier` (re‑assess), `capture-baseline` (sort), `implement-tests` (test fixes); the production fix is external.)*
+The Validation Plan, the Behavior Baseline, and the latest run record (the `loop-input` clean fails). Apply the **correction‑loop** and **escalation** skills (decisions/limitations follow the escalation skill's structured shape). *(Delegates to `run-validation`, `change-classifier` (re‑assess), `capture-baseline` (sort), `implement-tests` (test fixes), `record-evidence` (on green); the production fix is external.)*
 
 ## Process (set up → validate → re‑assess → sort → route → hand off)
 1. **Set up** *(first invocation)* — ensure this change has a Behavior Baseline (delegate `capture-baseline`) and materialized witnesses (delegate `implement-tests`); on re‑invocation, reuse them.
