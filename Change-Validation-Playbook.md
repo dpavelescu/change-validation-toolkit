@@ -145,10 +145,10 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Produces:** change‑types · blast radius · affected tests (by type) · needed sources · claim authorities
 
 **`reconcile-criteria`** — Give each acceptance criterion a **stable id for this change's run** (`new`/`unchanged`/`moved`/`retired` vs the existing suite). Read‑only on the story; ids are **per‑change** (stable across local↔CI, discarded after merge) — *not* a durable or cross‑change record.
-- **Args:** `story=<link|file>` · `classification=<path>` *(affected tests)* · `ledger=<path>` *(this change's run state; default `.validation/<change>/criteria.md`)*
-- **Uses skills:** `criteria-ledger`, `source-map`
+- **Args:** `story=<link|file>` · `classification=<path>` *(affected tests)* · `criteria-ids=<path>` *(this change's run state; default `.validation/<change>/criteria.md`)*
+- **Uses skills:** `criteria-identity`, `source-map`
 - **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the existing tests the change reaches (from the blast radius)
-- **Produces:** the per‑change Criteria Ledger + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
+- **Produces:** the per‑change Criteria Identity + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
 - **Delegated by:** `plan-validation`
 
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and witness map, provisional test fates, the regression (behavior‑preservation) track, and the local/CI gates.
@@ -160,18 +160,18 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 **`validation-plan-reviewer`** — *gate lens* — Review the assembled plan before capture: coverage, fate justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
 - **Args:** none of its own (invoked by `plan-validation`)
-- **Uses skills:** `validation-plan`, `criteria-ledger`
-- **Needs:** the assembled plan · the Criteria Ledger
+- **Uses skills:** `validation-plan`, `criteria-identity`
+- **Needs:** the assembled plan · the Criteria Identity
 - **Produces:** findings + a recommendation (ready to capture / Not ready)
 - **Delegated by:** `plan-validation`
 
 ### Execute a change — *Phase 3; runs your suite (auto‑fix loop forthcoming)*
 
 **`capture-baseline`** — **Photograph current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
-- **Args:** `change` · `classification=<path>` · `plan=<path>` · `ledger=<path>` · `baseline=<path>`
+- **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
 - **Uses skills:** `behavior-baseline`, `change-taxonomy`
 - **Delegates to:** `run-validation`
-- **Needs:** the plan's behavior‑preservation track · the classification · the ledger deltas · the pre‑change state
+- **Needs:** the plan's behavior‑preservation track · the classification · the criteria identity deltas · the pre‑change state
 - **Produces:** the Behavior Baseline + a delta reconciliation
 
 **`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a determinism verdict. The execution substrate; runs, never edits.
@@ -182,10 +182,10 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Used by:** `capture-baseline`, `implement-tests`
 
 **`implement-tests`** — Materialize and adjust the **witnessing tests** per the plan's fates — criterion witnesses from the criteria, regression witnesses from the baseline. The **independent test‑implementer**; never edits production code.
-- **Args:** `change` · `plan=<path>` · `ledger=<path>` · `baseline=<path>`
+- **Args:** `change` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
 - **Uses skills:** `test-reconciliation`
 - **Delegates to:** `run-validation`
-- **Needs:** the Validation Plan · the Criteria Ledger · the Behavior Baseline · the Source‑Map `tests`
+- **Needs:** the Validation Plan · the Criteria Identity · the Behavior Baseline · the Source‑Map `tests`
 - **Produces:** the materialized/adjusted tests + a reconciliation record
 
 ### The skills (operational reference each agent uses)
@@ -196,7 +196,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `validation-rules` | the Rule schema + deriving Rules from the Strategy |
 | `source-map` | source locations + **authority** (who owns which claim) + typed tests |
 | `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
-| `criteria-ledger` | per‑change stable AC ids + new/unchanged/moved/retired classification |
+| `criteria-identity` | per‑change stable AC ids + new/unchanged/moved/retired classification |
 | `validation-plan` | the plan schema + derivation + AC→witness mapping |
 | `behavior-baseline` | the behavior snapshot + capture/reconcile + the honesty rule |
 | `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |

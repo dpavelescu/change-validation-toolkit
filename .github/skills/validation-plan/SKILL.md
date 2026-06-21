@@ -39,7 +39,7 @@ open-decisions:    [ escalations blocking completeness ]
 
 ## Derivation procedure
 
-1. **Take** the Change Classification (types, blast radius, resolved sources) and the **Criteria Ledger** (active ACs with stable IDs).
+1. **Take** the Change Classification (types, blast radius, resolved sources) and the **Criteria Identity** (active ACs with stable IDs).
 2. **Per active AC**, pull `required-evidence` from the Validation Rules for the matched change‑type(s).
 3. **Map a witness** to each AC: discover related existing tests **read‑only** (via the Source‑Map `tests` kind) and set `witness`. Where confidence can't be proven pre‑merge, set `kind: runtime-monitor` and list it under `non-automatable` — **never fake a green test**. An AC with no witness yet → `none-yet` (a coverage gap, surfaced, not hidden).
 4. **Propose fates** for related existing tests — **provisional**:

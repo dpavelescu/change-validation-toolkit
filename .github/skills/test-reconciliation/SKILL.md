@@ -7,27 +7,27 @@ description: >-
   implement-tests; evidence comes from the runner. Phase 3.
 ---
 
-Test Reconciliation turns the Validation Plan's **provisional fates** into **real witnesses** along both of the plan's tracks: a **criterion witness** for each active AC (intended behavior) and a **regression witness** for each blast‑radius surface no AC owns (unchanged behavior). It materializes new tests and adjusts existing ones so every active AC and every touched surface has a witness that traces to it, then hands them to the **Execution Runner** for evidence. It is owned by an **independent test‑implementer** (`implement-tests`) — never the producer of the production change — because a witness authored by the thing it judges is no witness at all. Its authority for *what to assert* is the **Criteria Ledger** (or, for regression witnesses, the **pinned baseline**) — **never the new implementation**. Per‑change, in‑repo, committed.
+Test Reconciliation turns the Validation Plan's **provisional fates** into **real witnesses** along both of the plan's tracks: a **criterion witness** for each active AC (intended behavior) and a **regression witness** for each blast‑radius surface no AC owns (unchanged behavior). It materializes new tests and adjusts existing ones so every active AC and every touched surface has a witness that traces to it, then hands them to the **Execution Runner** for evidence. It is owned by an **independent test‑implementer** (`implement-tests`) — never the producer of the production change — because a witness authored by the thing it judges is no witness at all. Its authority for *what to assert* is the **Criteria Identity** (or, for regression witnesses, the **pinned baseline**) — **never the new implementation**. Per‑change, in‑repo, committed.
 
 **The two provenances (and the one that's forbidden).**
-- A **criterion test** asserts the **AC** — what *should* be true. Authored from the Ledger; the test‑implementer must be able to write it from the criterion alone.
+- A **criterion test** asserts the **AC** — what *should* be true. Authored from the Criteria Identity; the test‑implementer must be able to write it from the criterion alone.
 - A **regression witness** asserts the **pinned baseline** — what *is* true — for any blast‑radius surface no AC owns, as a behavior‑preservation net. (`internal-refactor` is the case where *every* surface is of this kind.)
 - **Forbidden:** an assertion derived from the **new implementation**. Reading the impl for *mechanical wiring* (how to invoke the surface) is allowed and flagged; reading it to decide *what is correct* is the failure the separation exists to prevent.
 
 ## Fate → action (confirming the plan's provisional fates against reality)
 
-| Plan fate | Trigger (from the Ledger) | Action | Justified by |
+| Plan fate | Trigger (from the Criteria Identity) | Action | Justified by |
 |---|---|---|---|
 | `add` | new AC / `none-yet` witness | author a new criterion test | the AC (expect red until the impl satisfies it — **loop input**, not a fault) |
-| `change` | AC `moved` | adjust the witness to defend the **new** wording | the ledger `moved` delta — **never a red result** |
+| `change` | AC `moved` | adjust the witness to defend the **new** wording | the criteria identity `moved` delta — **never a red result** |
 | `keep` | AC unchanged | leave the witness untouched | — |
-| `remove` | AC `retired` | remove / retire the witness | the ledger `retired` delta — **never a red result** |
+| `remove` | AC `retired` | remove / retire the witness | the criteria identity `retired` delta — **never a red result** |
 | (regression) | blast‑radius surface no active AC owns (refactor = every surface) | author/keep a test pinning the **baseline** behavior | the pinned baseline; a divergence is a **caught regression** (loop input), never a test edit |
 
 ## The honesty lock (three keys)
 
 A test `change`/`remove` is honest only when all three agree:
-- **Ledger** — a criteria delta (`moved`/`retired`) justifies it.
+- **Criteria Identity** — a criteria delta (`moved`/`retired`) justifies it.
 - **Baseline** — the behavior delta is `justified`, not a `regression`.
 - **Runner** — the evidence is *observed*, never asserted.
 
@@ -46,7 +46,7 @@ per-ac:
     fate:         add | change | keep | remove        # confirmed (no longer provisional)
     provenance:   criterion | baseline        # never "implementation"
     witness-ref:  <test file::case the action produced/adjusted>
-    justified-by: <ledger delta | baseline-justified | n/a (add/keep)>
+    justified-by: <criteria identity delta | baseline-justified | n/a (add/keep)>
     evidence:     green | red(loop-input) | runtime-monitor | none-yet
 open-decisions:  [ un-observable AC → criteria gap ]
 limitations:     [ can't author/invoke a surface → toolkit gap ]
@@ -57,7 +57,7 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 - **Independent witness** — tests are authored by the test‑implementer, never by the producer of the change; the implementer never writes its own witnesses.
 - **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl; impl is read for wiring only, flagged.
 - **Honesty lock** — every `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden.
-- **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Ledger** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the ledger; humans never type it.
+- **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Criteria Identity** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the criteria identity; humans never type it.
 - **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input, never a softened test or a handoff.
 - **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
 - **No faked green** — non‑automatable → admitted runtime witness, never a fake pass.
