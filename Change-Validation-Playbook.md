@@ -42,7 +42,8 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 - **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
 - **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
 - **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
-- **Drives correction to green — by handoff.** When a test fails it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human or your impl agent), then re‑validates and iterates. It **never writes production code itself** and never hands a person broken code — only the tests, the evidence, and an honest diagnosis. *(The lasting audit trail is the one piece still coming.)*
+- **Drives correction to green — by handoff.** When a test fails it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human or your impl agent), then re‑validates and iterates. It **never writes production code itself** and never hands a person broken code — only the tests, the evidence, and an honest diagnosis.
+- **Keeps a durable audit trail.** When a change reaches green it records *what was validated, by what, and why* — criteria → witness → evidence, what behavior was preserved, the justified test changes, and any decisions or limitations — so a human review (or a compliance check) is about **behavior and decisions, not internals**. Evidence only; nothing is "done" without it.
 
 > **The capability you should understand: finding affected tests without links.**
 > When a change touches code that an old story's tests cover, those tests are found **because the change reaches that code** — discovered fresh every time from the code itself (call graph and/or coverage), never from a stored "this change relates to story X" reference. References rot; this can't, because there's nothing to keep. System‑level tests (end‑to‑end, integration) are caught too, by the *flows* they exercise — which is why the toolkit is told where each kind of test lives.
@@ -101,9 +102,9 @@ A failing test is **neither** — it's just the loop's next input. You hear abou
 
 ## Where it is today
 
-**Available and specified end‑to‑end through the correction loop:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, writing/adjusting tests honestly, and **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit).
+**Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, writing/adjusting tests honestly, **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit), and recording the durable **Evidence Ledger**.
 
-**Coming next:** the **Evidence Ledger** — the lasting audit trail of what was checked and why, so a human review is fast.
+**Next:** the parallel **`.claude/` build** — this is the Copilot‑first build; the model itself is now complete end‑to‑end.
 
 ---
 
@@ -180,6 +181,13 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (loop‑input)
 - **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 
+**`record-evidence`** — On green, assemble the durable **Evidence Ledger** entry: *what was validated, by what, and why* (criteria → witness → evidence, behavior preserved, justified test changes, decisions, limitations). Records only real evidence; an **output, never read back**.
+- **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `reconcile-record=<path>` · `ledger=<path>`
+- **Uses skills:** `evidence-ledger`
+- **Needs:** the Validation Plan · the Behavior Baseline reconciliation · the run records · the test‑reconciliation record · decisions/limitations raised
+- **Produces:** the durable per‑change Evidence Ledger entry (verdict `green` only on complete evidence)
+- **Delegated by:** `drive-correction` *(on green)*
+
 ### The skills (operational reference each agent uses)
 
 | Skill | What it specifies |
@@ -194,6 +202,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
 | `test-reconciliation` | the fate→action mapping + criteria provenance + honesty lock |
 | `correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
+| `evidence-ledger` | the durable audit trail: criteria → witness → evidence; output, never read back |
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 

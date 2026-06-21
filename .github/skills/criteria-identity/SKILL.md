@@ -12,7 +12,7 @@ The Criteria Identity gives each acceptance criterion a **stable id for one chan
 **Scope — per‑change run state, not a durable record.** It lives with the change (on its branch) so local and CI agree on the ids, and is **discarded after merge**. It does *not* accumulate across changes or live in `main`. Two changes have independent records — nothing shared, namespaced, or grown over time. Two jobs are deliberately **not** its:
 
 - **Cross‑change continuity.** When a *later* change touches code an earlier change's tests cover, those tests are found by the **blast radius** (test‑impact analysis) and reconciled by the **Behavior Baseline** — by surface, never by a remembered id. The criteria identity never links across changes.
-- **Durable audit.** The lasting "this test validated this criterion" trail is the **Evidence Ledger** (forthcoming), not this.
+- **Durable audit.** The lasting "this test validated this criterion" trail is the **Evidence Ledger**, not this.
 
 ## Entry schema (one per acceptance criterion, for this change)
 
