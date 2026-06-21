@@ -16,7 +16,7 @@ Classify a change and scope what validating it will need. **House rules:** class
 The change (diff/branch/PR). The **change‑taxonomy**, **validation‑rules**, and **source‑map** skills. The generated Validation Rules and the Source‑Map Manifest.
 
 ## Process (classify → scope → resolve)
-1. **Classify** — map the change to one or more **change‑types** using the taxonomy heuristics (behavior over location). State each with its evidence signal. A pure structure change with no criteria delta → `internal-refactor` (flag for the **Characterization Baseline** — every behavior delta is then a regression).
+1. **Classify** — map the change to one or more **change‑types** using the taxonomy heuristics (behavior over location). State each with its evidence signal. A pure structure change with no criteria delta → `internal-refactor` (flag for the **Behavior Baseline** — every behavior delta is then a regression).
 2. **Blast radius** — scope what the change touches transitively: changed surfaces → direct dependents → contract/consumer boundaries crossed. Note multi‑type interactions (e.g. `rest-api` + `event-producer`).
 3. **Resolve sources** — from the matched Rules' `source-kinds`, resolve each kind to a location via the Source‑Map. **Critical + unretrievable = blocking** (report as a *limitation*). A needed kind with no manifest entry → **propose a manifest addition**, don't hard‑code.
 4. **Coverage check** — if any change‑type has **no matching Rule**, surface it as a **Strategy gap** (route to `define-testing-strategy`); do not invent evidence for it.

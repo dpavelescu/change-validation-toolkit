@@ -24,14 +24,14 @@ The change‑types are the **key** the Testing Strategy and Validation Rules are
 
 - **Behavior over location.** A change under `controller/` that only renames a private method is `internal-refactor`, not `rest-api`.
 - **Multi‑type is normal.** An endpoint that also emits an event is `rest-api` + `event-producer`. Tag all that apply.
-- **Refactor needs a baseline.** `internal-refactor` carries no criteria delta, so its evidence is *behavior‑preservation* — flag it for the **Characterization Baseline**, where every behavior delta is, by definition, a regression (see the **characterization‑baseline** skill).
+- **Refactor needs a baseline.** `internal-refactor` carries no criteria delta, so its evidence is *behavior‑preservation* — flag it for the **Behavior Baseline**, where every behavior delta is, by definition, a regression (see the **behavior‑baseline** skill).
 - **Unknown type → blocking gap.** If the change fits no type and no Strategy rule covers it, that's a Strategy gap (a *decision* to extend the taxonomy/Strategy), not a guess.
 
 ## Blast radius
 
 Scope **what the change touches transitively** — the callers, consumers, and contracts downstream of the diff. Blast radius drives later minimality (smallest sufficient evidence set) and tells the Source‑Map which sources to retrieve. Record it as: changed surfaces → direct dependents → contract/consumer boundaries crossed.
 
-A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the characterization baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
+A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the behavior baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
 
 ## Output (consumed by Validation Rules + the forthcoming Plan)
 

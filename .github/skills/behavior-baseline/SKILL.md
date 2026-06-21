@@ -1,15 +1,15 @@
 ---
-name: characterization-baseline
+name: behavior-baseline
 description: >-
-  The schema and capture/reconcile procedure for the Characterization Baseline — the per-change
+  The schema and capture/reconcile procedure for the Behavior Baseline — the per-change
   snapshot of current brownfield behavior that lets a behavior delta be sorted into justified (a
   criterion moved) vs regression (none did). The behavior-level enforcement of the auto-fix honesty
-  rule. Used by characterize-baseline; confirms the Validation Plan's provisional fates. Phase 3.
+  rule. Used by capture-baseline; confirms the Validation Plan's provisional fates. Phase 3.
 ---
 
 *Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
 
-The Characterization Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the Criteria Ledger checks identity at the level of *wording* and the plan reviewer at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
+The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the Criteria Ledger checks identity at the level of *wording* and the plan reviewer at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
 
 **Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** delegate to the **Execution Runner** (`run-validation` / the **execution‑runner** skill), which drives the project's own suite.
 
@@ -18,7 +18,7 @@ The Characterization Baseline pins **current observable behavior** of a change's
 ```
 baseline-ref:      <change-ref>
 captured-at:       <pre-change commit/state the behavior was pinned from>
-scope:             <blast-radius surfaces characterized — minimal>   # from change-classifier
+scope:             <blast-radius surfaces pinned — minimal>   # from change-classifier
 strategy-version:  <provenance of the Rules in force>
 
 surfaces:                                  # one block per pinned surface in the blast radius
@@ -38,7 +38,7 @@ reconciliation:                            # produced post-change, via the Execu
 
 ## Capture procedure (pre‑change)
 
-1. **Scope** the surfaces from the blast radius — **minimal**, the smallest sufficient set, never "characterize everything." This includes blast‑radius surfaces **no acceptance criterion owns** (the plan's behavior‑preservation track) — pinning them is exactly how regression in untouched‑but‑reachable code is caught. (`internal-refactor` is the limit case: every surface is of this kind.)
+1. **Scope** the surfaces from the blast radius — **minimal**, the smallest sufficient set, never "pin everything." This includes blast‑radius surfaces **no acceptance criterion owns** (the plan's behavior‑preservation track) — pinning them is exactly how regression in untouched‑but‑reachable code is caught. (`internal-refactor` is the limit case: every surface is of this kind.)
 2. **Per surface**, define the observation contract: what is observable for its change‑type (HTTP response + status for `rest-api`; emitted payload for `event-producer`; persisted state and old‑vs‑new coexistence for `db-migration`; rendered output for `react-ui`; the contract itself for `cross-service`).
 3. **Pin** behavior by observing current code at `captured-at`; record `pinned-behavior`. Discover related existing tests **read‑only** via the Source‑Map `tests` kind.
 4. **Determinism gate** — non‑reproducible / flaky behavior is **not** baselined: quarantine the surface and raise a **limitation** (you cannot pin what you cannot reproduce; baselining noise would lie).
@@ -63,6 +63,6 @@ A provisional `change` fate from the Validation Plan is **honest only if its sur
 - **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC in the Ledger; absent that match it is a `regression`.
 - **Regression is loop input, not a handoff** — an unjustified delta feeds the auto‑fix loop / surfaces as a finding — a toolkit task, never normalized as human‑in‑the‑loop — *unless* it crosses a public contract / ownership boundary, which is a **decision** (structured question).
 - **Can't capture → limitation** — can't run / build / reproduce is a toolkit gap, logged as such, never a handoff.
-- **Minimality** — characterize the blast radius only.
+- **Minimality** — pin the blast radius only.
 - **Refactor is sharpest** — `internal-refactor` carries no criteria delta by definition, so the baseline is its **primary** evidence: every behavior delta is, necessarily, a regression.
 - **Persisted** — written in‑repo so local and CI reconcile against identical pinned behavior.

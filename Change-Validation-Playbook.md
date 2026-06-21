@@ -4,7 +4,7 @@
 
 This is the canonical, tool‑neutral reference. The Copilot / Claude builds are derived from it; if they disagree, this playbook wins.
 
-> **Status.** Built and specified end‑to‑end through **Test Reconciliation**: the Testing Strategy, the derived Validation Rules, the Source‑Map Manifest, Change Classification, the Criteria Ledger, the Validation Plan, the Characterization Baseline, the Execution Runner, and Test Reconciliation. Only the **auto‑fix loop** and the **Evidence Ledger** (the last two steps) remain forthcoming — described here at the level needed to keep the model coherent.
+> **Status.** Built and specified end‑to‑end through **Test Reconciliation**: the Testing Strategy, the derived Validation Rules, the Source‑Map Manifest, Change Classification, the Criteria Ledger, the Validation Plan, the Behavior Baseline, the Execution Runner, and Test Reconciliation. Only the **auto‑fix loop** and the **Evidence Ledger** (the last two steps) remain forthcoming — described here at the level needed to keep the model coherent.
 
 ---
 
@@ -20,7 +20,7 @@ Here is the entire flow on a concrete example — a change that *"adds an email 
 2. **Look up the rules.** For a REST API change, the team's testing approach says what confidence matters — the endpoint behaves, errors map correctly, the public API stays compatible. → *Validation Rules*, derived from the *Testing Strategy*
 3. **Pin the requirements.** Each acceptance criterion ("accepts a valid email", "rejects a malformed one") gets a stable ID that survives rewording, so everything can point back to it. → *Criteria Ledger*
 4. **Make a plan.** Per requirement: what evidence is needed, which test provides it, and which existing tests should stay, change, or go. → *Validation Plan*
-5. **Photograph today's behavior.** Before touching anything, record how the code behaves now — so later we can tell *"this changed because we meant it to"* from *"this broke by accident."* → *Characterization Baseline*
+5. **Photograph today's behavior.** Before touching anything, record how the code behaves now — so later we can tell *"this changed because we meant it to"* from *"this broke by accident."* → *Behavior Baseline*
 6. **Run the project's own tests** to take that photograph, and again after the change. → *Execution Runner*
 7. **Write or adjust the tests** — in a separate step that looks only at the *requirements*, never at the new code, so a test stays an honest check rather than a rubber stamp. → *Test Reconciliation*
 8. *(coming next)* **If a test fails, fix the code and re‑run — automatically, in a loop** — instead of handing the failure to a person; and keep a plain‑language **record** of what was checked and why. → *auto‑fix loop* + *Evidence Ledger*
@@ -62,7 +62,7 @@ change classification → criteria ledger → validation plan                   
    (types + blast radius)   (stable AC IDs)   (AC → witness map, test fates)
         │
         ▼
-characterization baseline   +   execution runner                             ✅
+behavior baseline   +   execution runner                             ✅
    (pin current behavior)        (run the project's own suite)
         │
         ▼
@@ -75,7 +75,7 @@ auto-fix loop:  diagnose → fix → rerun   (local, then CI)                   
 evidence ledger → human review (behavior + decisions, not internals)         ── forthcoming
 ```
 
-**Foundation** covers strategy → rules → classification, plus the cross‑cutting **Source‑Map Manifest** every box reads from. **Phase 2** adds the **Criteria Ledger** and the **Validation Plan**. **Phase 3** adds the **Characterization Baseline**, the **Execution Runner**, and **Test Reconciliation**. Only the **auto‑fix loop** and the **Evidence Ledger** remain forthcoming.
+**Foundation** covers strategy → rules → classification, plus the cross‑cutting **Source‑Map Manifest** every box reads from. **Phase 2** adds the **Criteria Ledger** and the **Validation Plan**. **Phase 3** adds the **Behavior Baseline**, the **Execution Runner**, and **Test Reconciliation**. Only the **auto‑fix loop** and the **Evidence Ledger** remain forthcoming.
 
 ---
 
@@ -89,7 +89,7 @@ evidence ledger → human review (behavior + decisions, not internals)         �
 | **Change Classification** | per change | tool | ✅ |
 | **Criteria Ledger** (AC identity, tool‑managed) | per change, persisted | tool | ✅ (Phase 2) |
 | **Validation Plan** | per change | tool (human‑reviewed if risky) | ✅ (Phase 2) |
-| **Characterization Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — built; capture via the runner) |
+| **Behavior Baseline** | per change (brownfield) | tool | ✅ (Phase 3 — built; capture via the runner) |
 | **Execution Runner** (run record) | per change / run | tool | ✅ (Phase 3 — built; first piece that runs) |
 | **Test Reconciliation** (witnesses + record) | per change | tool (independent test‑implementer) | ✅ (Phase 3 — built) |
 | Evidence Ledger | per change | tool | forthcoming |
@@ -197,9 +197,9 @@ No derivation runs on a source too thin to derive honestly. If the criteria for 
 
 ---
 
-## Phase 3 — Characterization Baseline (the honesty rule, made checkable)
+## Phase 3 — Behavior Baseline (the honesty rule, made checkable)
 
-The invariant says *tests are witnesses to criteria* and a test may change **only because a criterion moved**. Phase 2 enforces that at the level of *wording* (the Criteria Ledger's `moved` flag) and *intent* (the plan reviewer rejects any `change`/`remove` fate not tracing to a criteria delta). Neither has looked at **behavior**. The Characterization Baseline closes that gap: it pins **current observable behavior** of the change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** sorts into exactly one of:
+The invariant says *tests are witnesses to criteria* and a test may change **only because a criterion moved**. Phase 2 enforces that at the level of *wording* (the Criteria Ledger's `moved` flag) and *intent* (the plan reviewer rejects any `change`/`remove` fate not tracing to a criteria delta). Neither has looked at **behavior**. The Behavior Baseline closes that gap: it pins **current observable behavior** of the change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** sorts into exactly one of:
 
 - **Justified** — the delta maps to a criteria delta (an AC `moved`, new, or `retired`). The behavior changed because a criterion moved; the witnessing test legitimately changes. This **confirms** the Validation Plan's provisional `change`/`add`/`remove` fate — now against *fact*, not just intent.
 - **Regression** — the behavior changed but **no criterion moved**. This is **loop input** — it feeds the (forthcoming) auto‑fix loop or surfaces as a finding — **never a human handoff**. (One exception: a delta crossing a public contract or ownership boundary is a legitimate **decision** → structured question.)
@@ -212,13 +212,13 @@ It reuses machinery already in the toolkit rather than inventing parallel concep
 
 **The execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. So the piece splits: **planning the baseline** (which surfaces, what is observable, how to capture) is advisory and lands now, like the rest of the toolkit; **capture and reconcile** delegate to the **Execution Runner** (below). Capture over **non‑deterministic** behavior is refused, not faked — a flaky surface is quarantined and raised as a **limitation** (you cannot pin what you cannot reproduce), never silently baselined into noise.
 
-See the **characterization‑baseline** skill for the schema and the capture/reconcile procedure; `characterize-baseline` is the agent that produces it.
+See the **behavior‑baseline** skill for the schema and the capture/reconcile procedure; `capture-baseline` is the agent that produces it.
 
 ---
 
 ## Phase 3 — Execution Runner (the first thing that runs)
 
-Up to here every artifact is advisory — it proposes, it never runs or edits. The Characterization Baseline needs *observed* behavior, so something must finally execute. That is the **Execution Runner**: the substrate that drives **the project's own suite** — resolved through the Source‑Map (the `build-commands` kind, parity‑checked against `ci-config`), never a harness the toolkit invents — over the change's blast‑radius slice, and returns **structured observations**: what ran, what each result witnesses about behavior, and whether it reproduces. It **runs but does not edit** — observation only; what to *do* with a result belongs to the baseline's reconciliation and the forthcoming auto‑fix loop.
+Up to here every artifact is advisory — it proposes, it never runs or edits. The Behavior Baseline needs *observed* behavior, so something must finally execute. That is the **Execution Runner**: the substrate that drives **the project's own suite** — resolved through the Source‑Map (the `build-commands` kind, parity‑checked against `ci-config`), never a harness the toolkit invents — over the change's blast‑radius slice, and returns **structured observations**: what ran, what each result witnesses about behavior, and whether it reproduces. It **runs but does not edit** — observation only; what to *do* with a result belongs to the baseline's reconciliation and the forthcoming auto‑fix loop.
 
 One distinction defines the layer, and it is the operational form of the whole "no artificial handoffs" stance applied to execution outcomes:
 
@@ -229,7 +229,7 @@ A red test and a broken harness look identical at a glance; conflating them is e
 
 Two more disciplines keep it honest. **Minimality** — it runs the blast‑radius slice via selective invocation, never the whole suite. **Determinism or quarantine** — it re‑runs; a flaky surface is quarantined and raised as a limitation, never passed to the baseline as truth, because you cannot witness what you cannot reproduce. And because the run record is **persisted in‑repo and committed**, CI replays the identical scope and commands — local↔CI parity becomes a recorded fact, not a hope (closing the playbook's standing worry about "lost context between local and CI").
 
-See the **execution‑runner** skill for the run‑record schema and the resolve/run/observe procedure; `run-validation` is the agent that drives it, and `characterize-baseline` calls it to pin and re‑observe behavior.
+See the **execution‑runner** skill for the run‑record schema and the resolve/run/observe procedure; `run-validation` is the agent that drives it, and `capture-baseline` calls it to pin and re‑observe behavior.
 
 ---
 
@@ -237,7 +237,7 @@ See the **execution‑runner** skill for the run‑record schema and the resolve
 
 The Validation Plan proposes **fates** (`add`/`change`/`keep`/`remove`) for each AC's witness, but provisionally. Test Reconciliation makes them real: it **materializes new tests and adjusts existing ones** so every active criterion has a witness that traces to it, then hands them to the Runner for evidence. It is the step that finally writes test code — and *who* writes it, and *from what*, is load‑bearing.
 
-**Two witness duties.** A witness defends one of two things, on two different scopes. A **criterion witness** defends an acceptance criterion — *intended* behavior — and its scope is the ACs. A **regression (characterization) witness** defends *unchanged* behavior — and its scope is the **blast radius**, the surfaces the change reaches but no AC speaks to. Acceptance criteria cover what the change is *supposed* to do; the blast radius is where it might *accidentally* break something. The Validation Plan carries both — a `criteria` track and a `behavior-preservation` track — so a surface that's merely *touched* (a shared method, a downstream consumer) gets a regression guard even though no criterion mentions it. (`internal-refactor` is the limit case: no criterion moved, so *every* surface is a regression witness, and the baseline is the whole of its evidence.)
+**Two witness duties.** A witness defends one of two things, on two different scopes. A **criterion witness** defends an acceptance criterion — *intended* behavior — and its scope is the ACs. A **regression witness** defends *unchanged* behavior — and its scope is the **blast radius**, the surfaces the change reaches but no AC speaks to. Acceptance criteria cover what the change is *supposed* to do; the blast radius is where it might *accidentally* break something. The Validation Plan carries both — a `criteria` track and a `behavior-preservation` track — so a surface that's merely *touched* (a shared method, a downstream consumer) gets a regression guard even though no criterion mentions it. (`internal-refactor` is the limit case: no criterion moved, so *every* surface is a regression witness, and the baseline is the whole of its evidence.)
 
 **An independent witness.** Tests are authored by a dedicated test‑implementer (`implement-tests`), **never by the producer of the change**. The invariant holds that implementation is the only freely‑mutable element and tests are witnesses to criteria; if the same will writes both, the witness collapses into the thing it judges and silently becomes a witness to the *implementation* instead of the *criterion*. So the test‑implementer's authority for *what to assert* is the **Criteria Ledger** (criterion witnesses) — or the **pinned baseline** (regression witnesses) — and **never the new implementation**. (It may read the impl for mechanical wiring — how to invoke a surface — but not to decide what is correct; that read is flagged.)
 

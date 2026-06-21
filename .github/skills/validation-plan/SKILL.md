@@ -8,7 +8,7 @@ description: >-
 
 *Derived copy — canonical source is `Change-Validation-Playbook.md`; if they disagree, the playbook wins.*
 
-The Validation Plan states **what evidence is needed to trust this change** along two tracks: **criterion evidence** (per active AC — *does the intended change work?*) and **behavior‑preservation evidence** (per blast‑radius surface no AC owns — *does the change break anything around it?*). The first is keyed to stable acceptance‑criterion IDs; the second is keyed to surfaces and exists to catch regression. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution by `implement-tests` (against the Characterization Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
+The Validation Plan states **what evidence is needed to trust this change** along two tracks: **criterion evidence** (per active AC — *does the intended change work?*) and **behavior‑preservation evidence** (per blast‑radius surface no AC owns — *does the change break anything around it?*). The first is keyed to stable acceptance‑criterion IDs; the second is keyed to surfaces and exists to catch regression. It is *intent* — it does not run or edit anything. Test fates it proposes are **provisional**, confirmed against the real suite at execution by `implement-tests` (against the Behavior Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
 
 ## Plan schema
 
@@ -30,7 +30,7 @@ behavior-preservation:                  # one block per BLAST-RADIUS surface NOT
     why-in-radius:     <how the change reaches it — caller, consumer, shared dependency>
     required-evidence: [ ... ]          # behavior-preservation (regression) evidence from the Rules
     witness:           { kind: test | runtime-monitor | none-yet, ref }   # provenance: the pinned baseline
-    proposed-fate:     keep | add        # keep = existing witness suffices; add = author a CHARACTERIZATION test
+    proposed-fate:     keep | add        # keep = existing witness suffices; add = author a REGRESSION witness (provenance: baseline)
 out-of-scope:      [ { surface-id, why-excluded } ]     # blast-radius surfaces deliberately not witnessed
 
 local-gate:        [ evidence that must pass locally before PR ]
@@ -50,9 +50,9 @@ open-decisions:    [ escalations blocking completeness ]
    - AC unchanged, witness exists → `keep`
    - AC new / `none-yet` → `add`
    - **Every `change`/`remove` rationale must trace to a criteria delta** — never to a test result. (Result‑driven test edits are an execution‑time concern and are forbidden as a *plan* justification.)
-5. **Cover the blast radius (regression).** List each blast‑radius surface **no active AC owns** — **minimal**, the smallest sufficient set, not every transitive node. Give each a **behavior‑preservation** witness: an existing test → `keep`; none yet → `add` a **characterization** test (provenance: the pinned baseline, *never* the change). A surface deliberately excluded gets an explicit **`out-of-scope`** note. (`internal-refactor` is the limit case: *every* surface is behavior‑preservation, since no AC moved.)
+5. **Cover the blast radius (regression).** List each blast‑radius surface **no active AC owns** — **minimal**, the smallest sufficient set, not every transitive node. Give each a **behavior‑preservation** witness: an existing test → `keep`; none yet → `add` a **regression witness** (provenance: the pinned baseline, *never* the change). A surface deliberately excluded gets an explicit **`out-of-scope`** note. (`internal-refactor` is the limit case: *every* surface is behavior‑preservation, since no AC moved.)
 6. **Set gates** — split required evidence (both tracks) into `local-gate` / `ci-gate` per the Rules.
-7. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a characterization baseline, by `implement-tests`) happens at execution.
+7. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a behavior baseline, by `implement-tests`) happens at execution.
 
 ## Gate (readiness to capture the plan)
 

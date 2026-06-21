@@ -4,7 +4,7 @@
 
 Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. Same idiom — a tool‑neutral **Playbook** is canonical, **skills** are derived reference, **agents** orchestrate and apply lenses.
 
-> **Status — Foundation + Phase 2 + Phase 3 (most of it), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Ledger**, the per‑change **Validation Plan**, the **Characterization Baseline** (the behavior snapshot that makes the auto‑fix honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), and **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl). Still forthcoming: the auto‑fix loop and the Evidence Ledger. The `.claude/` build follows once this stabilizes.
+> **Status — Foundation + Phase 2 + Phase 3 (most of it), Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria Ledger**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the auto‑fix honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), and **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl). Still forthcoming: the auto‑fix loop and the Evidence Ledger. The `.claude/` build follows once this stabilizes.
 
 ---
 
@@ -24,7 +24,7 @@ architecture + technology  ──►  Testing Strategy  ──►  Validation Ru
                             Change Classification (types + blast radius)
                                                               │
                                                               ▼
-            Criteria Ledger → Validation Plan → Characterization Baseline → Test Reconciliation → [auto-fix loop → Evidence Ledger]
+            Criteria Ledger → Validation Plan → Behavior Baseline → Test Reconciliation → [auto-fix loop → Evidence Ledger]
 ```
 
 The **Execution Runner** is the shared substrate underneath: it runs the project's *own* suite to take the baseline's "before" snapshot and to gather evidence for test reconciliation. Bracketed stages are *forthcoming*.
@@ -47,7 +47,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     reconcile-criteria              maintain stable AC IDs in the Criteria Ledger (Phase 2)
     plan-validation                 derive the Validation Plan: AC→witness, fates, gates (Phase 2)
     validation-plan-reviewer        gate the plan: coverage + fate justification (Phase 2)
-    characterize-baseline           pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
+    capture-baseline           pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
     run-validation                  drive the project's own suite over the blast radius → observations + determinism (Phase 3)
     implement-tests                 independent test-implementer: materialize witnesses from criteria, never the impl (Phase 3)
   skills/                           (derived, auto-loaded reference)
@@ -57,7 +57,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     source-map                      manifest schema + deterministic discovery procedure
     criteria-ledger                 ledger schema + reconciliation/supersession (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
-    characterization-baseline       baseline schema + capture/reconcile + the honesty rule (Phase 3)
+    behavior-baseline       baseline schema + capture/reconcile + the honesty rule (Phase 3)
     execution-runner                run-record schema + resolve/run/observe + clean-fail vs can't-run (Phase 3)
     test-reconciliation             fate→action + criteria provenance + the honesty lock (Phase 3)
 ```
@@ -91,8 +91,8 @@ A limitation must never masquerade as human‑in‑the‑loop. That's what keeps
 3. **Run `define-testing-strategy`** — it retrieves your architecture, drafts the Strategy per change‑type, clarifies the few genuinely‑open expectations, and **generates the Validation Rules**. Review and approve.
 4. **Run `change-classifier`** on a change — it returns the change‑types, blast radius, and the resolved sources the next phase will need.
 5. **Run `plan-validation`** on the change + its story — it reconciles the acceptance criteria into stable AC IDs (**Criteria Ledger**), then produces a reviewed **Validation Plan**: per‑AC required evidence, an AC→witness map, provisional test fates, and the local/CI gates. Review and approve.
-6. Run `characterize-baseline` on the change — it scopes the blast‑radius surfaces to pin and, via `run-validation` (which drives your *own* suite), captures current behavior, then sorts each post‑change delta into **justified** (a criterion moved) vs **regression** (none did), confirming the plan's provisional fates against fact. A clean fail is loop input; a can't‑run is a logged toolkit gap — never a handoff.
-7. Run `implement-tests` — the **independent test‑implementer** materializes/adjusts each AC's witness from the **criteria** (or the baseline, for characterization), never from the new impl, and runs it via `run-validation`. An AC is done only on green evidence; a red witness is loop input for the implementer; a `change`/`remove` not tracing to a criteria delta is blocked as regression‑laundering.
+6. Run `capture-baseline` on the change — it scopes the blast‑radius surfaces to pin and, via `run-validation` (which drives your *own* suite), captures current behavior, then sorts each post‑change delta into **justified** (a criterion moved) vs **regression** (none did), confirming the plan's provisional fates against fact. A clean fail is loop input; a can't‑run is a logged toolkit gap — never a handoff.
+7. Run `implement-tests` — the **independent test‑implementer** materializes/adjusts each AC's witness from the **criteria** (or the baseline, for regression witnesses), never from the new impl, and runs it via `run-validation`. An AC is done only on green evidence; a red witness is loop input for the implementer; a `change`/`remove` not tracing to a criteria delta is blocked as regression‑laundering.
 8. Hand the witnesses + evidence to the **auto‑fix loop** (diagnose red → propose a fix as a commit → re‑run) — *forthcoming*.
 
 ---

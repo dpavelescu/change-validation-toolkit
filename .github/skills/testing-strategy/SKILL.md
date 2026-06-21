@@ -41,7 +41,7 @@ Assess against these — checking what's **missing** as much as present. Each is
 - **db-migration** — backward compatibility, rollback/forward strategy, **old‑vs‑new application‑version coexistence**.
 - **react-ui** — component behavior, user‑visible flows, accessibility‑sensitive interactions, mocked API states.
 - **cross-service** — contract verification, consumer‑driven expectations, end‑to‑end flow of the affected path; **ownership boundaries are decisions, not auto‑changes**.
-- **internal-refactor** — behavior preservation against a characterization baseline.
+- **internal-refactor** — behavior preservation against a behavior baseline.
 
 ## Gate
 
