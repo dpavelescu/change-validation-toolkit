@@ -42,7 +42,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 - **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
 - **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
 - **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
-- **Drives correction to green — by handoff.** When a test fails, it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human, or your own implementation agent), then **re‑validates** after the fix and iterates until green. It **never writes production code itself** — that's a separate concern — and never hands a person broken code to debug; it owns the tests, the evidence, and the honest diagnosis. *(The lasting audit trail of what was checked is the one piece still coming.)*
+- **Drives correction to green — by handoff.** When a test fails it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human or your impl agent), then re‑validates and iterates. It **never writes production code itself** and never hands a person broken code — only the tests, the evidence, and an honest diagnosis. *(The lasting audit trail is the one piece still coming.)*
 
 > **The capability you should understand: finding affected tests without links.**
 > When a change touches code that an old story's tests cover, those tests are found **because the change reaches that code** — discovered fresh every time from the code itself (call graph and/or coverage), never from a stored "this change relates to story X" reference. References rot; this can't, because there's nothing to keep. System‑level tests (end‑to‑end, integration) are caught too, by the *flows* they exercise — which is why the toolkit is told where each kind of test lives.
@@ -51,68 +51,51 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 
 ## How it works
 
-A change flows through the toolkit roughly like this. You don't have to drive each step by hand once it's set up — but it helps to know what's happening.
+**Three things you ever run** — everything else runs underneath them as a subagent:
 
-1. **Classify the change** and find everything it touches (its blast radius), including the existing tests it reaches.
-2. **Look up the rules** — for this kind of change, what evidence your strategy says matters.
-3. **Pin the requirements** — give each acceptance criterion a stable handle so tests and evidence can point at it.
-4. **Make a plan** — per requirement, what evidence is needed and which test provides it; plus a regression guard for everything touched that no requirement covers.
-5. **Photograph today's behavior** so intended change can be told from accidental breakage.
-6. **Run your own tests** to take that photograph and, after the change, to gather evidence.
-7. **Write or adjust the tests** — from the requirements, never the new code.
-8. **Drive correction to green** — diagnose each failure into a **fix‑request** for whoever implements, re‑validate after the fix, and iterate; escalate a *decision* only if the criteria or a contract must change. *(The lasting audit record is still coming.)*
+| You run | When | It orchestrates underneath (subagents) |
+|---|---|---|
+| **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
+| **`plan-validation`** | per change — to plan | `change-classifier` · `reconcile-criteria` · `validation-plan-reviewer` |
+| **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `implement-tests` · `run-validation` |
+
+End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → write tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
+
+### The flow, in four scenarios
+
+*(Illustrations on a Spring Boot + React + SNS/SQS stack — the specifics always come from **your** strategy, not the toolkit.)*
+
+**① A new feature — "add an email field to signup."**
+Classified as a REST change; the blast radius includes the endpoint, the shared `UserService`, and an old end‑to‑end test found *from the code*, not any stored link. The plan: a test per new criterion ("accepts valid," "rejects malformed"), plus a regression guard on what's merely touched. `drive-correction` runs them; the criterion test is red (feature not built) → it emits a **fix‑request** and pauses; you (or your impl agent) write the code and re‑invoke; it goes green. **No test was edited to pass.**
+
+**② A regression caught — a shared helper is tweaked.**
+Nothing in the story asked for it, but an old order‑history endpoint now returns a different total. The baseline photographed it beforehand; the delta maps to **no criterion → regression →** a fix‑request, before anyone ships. The old test needed no stored link — the change *reached its code*.
+
+**③ A pure refactor — behavior must stay identical.**
+No new criteria, so *every* touched behavior must match the photograph; the baseline **is** the evidence — any difference is a regression.
+
+**④ A fix breaks a brittle unit test — the loop stays honest.**
+A fix extracts a method; a unit test bound to the old internals goes red, but the endpoint's **behavior is preserved** (the baseline confirms). So it's **brittle**, not a regression: the loop repairs the test (decoupling it) — *gated by the preserved behavior*, never by the red result. A real regression could never be relabelled this way; the baseline is the gate.
 
 ### When it comes to you — and when it doesn't
 
-This is the part worth internalising, because it's how the toolkit stays autonomous without quietly dumping work back on you. Every time a human is involved, it's exactly one of two things:
+Every human touch is exactly one of two things — this is what keeps it autonomous without dumping work back on you:
 
-- **A decision (it needs your judgment).** The criteria are ambiguous or contradict each other; the change crosses into another team's contract; something is unsafe. → It asks you a **clear question**. You answer a question — you're never handed broken code.
-- **A limitation (its own gap to close).** It can't run a test, reproduce a failure, or build a fixture. → That's the **toolkit's** problem to fix, logged as such. It is *never* quietly reframed as "a human will handle this case."
+- **A decision** — criteria ambiguous or contradictory, a public contract must change, something unsafe → a **clear question**. You answer a question; you never receive broken code.
+- **A limitation** — it can't run a test, reproduce a failure, or build a fixture → the **toolkit's** gap to close, logged as such, never reframed as "a human handles this."
 
-A failing test is **neither** of those — it's just the loop's next input. You hear about it only if it turns into a genuine decision.
-
----
-
-## How to use it
-
-### Getting started
-
-1. **Add the build to your repo** and fill in the **source map** — point it at where your architecture, specs, schemas, tests, and CI config live.
-2. **Run the strategy step.** It drafts (or updates) your testing strategy from your architecture, clarifying the few genuinely‑open expectations one question at a time, and you approve the result.
-3. **Point it at a change** — a diff, branch, or PR — together with the story's acceptance criteria. It classifies, plans, and (in the execution phase) produces, runs, and self‑corrects the evidence.
-
-### What it needs from you
-
-- **Real acceptance criteria.** If a change has no criteria, you're not validating yet — you're still clarifying *what* to build (that's the companion work‑item‑preparation toolkit's job). It will say so rather than invent correctness.
-- **A runnable suite.** It validates by running your tests; if it can't run them, that's a gap it reports, not something it papers over.
-- **A seeded source map.** It resolves sources deterministically instead of guessing — but you provide the initial locations.
-
-### Where it's the strongest fit
-
-Brownfield systems where regressions hide, where the same code is touched by many unrelated stories over time, and where "did this change break something we forgot about?" is a real and recurring fear. That's exactly the case its blast‑radius and behavior‑baseline capabilities are built for.
-
-### How to read what it gives you
-
-For a change, it tells you: what evidence each requirement has (and any with none yet), what it ran and what passed, what it **couldn't** do and why (its own gaps), and any **decisions** it needs from you. Nothing is reported as "done" without evidence behind it.
+A failing test is **neither** — it's just the loop's next input. You hear about it only if it becomes a decision.
 
 ---
 
-## Example
+## What it needs from you
 
-*The following is one illustration on a specific stack — not a fixed menu. What counts as "the evidence a REST change needs" comes from **your** strategy, not from the toolkit.*
+- **Real acceptance criteria.** No criteria → you're still clarifying *what* to build (the companion work‑item toolkit's job); it says so rather than invent correctness.
+- **A runnable suite and a seeded source map.** It runs *your* tests and resolves *your* sources from locations you provide — it never guesses or fakes, and reports a gap if it can't.
 
-> **A team adds an email field to the signup endpoint** (a Spring Boot + React + SNS/SQS system).
->
-> 1. It's classified as a REST API change. The blast radius includes the signup endpoint, the shared `UserService` it calls, and — found from the code, not from any stored link — an **end‑to‑end signup test written months ago for a different story**.
-> 2. The strategy says a REST change here needs: the endpoint behaves, errors map correctly, and the public contract stays backward‑compatible. Backward‑compatibility is checked against the **API spec** (the contract's owner), not the controller code.
-> 3. The new acceptance criteria — "accepts a valid email," "rejects a malformed one" — each get a stable handle.
-> 4. The plan: a test for each new criterion, *plus* a regression guard on `UserService` and that old e2e flow, which no new criterion covers.
-> 5. Current behavior is photographed first. After the change, the e2e flow still passing is evidence the change didn't break it; if it had changed with no criterion asking for it, that's a **regression** — the loop's next task, not a question for you.
-> 6. The new tests are written from the criteria. One fails because the code doesn't validate email yet → that's loop input; the code gets fixed and re‑run. None of it edits a test to force it green.
+**Strongest fit:** brownfield systems where regressions hide and the same code is touched by many unrelated stories over time.
 
-> **A pure refactor** (no behavior is supposed to change). There are no new criteria, so *every* behavior the change touches must stay identical. The behavior photograph **is** the evidence: any difference at all is a regression.
-
-> **A caught regression.** A change tweaks a shared helper and, with nothing asking for it, an old order‑history endpoint starts returning a different total. No criterion justifies that delta → it's flagged as a regression and fixed, before anyone ships it.
+**What you get back, per change:** the evidence each requirement has (or a flagged gap), what ran and passed, what it **couldn't** do and why (its own gaps), and any **decisions** it needs. Nothing is "done" without evidence.
 
 ---
 
@@ -126,7 +109,9 @@ For a change, it tells you: what evidence each requirement has (and any with non
 
 ## The toolkit — agents & skills (catalog)
 
-This Playbook is the concept; the running build lives under `.github/`. Below is every **agent** you can run — its purpose, arguments, the **skills** it uses, what it depends on, and what it produces — followed by a one‑line index of the skills. Each agent is self‑contained; you run them in the order below.
+This Playbook is the concept; the running build lives under `.github/`. Below is every **agent** — its purpose, arguments, the **skills** it uses, what it depends on, and what it produces — followed by a one‑line index of the skills.
+
+**You run only three** (the entry points): `define-testing-strategy`, `plan-validation`, `drive-correction`. Everything else is a **subagent** one of those calls (shown as *Delegated by / Used by* below) — you don't invoke them directly in the normal flow, though each can be run standalone if you only want its output.
 
 ### Set up once
 
