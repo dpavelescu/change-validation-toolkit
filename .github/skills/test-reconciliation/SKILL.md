@@ -25,6 +25,19 @@ Test Reconciliation turns the Validation Plan's **provisional fates** into **rea
 | (regression) | blast‑radius surface no active AC owns (refactor = every surface) | author/keep a test pinning the **baseline** behavior | the pinned baseline; a divergence is a **caught regression** (loop input), never a test edit |
 | (repair) | *execution‑time, from the correction loop:* **brittle** — behavior **preserved** but the test is red (it asserted internal structure a fix changed) | **decouple** the witness from the internals — **the asserted behavior unchanged** | the baseline's `preserved` verdict — **not** a criteria delta |
 
+## Existing tests — alignment & re‑alignment (brownfield)
+
+The blast radius surfaces *existing* tests that are often **implementation‑aligned** (assert internals), not criteria‑aligned. They are never inherited blindly, and **never just flagged** — each is classified and **driven to resolution**, with *signal always attached to an action the toolkit performs or prepares for one‑step approval*:
+
+| Existing test | Detected by | Action (AI‑driven, never a dead‑end) |
+|---|---|---|
+| **criterion‑aligned** — defends a behavior a current criterion owns | maps to an active AC's behavior | `keep` (or `change` if the AC `moved`) |
+| **behavior‑guard** — defends observable behavior, no criterion | behavior preserved, no AC owns it | `keep` as a regression guard, **and flag `guarded-but-unspecified`** → routed upstream as a candidate criterion |
+| **implementation‑coupled, salvageable** — red while behavior is **preserved**, but a real observable behavior exists | the brittle signal + a behavioral counterpart | **`repair` automatically** — rewrite it to assert that **behavior** (from the baseline), decoupled from internals; re‑tag to the owning criterion if any |
+| **implementation‑coupled, empty** — asserts only internal structure; guards **no** observable behavior | the brittle signal + no behavioral counterpart | **`remove` recommendation** — a structured `decision` (test ref · what it asserts · why low‑relevance · recommended delete), **human‑approved**, never silent |
+
+**Re‑alignment is the default, deletion the exception.** Each time the toolkit touches a biased test it either **converts it** (raising its relevance, lowering the bias) or hands you a **one‑step, fully‑justified delete**. The suite migrates toward criteria/behavior alignment over time; you are never stuck with low‑relevance tests and no path forward. (A `remove` here is justified by *guards‑nothing‑observable*, not a criteria delta, so it is a **human‑approved decision** — losing coverage is hard to undo.)
+
 ## The honesty lock (three keys)
 
 A test `change`/`remove` is honest only when all three agree:
@@ -63,6 +76,7 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 - **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Criteria Identity** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the criteria identity; humans never type it.
 - **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input, never a softened test or a handoff.
 - **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
+- **Re‑align, don't inherit** — an implementation‑coupled existing test is **re‑aligned by default** (`repair` → assert behavior; re‑tag to a criterion if owned), and **deleted only when it guards nothing observable**, as a human‑approved `decision`. Signal is never the end state — it always carries the action.
 - **No faked green** — non‑automatable → admitted runtime witness, never a fake pass.
 - **Un‑observable AC → decision; can't‑author → limitation** — the standard decision/limitation split.
 - **Persisted** — witnesses and the reconciliation record live in‑repo so local and CI share them.

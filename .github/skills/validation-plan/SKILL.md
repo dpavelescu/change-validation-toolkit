@@ -31,6 +31,11 @@ behavior-preservation:                  # one block per BLAST-RADIUS surface NOT
     proposed-fate:     keep | add        # keep = existing witness suffices; add = author a REGRESSION witness (provenance: baseline)
 out-of-scope:      [ { surface-id, why-excluded } ]     # blast-radius surfaces deliberately not witnessed
 
+coverage-alignment:                     # the existing tests the blast radius surfaced, classified (brownfield bias made visible)
+  - test-ref:    <existing test>
+    alignment:   criterion-aligned | behavior-guard | implementation-coupled
+    disposition: keep | change | repair | remove-recommendation   # re-align by default; remove only guards-nothing (decision)
+
 local-gate:        [ evidence that must pass locally before PR ]
 ci-gate:           [ broader evidence the CI gate adds ]
 non-automatable:   [ { ac-id, runtime-witness } ]       # admitted, not faked
@@ -49,8 +54,9 @@ open-decisions:    [ escalations blocking completeness ]
    - AC new / `none-yet` → `add`
    - **Every `change`/`remove` rationale must trace to a criteria delta** — never to a test result. (Result‑driven test edits are an execution‑time concern and are forbidden as a *plan* justification.)
 5. **Cover the blast radius (regression).** List each blast‑radius surface **no active AC owns** — **minimal**, the smallest sufficient set, not every transitive node. Give each a **behavior‑preservation** witness: an existing test → `keep`; none yet → `add` a **regression witness** (provenance: the pinned baseline, *never* the change). A surface deliberately excluded gets an explicit **`out-of-scope`** note. (`internal-refactor` is the limit case: *every* surface is behavior‑preservation, since no AC moved.)
-6. **Set gates (lowest level, fail‑fast).** Choose each witness at the **lowest test level that proves it** — don't reach for integration/e2e where a unit/component/contract test gives the same guarantee (brittleness control). Then split both tracks into `local-gate` / `ci-gate` by level + runnability: fast low‑level tests run **locally first**; cross‑boundary / infra‑dependent tests (integration, e2e) that can't run locally are `ci-gate`. CI‑only by necessity is **expected, not a coverage gap**.
-7. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a behavior baseline, by `implement-tests`) happens at execution.
+6. **Classify the existing coverage** the blast radius surfaced (`coverage-alignment`) — make the brownfield bias **visible**: each affected existing test is `criterion-aligned` (→ keep/change), `behavior-guard` (→ keep; flag `guarded-but-unspecified` upstream), or `implementation-coupled` (→ `repair` to re‑align by default; `remove-recommendation` only if it guards nothing observable). Confirmed at execution by the baseline; see the **test‑reconciliation** skill. Signal is never the end state — every entry carries its disposition.
+7. **Set gates (lowest level, fail‑fast).** Choose each witness at the **lowest test level that proves it** — don't reach for integration/e2e where a unit/component/contract test gives the same guarantee (brittleness control). Then split both tracks into `local-gate` / `ci-gate` by level + runnability: fast low‑level tests run **locally first**; cross‑boundary / infra‑dependent tests (integration, e2e) that can't run locally are `ci-gate`. CI‑only by necessity is **expected, not a coverage gap**.
+8. **Mark provisional** — fates are intentions; the real reconciliation against the suite (with a behavior baseline, by `implement-tests`) happens at execution.
 
 ## Gate (readiness to capture the plan)
 

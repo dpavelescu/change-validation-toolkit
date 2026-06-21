@@ -36,7 +36,7 @@ Bounded and coherent: *what's wrong · the witness · what you may not break · 
    - behavior **preserved**, test red → **brittle** (it asserted internal structure the fix changed)
 4. **Route:**
    - **regression** / **failing‑criterion** → emit a **`fix-request`** (code fix, external).
-   - **justified** → `change` the witness (a criteria delta justifies it); **brittle** → `repair` it (decouple from internals, asserted behavior unchanged, gated by the baseline's `preserved` verdict). Both via `implement-tests`, then re‑validate — never to force green.
+   - **justified** → `change` the witness (a criteria delta justifies it); **brittle** → `repair` it (decouple, re‑align to assert the behavior, gated by the baseline's `preserved` verdict) — or, if it guards **nothing observable**, a **`remove` recommendation** (a human‑approved `decision`, never a silent delete). Both via `implement-tests`, then re‑validate — never to force green.
 5. **Hand off & pause** — write the open `fix-request`s + the re‑assessment; **return control**. A human or any implementation agent applies them and re‑invokes.
 6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **no progress** after `max-iterations` (a test stays red across re‑invocations, or fixes oscillate) → **escalate a diagnosis** (a limitation), never loop silently.
 
