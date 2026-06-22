@@ -127,7 +127,7 @@ A few practical points:
 
 **Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, writing/adjusting tests honestly, **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit), and recording the durable **Evidence Ledger**.
 
-**Next:** the parallel **`.claude/` build** — this is the Copilot‑first build; the model itself is now complete end‑to‑end.
+**Next:** the parallel **`.claude/` build** — this is the Copilot‑first build; the model itself is now specified end-to-end.
 
 ---
 
@@ -230,4 +230,4 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 
-A `.claude/` build will follow the same shape once this stabilises. If you're extending the toolkit, start in the skills — they're terse and self‑describing.
+If you're extending the toolkit, start in the skills — they're terse and self‑describing.

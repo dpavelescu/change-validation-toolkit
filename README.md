@@ -4,7 +4,7 @@
 
 Companion to the [work‑item‑preparation‑toolkit](../work-item-preparation-toolkit): that one clarifies *what* to build; this one validates *that a change is correct*. The tool‑neutral **Playbook** is the human guide (purpose, capabilities, usage); the **skills** and **agents** are the self‑contained build that implements it.
 
-> **Status — Foundation + Phase 2 + Phase 3 complete, Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria IDs**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself), and the **Evidence Ledger** (the durable audit trail of what was validated and why). The model is complete end‑to‑end; the parallel `.claude/` build follows.
+> **Status — Foundation + Phase 2 + Phase 3 complete, Copilot build.** Built: the **Testing Strategy**, the **derived Validation Rules**, the **Source‑Map Manifest**, **Change Classification**, the tool‑managed **Criteria IDs**, the per‑change **Validation Plan**, the **Behavior Baseline** (the behavior snapshot that makes the honesty rule checkable), the **Execution Runner** (drives the project's *own* suite to observe behavior — the toolkit's first running piece), **Test Reconciliation** (an *independent* test‑implementer that materializes witnesses from the criteria, never from the new impl), the **Correction Loop** (drives a failing change to green by emitting structured fix‑requests for whoever implements — never writing production code itself), and the **Evidence Ledger** (the durable audit trail of what was validated and why). The model is **specified** end-to-end; the parallel `.claude/` build follows.
 
 ---
 
@@ -27,7 +27,7 @@ architecture + technology  ──►  Testing Strategy  ──►  Validation Ru
         Criteria IDs → Validation Plan → Behavior Baseline → Test Reconciliation → Correction Loop → Evidence Ledger
 ```
 
-The **Execution Runner** is the shared substrate underneath: it runs the project's *own* suite to take the baseline's "before" snapshot and to gather evidence for test reconciliation. The model is complete end‑to‑end; the parallel `.claude/` build is what's next.
+The **Execution Runner** is the shared substrate underneath: it runs the project's *own* suite to take the baseline's "before" snapshot and to gather evidence for test reconciliation. The model is **specified** end-to-end.
 
 Each arrow has a **minimum‑clarity gate**: if the source is too thin to derive honestly, the toolkit clarifies before proceeding rather than inventing.
 
@@ -56,7 +56,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     testing-strategy                Strategy structure + coverage checklist
     validation-rules                Rule schema + derivation from the Strategy
     change-taxonomy                 the change-types + classification heuristics
-    source-map                      manifest schema + deterministic discovery procedure
+    source-map                      manifest schema + map-driven discovery (+ repo-search fallback)
     criteria-ids               per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
     behavior-baseline               baseline schema + capture/reconcile + the honesty rule (Phase 3)
@@ -72,7 +72,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
 
 1. **Testing Strategy** — human‑owned, **architecture‑aware** source of truth for expected evidence, keyed by change‑type (REST API, SNS/SQS consumer, SNS/SQS producer, DB migration, React UI, cross‑service, refactor). Evidence, not tools.
 2. **Validation Rules** — the thin, machine‑usable projection of the Strategy. **Generated from it, never hand‑edited beside it** (regenerate on change; version‑stamped).
-3. **Source‑Map Manifest** — maps *source kinds → locations → what each is **authoritative for** → which change‑types need them*, so agents **discover sources deterministically** and **resolve a claim against its owner** instead of guessing. Records authority (`normative`/`descriptive`/`advisory`) so the API contract, event contract, boundaries, and expected evidence each have a declared source of truth — and the implementation is never it. Critical + unretrievable = blocking.
+3. **Source‑Map Manifest** — maps *source kinds → locations → what each is **authoritative for** → which change‑types need them*, so agents **discover sources map-first (search is a fallback)** and **resolve a claim against its owner** instead of guessing. Records authority (`normative`/`descriptive`/`advisory`) so the API contract, event contract, boundaries, and expected evidence each have a declared source of truth — and the implementation is never it. Critical + unretrievable = blocking.
 4. **Change Classification** — classify a change into types and scope its **blast radius**, selecting which Rules apply and which sources to retrieve. The entry of every per‑change activity.
 
 ---

@@ -3,11 +3,11 @@ name: source-map
 description: >-
   The schema and discovery procedure for the Source-Map Manifest — how source kinds map to
   locations AND to the claims each source is authoritative for, so agents retrieve the sources a
-  change needs deterministically and resolve a claim against its owner instead of guessing.
+  change needs map-driven (a lookup, not a blind search) and resolve a claim against its owner.
   Used whenever an agent must locate or establish authority over architecture, specs, schemas, tests, or CI config.
 ---
 
-The Source‑Map makes source discovery **navigable and deterministic** — and, more fundamentally, it records **authority**: *which source is the source of truth for which category of claim, and how binding that source is*. Validation Rules reference sources by **kind**; the manifest resolves a kind to a concrete **location** and declares what that source is **authoritative for**. Agents never search blindly for a source the map can resolve, and never treat a non‑authoritative source — least of all the implementation — as the truth for a claim some authority owns.
+The Source‑Map makes source discovery **map‑driven** (a lookup, not a blind search) — and, more fundamentally, it records **authority**: *which source is the source of truth for which category of claim, and how binding that source is*. Validation Rules reference sources by **kind**; the manifest resolves a kind to a concrete **location** and declares what that source is **authoritative for**. Agents never search blindly for a source the map can resolve, and never treat a non‑authoritative source — least of all the implementation — as the truth for a claim some authority owns.
 
 ## Canonical kinds
 
@@ -41,13 +41,13 @@ The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptanc
 1. From the classifier output, take the change‑type(s) and the `source-kinds` the matched Rules require.
 2. For each needed kind, look up the manifest entries whose `change-types` include this change.
 3. Retrieve via the entry's `retrieval` method.
-4. **Critical + unretrievable = blocking.** Stop and report it as a *limitation* (per the escalation model) — never proceed on an assumed or invented source.
-5. **Missing kind/location.** If a needed kind has no entry, surface a **proposed manifest addition** for human confirmation; do not hard‑code a path inside an agent.
+4. **Not in the map → repo‑search fallback.** If a needed kind has no entry (or the entry doesn't resolve), **fall back to a scoped search of the repo** to find or complement it — existing information is often scattered, not declared. The map is **preferred, the search is the fallback** (not the first move). Whatever the search finds is surfaced as a **proposed manifest addition** for confirmation; don't silently hard‑code a path.
+5. **Critical + still‑unfound = blocking.** If a *critical* source is neither in the map nor findable by the fallback search, stop and report it as a *limitation* (per the escalation model) — never proceed on an assumed or invented source.
 6. **Resolve a claim by authority, not by guess.** For any claim — a contract, a boundary, the expected evidence — consult the source `authoritative-for` it and treat a `normative` source as **binding**. The **implementation is never the authority**: if impl/tests disagree with a normative source, the impl is wrong, not the source. A claim with **no** authoritative source is a **gap** (clarify, don't invent — the minimum‑clarity gate); two **normative** sources contradicting on the same claim is a **decision** (escalate, never silently pick one).
 
 ## Guards
 
-- **Resolve by kind, not by guess** — the whole point is determinism; a blind repo search defeats it.
+- **Map first, search as fallback** — prefer the declared source; if a needed kind is missing or won't resolve, a **scoped repo search** complements it and surfaces a **proposed addition** (never a silent hard‑coded path). The map is the first move; the search is the fallback.
 - **Authority over implementation** — a claim is resolved against its authoritative source; the implementation is **never** authoritative for a claim a normative source owns (the invariant, at the source layer).
 - **No authority → gap; conflicting authorities → decision** — an unowned claim is clarified, not invented; two normative sources that contradict on a claim escalate as a decision.
 - **Descriptive/advisory are context** — they inform; they never bind. Don't let a runbook or a guideline overrule a normative contract.

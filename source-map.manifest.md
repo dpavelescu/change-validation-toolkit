@@ -1,6 +1,6 @@
 # Source‑Map Manifest
 
-*Fillable template. Copy into the consuming project (repo root) and fill the entries. Agents read this to discover the sources a change needs — deterministically, instead of guessing. Canonical schema lives in the **source‑map** skill; this file is the instance.*
+*Fillable template. Copy into the consuming project (repo root) and fill the entries. Agents read this to discover the sources a change needs — map-first (a scoped repo search is the fallback), not by guessing. Canonical schema lives in the **source‑map** skill; this file is the instance.*
 
 ## How agents use it
 
