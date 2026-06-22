@@ -59,7 +59,35 @@ Some capabilities you set up once; the rest run on every change.
 | **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `review-plan` |
 | **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` |
 
-Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them. The pipeline underneath is *classify → plan → record behavior → specify tests → run → correct*, with the **Execution Runner** running your suite.
+Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them.
+
+### Running it end to end
+
+The actual sequence — who acts, where you're in the loop, and what lands in the repo.
+
+**Setup — once (and when architecture changes)**
+1. **You:** copy the build into the repo and fill `source-map.manifest.md` (where your sources live, and which is authoritative for what).
+2. **You run `define-testing-strategy`.** It asks one question at a time where the approach isn't already implied, authors the **Testing Strategy**, and generates the **Validation Rules**. **You approve.** → both are **committed** (durable, versioned).
+
+**Per change — plan it**
+3. **You run `plan-validation`** with the change and its story. Underneath: `classify-change` → `reconcile-criteria` → `review-plan`. It produces the **Validation Plan**.
+   - No usable acceptance criteria → it stops at **Not ready** and says what's missing (that's the work‑item toolkit's job, not this one).
+   - A **decision to settle** (an ambiguity, a contract call) comes to you as a question *with a recommended answer*; **you confirm or override.**
+4. **You approve the plan.** → the Validation Plan and the per‑change Criteria IDs are **committed** under `.validation/<change>/`.
+
+**Per change — drive it to green**
+5. **You run `drive-correction`.** First run, it sets up underneath: `capture-baseline` records current behavior (**committed**), `specify-tests` works out what each test must assert and emits **test‑requests**, `run-validation` runs your suite.
+6. **Authoring is handed off.** A `test-request` ("write a test that asserts this") and a `fix-request` ("make this test pass") go to **your implementer — a person or your coding agent**. The toolkit writes no code, and **pauses**.
+7. **You (or your agent) apply the handoff and re‑invoke.** The loop re‑assesses impact, re‑runs, and sorts each failure itself — real regression vs. brittle test — **without coming back to you**. You hear from it again only for a **decision**, never to debug.
+8. **On green:** `record-evidence` writes the **Evidence Ledger** entry (**committed**) — what was validated, by what, and why. The change is done; its evidence travels with the merge.
+
+**Where you are in the loop — and where you aren't**
+- **You are:** filling the Source‑Map; approving the Strategy; approving the plan; answering decisions; implementing code and authoring tests (or delegating that to an agent); reviewing the Evidence Ledger.
+- **You aren't:** deciding what to test, writing the plan, chasing which tests a change affects, or debugging a red test — those are the loop's job.
+
+**What lands in the repo:** the Strategy and Rules (once); and per change, under `.validation/<change>/`, the Criteria IDs, Validation Plan, Behavior Baseline, run records, the reconciliation record, the open test‑/fix‑requests, and the Evidence Ledger — all **committed** so local and CI see the same state and the audit trail travels with the change. The tests themselves are committed as normal code by whoever authors them.
+
+> The pipeline underneath, in one line: *classify → plan → record behavior → specify tests → run → correct → record evidence*, with the **Execution Runner** running your suite throughout.
 
 ### Scenarios it supports
 
