@@ -3,11 +3,11 @@ name: behavior-baseline
 description: >-
   The schema and capture/reconcile procedure for the Behavior Baseline — the per-change
   snapshot of current brownfield behavior that lets a behavior delta be sorted into justified (a
-  criterion moved) vs regression (none did). The behavior-level enforcement of the honesty
-  rule. Used by capture-baseline; confirms the Validation Plan's provisional fates. Phase 3.
+  criterion moved) vs regression (none did). The behavior-level enforcement of the no-edit-to-pass
+  rule. Used by capture-baseline; confirms the Validation Plan's provisional dispositions. Phase 3.
 ---
 
-The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the honesty rule — *a test changes only because a criterion moved, never because it went red* — where the **Criteria IDs** reconciliation catches it at the level of *wording* and `review-plan` at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
+The Behavior Baseline pins **current observable behavior** of a change's blast‑radius surfaces *before* the change, so that after the change every **behavior delta** can be sorted into **justified** (it maps to a criteria delta — an AC `moved`, new, or `retired`) or **regression** (no criterion moved). It is the **behavior‑level** enforcement of the no-edit-to-pass rule — *a test changes only because a criterion moved, never because it went red* — where the **Criteria IDs** reconciliation catches it at the level of *wording* and `review-plan` at the level of *intent*. It is per‑change, tool‑owned, captured against the **pre‑change** state, and **persisted in‑repo and committed** so local and CI reconcile against identical pinned behavior.
 
 **Execution boundary.** Pinning behavior requires **running current code** — the toolkit's first execution touch. The **plan** (which surfaces to pin, what is observable per surface, how to capture) is advisory and buildable now; **capture + reconcile** delegate to the **Execution Runner** (`run-validation` / the **execution‑runner** skill), which drives the project's own suite.
 
@@ -23,15 +23,15 @@ surfaces:                                  # one block per pinned surface in the
   - surface-id:        <code-derived handle: endpoint path | method sig | event name | contract — recomputed per change from the diff, NOT a stored registry id>
     kind:              <change-type>                  # rest-api | event-consumer | db-migration | ...
     observation:       <what is observable & pinned — response+status | emitted-payload | persisted-state | rendered-output>
-    pinned-behavior:   <recorded observation(s) at captured-at>       # the witness of "current"
+    pinned-behavior:   <recorded observation(s) at captured-at>       # the evidence of "current"
     determinism:       deterministic | quarantined(<reason>)          # flaky → not baselined
-    related-witnesses: [ <test-ref> ... ]             # existing tests defending it (read-only discovery)
+    related-tests:     [ <test-ref> ... ]             # existing tests defending it (read-only discovery)
 
 reconciliation:                            # produced post-change, via the Execution Runner (run-validation)
   - surface-id:        ...
     observed-delta:    <how post-change behavior differs from pinned-behavior, or "none">
     classification:    preserved | justified(<AC-N>) | regression | boundary-decision
-    disposition:       fate-confirmed(<plan fate>) | loop-input | structured-question | limitation
+    disposition:       disposition-confirmed(<plan disposition>) | recheck | structured-question | limitation
 ```
 
 ## Capture procedure (pre‑change)
@@ -49,18 +49,18 @@ Re‑observe each in‑scope surface and compare to `pinned-behavior`:
 |---|---|---|
 | no behavior delta | `preserved` | confirms a `keep`; no test change earns justification |
 | delta maps to an AC that `moved` / is new / `retired` in the Criteria IDs | **`justified(AC‑N)`** | confirms the plan's provisional `change`/`add`/`remove`; recorded as evidence |
-| delta with **no** matching criteria delta | **`regression`** | **loop input** (correction loop / finding) — never a handoff |
+| delta with **no** matching criteria delta | **`regression`** | **fed back into the loop** (correction loop / finding) — never a handoff |
 | delta crosses a public contract / ownership boundary | **`boundary-decision`** | structured question (legitimate human decision) |
 | surface can't be re‑observed (can't run / reproduce) | **`limitation`** | toolkit gap logged; never normalized as human‑in‑the‑loop |
 
-A provisional `change` fate from the Validation Plan is **honest only if its surface's delta is `justified` here**; otherwise the "change" is laundering a regression — the same failure the plan reviewer's fate‑justification guard names, now caught against *behavior* instead of *wording*.
+A provisional `change` disposition from the Validation Plan is **honest only if its surface's delta is `justified` here**; otherwise the "change" is masking a regression — the same failure the plan reviewer's disposition‑justification guard names, now caught against *behavior* instead of *wording*.
 
 ## Guards
 
 - **Baseline immutability** — once captured the baseline is read‑only.
 - **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC.
 - **Preserved ≠ endorsed** — pinning holds behavior stable, does not bless it as correct.
-- **Regression is loop input, not a handoff** — an unjustified delta feeds the correction loop.
+- **Regression is fed back into the loop, not a handoff** — an unjustified delta feeds the correction loop.
 - **Can't capture → limitation** — can't run / reproduce is a toolkit gap.
 - **Minimality** — pin the blast radius only.
 - **Refactor is sharpest** — `internal-refactor` baseline is its primary evidence.

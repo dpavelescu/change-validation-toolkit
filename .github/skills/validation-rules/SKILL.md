@@ -18,12 +18,12 @@ Validation Rules are the **operational layer**: a thin, structured projection of
 change-type:        <taxonomy key>
 required-evidence:  [ { id, what, level, why (traces to a confidence in the Strategy) } ]
                     # level: unit | component | contract | integration | e2e          (tier ①/②: the toolkit runs these)
-                    #   | performance | load | failure-resilience | security-scan | a11y   (tier ③ externalized: integrate results / runtime-monitor)
+                    #   | performance | load | failure-resilience | security-scan | a11y   (tier ③ externalized: integrate results / runtime monitor)
 source-kinds:       [ <kind> ]            # resolved to locations via the Source-Map
 local-gate:         [ <evidence ids that must pass locally before PR> ]
 ci-gate:            [ <evidence ids the broader CI gate adds> ]
 risk-modifiers:     [ { when, stronger-evidence } ]   # e.g. public-contract, regulated, cross-team
-non-automatable:    [ { what, runtime-witness } ]     # evidence that can't be proven pre-merge
+non-automatable:    [ { what, runtime-monitor } ]     # evidence that can't be proven pre-merge
 escalates-as-decision: [ <conditions> ]   # e.g. ownership boundary, public-contract change
 ```
 

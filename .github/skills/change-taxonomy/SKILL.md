@@ -39,7 +39,7 @@ Blast radius is **estimated from the code**, never from a stored story↔test li
 
 The link is re‑derived from the code each change — no stored reference to go stale. This — not an AC id — is what detects impact on a prior story's tests; the **behavior‑baseline** then confirms which of them actually moved. *(Without a coverage map this is a heuristic and may miss a test — an honest gap the runner surfaces, not a guarantee.)*
 
-A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation witness** — a regression guard whose assertions come from the behavior baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
+A blast‑radius surface that **no acceptance criterion covers** still needs a **behavior‑preservation test** — a regression guard whose assertions come from the behavior baseline, not the change. The acceptance criteria scope the *intended‑behavior* evidence; the blast radius scopes the *unchanged‑behavior* (regression) evidence. `internal-refactor` is the case where every surface is of this second kind.
 
 ## Output schema (the Change Classification)
 

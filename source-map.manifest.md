@@ -50,7 +50,7 @@
 | test-report | `target/surefire-reports/*.xml`, `**/junit.xml`, `**/test-results/**` | repo | `*` | critical | descriptive | `—` | machine‑readable results the runner reads (format: junit-xml \| tap \| json \| native); **not** stdout |
 | ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | descriptive | `—` | reference for local↔CI parity (the toolkit does not derive execution from it) |
 | runbook | `docs/runbooks/**` | repo | `cross-service`, `db-migration` | supporting | descriptive | `operational-behavior` | |
-| observability | `<dashboards/alerts url>` | url | `cross-service` | supporting | descriptive | `operational-behavior` | for runtime‑witness items |
+| observability | `<dashboards/alerts url>` | url | `cross-service` | supporting | descriptive | `operational-behavior` | for runtime‑monitor items |
 
 ## Discovery rules
 

@@ -19,17 +19,17 @@ The **Criteria IDs** are the per‑change record that gives each acceptance crit
 ```
 ac-id:       AC-<n>          # stable for THIS change's run (local↔CI); not durable, not cross-change
 text:        <current criterion, from the story>
-status:      new | unchanged | moved | retired    # relation to the existing suite, for fate selection
+status:      new | unchanged | moved | retired    # relation to the existing suite, for disposition selection
 source-ref:  <where in the story it came from>     # optional, read-only trace
 ```
 
-No `witnesses` field — the **Validation Plan** owns the AC→witness map. No accumulating `history` — the durable audit is the Evidence Ledger.
+No `tests` field — the **Validation Plan** owns the AC→test map. No accumulating `history` — the durable audit is the Evidence Ledger.
 
 ## Reconciliation procedure (story ACs → ids)
 
-**Read the story; never modify it.** For each AC currently in the story, assign a stable id and classify it for fate selection — against **the existing tests the change reaches** (from the blast radius), or against this change's prior run‑state when re‑running (local→CI):
+**Read the story; never modify it.** For each AC currently in the story, assign a stable id and classify it for disposition selection — against **the existing tests the change reaches** (from the blast radius), or against this change's prior run‑state when re‑running (local→CI):
 
-| Situation | Status | Drives the plan's fate |
+| Situation | Status | Drives the plan's disposition |
 |---|---|---|
 | an existing test already covers it, unchanged | `unchanged` | `keep` |
 | an existing test covers it but the wording shifts its meaning | `moved` | `change` — **provisional** |

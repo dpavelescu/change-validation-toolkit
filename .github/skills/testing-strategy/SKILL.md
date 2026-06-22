@@ -19,7 +19,7 @@ For each change‑type in the **change‑taxonomy**, the Strategy states:
 1. **What confidence matters** — the kinds of evidence that make a change of this type trustworthy here.
 2. **Required evidence** — what must be validated (the seeds of the derived Rules).
 3. **Source kinds** — which sources (by kind, resolved via the Source‑Map) are needed to validate this type.
-4. **Test level + tier** — the **lowest test level** that gives solid confidence for each piece of evidence, and its **support tier** (① native · ② your‑env · ③ externalized — see *Test support tiers* below). Native tests run locally first; your‑env tests run where the environment allows (else CI); externalized ones integrate or admit a runtime‑monitor.
+4. **Test level + tier** — the **lowest test level** that gives solid confidence for each piece of evidence, and its **support tier** (① native · ② your‑env · ③ externalized — see *Test support tiers* below). Native tests run locally first; your‑env tests run where the environment allows (else CI); externalized ones integrate or admit a runtime monitor.
 5. **Risk modifiers** — when this type carries extra risk (public contract, regulated data, cross‑team ownership) requiring stronger evidence.
 6. **Lowest sufficient level (anti‑brittleness)** — specify evidence at the **lowest test category that proves it**; reserve integration/e2e for what *only* they can verify (real cross‑service flow, infra behavior). Higher‑level tests are slower and **brittle** — reaching for them when a unit/component test gives the same guarantee is a cost and a reliability risk to challenge, not a default.
 
@@ -27,14 +27,14 @@ For each change‑type in the **change‑taxonomy**, the Strategy states:
 
 Every test category sits in one of four tiers; the toolkit's behaviour follows the tier, and the Strategy states which evidence is which:
 
-- **① Native (first‑class)** — `unit`, `component`. The toolkit **authors, runs locally, and reads results** end‑to‑end — fast, in‑process, no external infra. Its strongest ground.
-- **② With your environment** — `integration`, `contract`, `e2e`. The toolkit **authors/maintains** them and **runs them where your environment allows** (locally if the infra is up, else **CI**); results come from your report. It *uses* your environment, never stands one up.
+- **① Native (first‑class)** — `unit`, `component`. The toolkit **specifies (and verifies), runs locally, and reads results** end‑to‑end — fast, in‑process, no external infra (authoring of the test handed off). Its strongest ground.
+- **② With your environment** — `integration`, `contract`, `e2e`. The toolkit **specifies and verifies** them (authoring handed off) and **runs them where your environment allows** (locally if the infra is up, else **CI**); results come from your report. It *uses* your environment, never stands one up.
 - **③ External — out of scope by default** — `performance`, `load`, `failure-resilience`, `security-scan`, `a11y`. Your own pipeline/tools own these; the toolkit **does not run them and does not sit in the path** — no relay, no gate. *Optionally* (opt‑in, for audit/completeness) it **reads** your pipeline's result to record the trace and to flag an NFR that **nothing** validates — *reading only*. If you don't want even that, these are simply out of scope and it says so. **Never a man‑in‑the‑middle.**
 - **④ Out of scope (declared)** — provisioning environments/harnesses, writing production code, manual/exploratory testing. Said plainly; never pretended.
 
 **One line:** the toolkit's real footprint is **①②** — it *runs* those. Everything else it leaves to you; for external NFRs it offers *opt‑in* bookkeeping (a coverage flag + an audit trace), never middleware.
 
-**BDD is a spec style, not a tier.** A Gherkin scenario is a **specification = the acceptance criterion** (human‑owned), not a test. If your project uses BDD, the toolkit's test‑implementation job is to **author/maintain the step definitions** (derived from the scenario, never the impl) and run them through your **BDD tooling** (Cucumber/SpecFlow/Behave) — it **honors the practice; it does not fork the scenario into a separate xUnit test.** The scenario sits in the tier of whatever it exercises (a unit‑level scenario is native; an e2e scenario is your‑env). Only a BDD pipeline owned *entirely* by another process — scenarios, step defs, **and** execution — is integrate‑only (③).
+**BDD is a spec style, not a tier.** A Gherkin scenario is a **specification = the acceptance criterion** (human‑owned), not a test. If your project uses BDD, the toolkit's test‑specification job is to **specify (and verify) the step definitions** (derived from the scenario, never the impl — authoring handed off) and run them through your **BDD tooling** (Cucumber/SpecFlow/Behave) — it **honors the practice; it does not fork the scenario into a separate xUnit test.** The scenario sits in the tier of whatever it exercises (a unit‑level scenario is native; an e2e scenario is your‑env). Only a BDD pipeline owned *entirely* by another process — scenarios, step defs, **and** execution — is integrate‑only (③).
 
 ## Coverage checklist (the Strategy is *complete enough* when…)
 
@@ -44,11 +44,11 @@ Assess against these — checking what's **missing** as much as present. Each is
 2. **Architecture‑grounded** — the expectations reflect this system's real properties (eventing semantics, service‑owned schemas, no cross‑service DB, CQRS, contract‑first), not generic QA.
 3. **Evidence, not tools** — each entry states *what confidence*, not just "write unit tests."
 4. **Source kinds named** — each type names the sources it needs (so the Source‑Map can resolve them).
-5. **Tier placement (fail‑fast)** — each evidence item names its **tier** (① native · ② your‑env · ③ externalized); native tests gate locally first, your‑env ones run where the environment allows, externalized ones are integrated or admitted as runtime‑monitors. Order cheap→expensive so failures surface early.
+5. **Tier placement (fail‑fast)** — each evidence item names its **tier** (① native · ② your‑env · ③ externalized); native tests gate locally first, your‑env ones run where the environment allows, externalized ones are integrated or admitted as runtime monitors. Order cheap→expensive so failures surface early.
 6. **Test‑level discipline (anti‑brittleness)** — evidence is specified at the **lowest sufficient level**; integration/e2e are justified by what only they prove, not used by default; the brittleness/cost of over‑using high‑level tests is explicitly controlled.
 7. **Risk modifiers stated** — public‑contract, regulated, and cross‑team cases call for stronger evidence.
 8. **Non‑functional & security per type** — security (authz, input validation, secrets), performance/latency budgets, accessibility, and reliability are named per change‑type, so cross‑cutting concerns aren't left implicit. Most are **tier ③ — out of scope for the toolkit by default** (your pipeline/tools own them); the toolkit's only role, *if you want it*, is to **flag an NFR that nothing covers** and record an external‑evidence trace — never to run or relay them. *(A story‑specific NFR is still an acceptance criterion; this covers the ones that apply to a whole change‑type.)*
-9. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑witness alternative — it does not pretend everything automates.
+9. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑monitor alternative — it does not pretend everything automates.
 10. **Traceability expectation** — states that evidence traces back to acceptance criteria (the authoritative fixed point).
 
 ## Architecture‑aware defaults (starting expectations — tailor, don't accept blindly)

@@ -44,4 +44,4 @@ A limitation is **the toolkit's problem**, logged as such — **never** reframed
 - **A limitation never masquerades as a decision** — "can't run / reproduce" is a gap to close, not a question.
 - **A decision is a question** — the human answers; never handed a broken artifact.
 - **Structured, not prose** — both carry their fields so review and audit are fast.
-- **A failing test is neither** — a clean fail is loop input, not an escalation.
+- **A failing test is neither** — a clean fail is fed back into the loop, not an escalation.
