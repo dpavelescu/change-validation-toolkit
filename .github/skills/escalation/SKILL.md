@@ -10,7 +10,7 @@ The toolkit engages a human in exactly two ways, and they must never be confused
 
 ## Decision (a legitimate human judgment)
 
-A decision is raised only for what the toolkit cannot legitimately resolve itself — it first resolves what it can (consult the authoritative source, apply a stated default). What remains is genuine human judgment, surfaced **with a recommended resolution** so the human confirms or overrides a proposal rather than starting from a blank question. Decisions are **settled, not accumulated**: a *blocking* one (the plan can't be derived around it) makes the work **Not ready** until answered; a *confirmatory* one rides with the artifact for sign-off.
+A decision is raised only for what the toolkit cannot legitimately resolve itself — it first resolves what it can (consult the authoritative source, apply a stated default). What remains is genuine human judgment, surfaced **with a recommended resolution** so the human confirms or overrides a proposal rather than starting from a blank question. **Deriving the recommendation:** a contract / ownership decision proposes the **authoritative source's** position; a criteria ambiguity proposes the reading **most consistent with the other criteria** (and the safer option), marked as a best guess; where the toolkit genuinely has no basis, it says so rather than invent one. Decisions are **settled, not accumulated**: a *blocking* one (the plan can't be derived around it) makes the work **Not ready** until answered; a *confirmatory* one rides with the artifact for sign-off.
 
 ```
 decision:

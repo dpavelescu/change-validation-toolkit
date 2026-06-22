@@ -34,7 +34,7 @@ The toolkit never writes test code either: `specify-tests` emits a **`test-reque
 test-request:
   id:            TR-<n>
   disposition:   add | change | repair
-  assert:        <the criterion text, or the pinned baseline behavior, the test must prove>   # the SPEC — from criteria/baseline, NOT the code
+  assert:        <the criterion text, or the pinned baseline behavior, the test must prove>   # the SPEC — from criteria/baseline, NOT the code; for BDD, the scenario ref + its Gherkin steps (the implementer authors the step-definition bindings)
   surface:       <what it exercises — endpoint / method / event / flow>
   level:         unit | component | contract | integration | e2e        # tier ①/② only
   style:         <project test style/framework; BDD → step definitions for scenario <ref>, never a parallel test>
@@ -50,7 +50,7 @@ So the two handoffs are symmetric and complete: a **`test-request`** says *"auth
 ## Loop procedure (resumable — one pass per invocation)
 
 1. **Validate** — `run-validation` over the affected slice (fail‑fast: local first). **Green & complete → done** (evidence → the Evidence Ledger).
-2. **Re‑assess (on re‑invocation after a fix)** — the diff moved, so impact moved: incrementally update the blast radius / affected tests over the fix's delta (not a full re‑plan). A material scope change (new surfaces/criteria) → **return `re-plan`** (re‑run `plan-validation`, then resume); the loop never re‑plans itself.
+2. **Re‑assess (on re‑invocation after a fix)** — the diff moved, so impact moved: recompute the blast radius over the **fix's delta only** and union it into the existing radius (not a full re‑plan). A **material** scope change → **return `re-plan`** (re‑run `plan-validation`, then resume); the loop never re‑plans itself. *Material* = the fix introduces a **surface, dependency, or contract boundary not already in the blast radius** (or touches a criterion); a fix confined to surfaces already covered is **not** material and the loop continues. When unsure whether a delta is material, re‑plan (the conservative default).
 3. **Sort each clean fail by the Behavior Baseline** — map the test to the surface it defends, then read the baseline (the no-edit-to-pass rule):
    - behavior **moved**, no criterion owns it → **regression**
    - behavior **moved**, a criterion owns it → **justified**

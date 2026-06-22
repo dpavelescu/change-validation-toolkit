@@ -39,6 +39,8 @@ No `tests` field — the **Validation Plan** owns the AC→test map. No accumula
 
 `moved` and `retired` are **provisional within the change** — the **Behavior Baseline confirms** whether behavior actually moved (justified) or it's a regression. The id is just the handle that lets the plan, tests, and baseline talk about the same criterion.
 
+**The matching is semantic, not positional.** Whether an existing test covers an AC, and whether an AC is the same one reworded vs. a new one, is judged by **meaning and behavior** — the AC's text against what the test asserts — not by name or order. This is an explicit judgment, not an algorithm; a genuinely ambiguous match is a **decision** (never a silent guess), and the coupling check and the Behavior Baseline are its downstream cross‑checks.
+
 ## Guards
 
 - **Per‑change scope** — ids stable for one change's run, discarded after merge.
