@@ -111,6 +111,21 @@ Both come in the **escalation** skill's structured shape: a decision carries its
 
 ---
 
+## Artifacts — what's human-readable, and what counts as evidence
+
+Most of what the toolkit writes is operational: machine-readable records its agents pass along and replay — the change classification, criteria ids, behavior baseline, run records, and the test- and fix-requests. They underlie the evidence but aren't the record you would hand to a reviewer.
+
+Four artifacts are human-readable documentation, and these are what serve as **process evidence**, including in regulated or audited environments:
+
+- **Testing Strategy** — the human-owned document of what evidence makes a change trustworthy in your system. A controlled document you author and approve.
+- **Validation Plan** (approved) — for one change, the evidence it requires, the test dispositions, and your approval. The record of what was planned and signed off.
+- **Evidence Ledger** — the durable, per-change audit trail: each criterion, the test that checked it, the evidence observed, the behavior preserved, the test changes and their justification, and any decisions or limitations. The primary record that a change was validated, by what, and why.
+- **Decisions & limitations** — the judgment calls made (the question, context, resolution, and who owns it) and the gaps the toolkit hit. An auditable trail of where a human decided and where the toolkit fell short.
+
+The Evidence Ledger references the operational records rather than copying them, so the audit trail stays readable while the detail stays reproducible. Whether these satisfy a particular standard is your determination; the toolkit's job is to produce them completely and to flag anything missing rather than imply coverage it doesn't have.
+
+---
+
 ## How tests run — and what's in scope
 
 What the toolkit does itself depends on the test category. Each sits in one of four tiers:
