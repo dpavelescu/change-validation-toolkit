@@ -20,14 +20,31 @@ Be precise about **who reads each output**. Most "poorly specified output" is a 
 
 **Cross-check, don't restructure.** If an artifact already serves both — a schema with readable sections, or a human doc with a derived projection — keep it; just verify it reads cleanly for each audience. Only add a human summary or a derived form where one is genuinely missing.
 
-## Rules for anything a human reads (kind 2, and the human side of kind 3)
+## Structure of a human report — a predefined skeleton (kind 2, and the human side of kind 3)
+
+Conclusion-first (BLUF), grouped by what the reader acts on — **never a flat enumeration**:
+
+1. **Verdict** — the conclusion and the reader's one next action, in a line.
+2. **Named sections** — the substance, grouped by what the reader *does* with it (coverage, changes, risk…), not by how it was produced. One concern per section.
+3. **Open items** — decisions, limitations, and next steps, each carrying its owner and action.
+
+Each concrete output names its own sections under this skeleton:
+- **Validation Plan** (approver view) — *Verdict · Coverage · Test changes · Regression scope · Open decisions.*
+- **Evidence Ledger** (audit view) — *Outcome · Evidence per criterion · Behavior preserved · Justified changes · Decisions & limitations.*
+- **escalation** (decision / limitation) — the escalation skill's fields *are* this skeleton already.
+
+## Quality rules (how to fill the sections)
 
 1. **Name the audience and their next action** — write only what serves it: a reviewer approving a plan needs coverage and open decisions; an implementer needs the failing expectation and where to fix.
-2. **Lead with the conclusion** — the decision, verdict, or finding first; the support after. No preamble.
+2. **Lead with the conclusion** — verdict first; the support after. No preamble.
 3. **Relevant prose only** — cut the obvious, the motivational, the hedging; if removing a sentence loses nothing, remove it.
-4. **Structured to scan** — named sections or short lists, one idea each; length proportional to stakes.
+4. **One concern per section, scannable** — named sections, one idea each; length proportional to stakes.
 5. **Every point carries its next step** — signal is never left without an action.
 6. **Plain, established words** — no coined jargon where a standard term exists.
+
+## Citing skills & agents (one convention, used everywhere)
+
+In an agent's prose: **skills in bold** (`**behavior-baseline**`), **agents in backticks** (`` `run-validation` ``). Tie each to the step that applies it with a single uniform trailing tag — `— *uses* **skill**, \`agent\`` — never ad-hoc parentheses.
 
 ## Guards
 
