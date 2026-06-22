@@ -35,7 +35,7 @@ Each concrete output names its own sections under this skeleton:
 
 ## Quality rules (how to fill the sections)
 
-1. **Name the audience and their next action** — write only what serves it: a reviewer approving a plan needs coverage and open decisions; an implementer needs the failing expectation and where to fix.
+1. **Name the audience and their next action** — write only what serves it: a reviewer approving a plan needs coverage and the decisions to settle; an implementer needs the failing expectation and where to fix.
 2. **Lead with the conclusion** — verdict first; the support after. No preamble.
 3. **Relevant prose only** — cut the obvious, the motivational, the hedging; if removing a sentence loses nothing, remove it.
 4. **One concern per section, scannable** — named sections, one idea each; length proportional to stakes.
