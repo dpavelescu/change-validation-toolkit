@@ -52,7 +52,7 @@ blast-radius:
   changed:         [ <surfaces the diff changes> ]
   dependents:      [ <transitive callers / consumers> ]
   boundaries:      [ <contract / consumer boundaries crossed> ]
-affected-tests:    [ { test-ref, type: unit|component|contract|integration|e2e, via: reachability|coverage|flow } ]
+affected-tests:    [ { test-ref, type: unit|component|contract|integration|e2e, via: reachability|coverage|flow } ]   # e2e = system-level
 source-kinds:      [ { kind, location | proposed-addition | blocking } ]     # resolved via the Source-Map
 claim-authorities: [ { claim, authoritative-source, note } ]                 # contract change → decision
 rule-coverage:     [ { change-type, rule | strategy-gap } ]

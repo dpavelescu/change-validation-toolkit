@@ -3,7 +3,7 @@ name: execution-runner
 description: >-
   The run-record schema and tier-preflight/run/observe procedure for the Execution Runner — the substrate
   that drives the project's own test/build suite over a change's blast radius to produce structured
-  behavior observations and a determinism verdict. Reuses the project's suite; runs, never edits.
+  behavior observations and a flakiness check. Reuses the project's suite; runs, never edits.
   Used by run-validation; feeds the Behavior Baseline. Phase 3.
 ---
 
@@ -45,8 +45,8 @@ verdict:
 2. **Invoke the project's runner** — run via the project's **own test command / runner** (the standard invocation devs and CI use), selecting the minimal slice where the runner supports selection. The toolkit **uses your runner; it never catalogs or guesses commands.** A runner it genuinely can't invoke is a **limitation**.
 3. **Scope & order (fail‑fast)** to the blast radius and the relevant gate — run the **minimal sufficient** slice via selective invocation, **cheapest first**: the `local-gate` (fast low‑level tests) locally **before** the `ci-gate` (cross‑boundary / infra tests), so problems surface early and a local failure short‑circuits the CI‑level run. Never "run everything." A test that legitimately can't run locally (CI‑only by placement) is **deferred to its gate, not a limitation** — a limitation is only a test that can't run *where it's supposed to*.
 4. **Run & observe** — execute, then read the **machine‑readable test report** (Source‑Map `test-report`), **not** the console; normalize it (JUnit XML / TAP / native JSON) into per‑surface `outcome` + the behavior it `evidenced`. Sort each non‑pass: **clean fail → fed back into the loop**, **can't‑run → limitation**. No machine‑readable report → a **limitation** (configure a reporter), never stdout scraping. The runner **does not edit** tests or implementation.
-5. **Determinism check** — re‑run the slice; agreement → `deterministic`; disagreement → `flaky`: **quarantine** the surface and raise a **limitation**. Flaky behavior is never passed to the baseline as truth — you cannot evidence what you cannot reproduce.
-6. **Record** the run in‑repo (committed) so CI replays the identical scope and commands — local↔CI parity is a recorded fact, not a hope.
+5. **Flakiness check** — re‑run the slice; if runs disagree → `flaky` (**quarantine** the surface + raise a **limitation**). Agreement is a smoke‑check, not proof of determinism (it only catches frequent flakes). Flaky behavior is never passed to the baseline as truth — you cannot evidence what you cannot reproduce.
+6. **Record** the run in‑repo (committed) so CI replays the same scope and commands — making local and CI runs directly comparable. (The environments still differ; the scope and commands don't.)
 
 ## CI — a participant, not a trigger
 

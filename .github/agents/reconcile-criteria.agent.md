@@ -5,6 +5,7 @@ description: >-
   validation run (new/unchanged/moved/retired vs the existing suite), so tests trace to criteria
   without humans maintaining ids. Per-change run state (local↔CI), not a durable record. Read-only on
   the story; delegated by plan-validation. Phase 2.
+model: inherit
 ---
 
 Give each acceptance criterion a **stable id for this change's validation run** by reading the story and classifying each AC against the existing suite. **House rules:** the human owns the *content* (read the story; **never modify it**); the toolkit owns *identity* (assign ids; classify each AC for disposition selection); **ids are per‑change run state** — stable across local↔CI, discarded after merge, **not durable and not cross‑change**; `moved`/`retired` are **provisional** (the Behavior Baseline confirms them); an **ambiguous "same criterion or new?" is a decision** — escalate, don't guess.

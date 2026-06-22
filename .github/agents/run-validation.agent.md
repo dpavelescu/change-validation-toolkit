@@ -2,7 +2,7 @@
 name: run-validation
 description: >-
   Drive the project's own test/build suite over a change's blast-radius slice to produce structured
-  behavior observations and a determinism verdict — the execution substrate the Behavior
+  behavior observations and a flakiness check — the execution substrate the Behavior
   Baseline and the correction loop build on. Reuses the project's suite; runs, never edits;
   a clean fail is fed back into the loop, a can't-run is a limitation. Phase 3.
 model: inherit

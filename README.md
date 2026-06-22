@@ -71,6 +71,6 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
 3. **Run `define-testing-strategy`** once — it authors the human‑owned Strategy from your architecture (or updates an existing one), one question at a time, then generates the derived Validation Rules. You own and approve the Strategy.
 4. Then, per change, run only the two entry points — each orchestrates the inner agents as subagents:
    - **`plan-validation`** (change + story) → a reviewed **Validation Plan** (runs `classify-change`, `reconcile-criteria`, `review-plan`).
-   - **`drive-correction`** → executes and drives to green (runs `capture-baseline`, `specify-tests`, `run-validation`). It emits structured handoffs for whoever implements, **pauses**, and is re‑invoked after each fix — never writing code, never handing you broken code. On green it writes the **Evidence Ledger**.
+   - **`drive-correction`** → executes and drives to green (runs `capture-baseline`, `specify-tests`, `run-validation`; re‑assesses via `classify-change`; on green `record-evidence`). It emits structured handoffs for whoever implements, **pauses**, and is re‑invoked after each fix — never writing code, never handing you broken code. On green it writes the **Evidence Ledger**.
 
 See the **[Playbook](Change-Validation-Playbook.md)** for how it works end‑to‑end, the scenarios it supports, and what is deliberately out of scope.
