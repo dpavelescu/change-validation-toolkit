@@ -4,13 +4,15 @@ description: >-
   The fate→action mapping and provenance/honesty guards for Test Reconciliation — materializing or
   adjusting the witnessing tests per the Validation Plan's fates, with assertions derived from the
   criteria (or the baseline for regression witnesses), never the new implementation. Used by
-  implement-tests; evidence comes from the runner. Phase 3.
+  specify-tests; evidence comes from the runner. Phase 3.
 ---
 
-Test Reconciliation turns the Validation Plan's **provisional fates** into **real witnesses** along both of the plan's tracks: a **criterion witness** for each active AC (intended behavior) and a **regression witness** for each blast‑radius surface no AC owns (unchanged behavior). It materializes new tests and adjusts existing ones so every active AC and every touched surface has a witness that traces to it, then hands them to the **Execution Runner** for evidence. It is owned by an **independent test‑implementer** (`implement-tests`) — never the producer of the production change — because a witness authored by the thing it judges is no witness at all. Its authority for *what to assert* is the **Criteria IDs** (or, for regression witnesses, the **pinned baseline**) — **never the new implementation**. Per‑change, in‑repo, committed.
+Test Reconciliation turns the Validation Plan's **provisional fates** into **verified witnesses** along both of the plan's tracks: a **criterion witness** for each active AC (intended behavior) and a **regression witness** for each blast‑radius surface no AC owns (unchanged behavior). The toolkit (`specify-tests`) **owns *what* each witness asserts** (from the Criteria IDs, or the pinned baseline for regression witnesses) and **verifies the authored result**; the **code is authored by the external implementer** via a **test‑request** (the toolkit writes none). **Independence holds because the toolkit — not the author — decides the assertion**, and verifies the authored test isn't coupled to the implementation: a witness authored by the thing it judges is no witness at all. Per‑change, in‑repo.
+
+> *Below, "author X" means **specify X (a test‑request) and verify the authored result** — the toolkit owns the spec and the check; the external implementer writes the code.*
 
 **The two provenances (and the one that's forbidden).**
-- A **criterion test** asserts the **AC** — what *should* be true. Authored from the Criteria IDs; the test‑implementer must be able to write it from the criterion alone.
+- A **criterion test** asserts the **AC** — what *should* be true. Specified from the Criteria IDs; the spec must be derivable from the criterion alone.
 - A **regression witness** asserts the **pinned baseline** — what *is* true — for any blast‑radius surface no AC owns, as a behavior‑preservation net. (`internal-refactor` is the case where *every* surface is of this kind.)
 - **Forbidden:** an assertion derived from the **new implementation**. Reading the impl for *mechanical wiring* (how to invoke the surface) is allowed and flagged; reading it to decide *what is correct* is the failure the separation exists to prevent.
 
@@ -70,7 +72,7 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 
 ## Guards
 
-- **Independent witness** — tests are authored by the test‑implementer, never by the producer of the change; the implementer never writes its own witnesses.
+- **Independence by spec** — the toolkit owns *what* each witness asserts (from the criteria/baseline) and **verifies** it; **authoring is delegated to the external implementer**. A witness that asserts the implementation is **rejected**, not accepted — independence is in the spec + the check, not in who types the code.
 - **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl; impl is read for wiring only, flagged.
 - **Honesty lock** — every behavior‑altering `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden. A **`repair`** is the only edit without a criteria delta, and only when the baseline says `preserved` (the asserted behavior is unchanged).
 - **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Criteria IDs** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so witness→criterion is machine‑traceable. The tool stamps it from the criteria IDs; humans never type it.

@@ -20,7 +20,7 @@ The toolkit's bet is simple: **a change should carry its own evidence.** Startin
 Four rules make the result trustworthy rather than merely automated. They're worth knowing, because they're *why* you can rely on what it produces:
 
 - **Your acceptance criteria are the fixed point.** "Correct" is defined by what the change is meant to do — never by what the code happens to do.
-- **The implementation is the only thing it rewrites.** Tests and fixtures bend around the criteria; the criteria never bend around the code.
+- **The toolkit writes no code — it specifies and verifies.** Tests and production code are freely mutable around the criteria, but the toolkit *directs* that change (it specifies what each test must assert and what code must satisfy, and **verifies** the result); the authoring is handed off. The criteria never bend around the code.
 - **Every test traces to a criterion.** A test exists to defend one specific expectation. It's a witness, never the source of truth.
 - **You make decisions; you never debug.** It asks you a question only when the *criteria themselves* are genuinely unresolvable — it never hands you broken code to fix.
 
@@ -40,7 +40,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 - **Finds the real blast radius.** It works out everything the change touches — *including which existing tests it affects, even tests written for old, unrelated work* — by analysing the code, with **no links for you to maintain** (more on this below).
 - **Works out the evidence the change needs.** Two things, separately: that the **new behavior works** (your acceptance criteria) and that **nothing around it broke** (a regression guard over everything the change reaches).
 - **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
-- **Writes and adjusts tests honestly.** Tests are authored from the criteria, never from the new code, and a test changes **only because the requirement behind it moved** — never to make a red result turn green.
+- **Specifies and verifies tests honestly.** It decides what each test must assert — from the criteria, never the new code — **hands the authoring to your implementer**, and verifies the result is a faithful witness (a test that asserts the implementation is rejected). A test changes **only because the requirement behind it moved** — never to make a red result turn green. It writes no test code itself.
 - **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
 - **Drives correction to green — by handoff.** When a test fails it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human or your impl agent), then re‑validates and iterates. It **never writes production code itself** and never hands a person broken code — only the tests, the evidence, and an honest diagnosis.
 - **Keeps a durable audit trail.** When a change reaches green it records *what was validated, by what, and why* — criteria → witness → evidence, what behavior was preserved, the justified test changes, and any decisions or limitations — so a human review (or a compliance check) is about **behavior and decisions, not internals**. Evidence only; nothing is "done" without it.
@@ -58,7 +58,7 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 |---|---|---|
 | **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
 | **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `review-plan` |
-| **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `implement-tests` · `run-validation` |
+| **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` |
 
 End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → write tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
 
@@ -188,19 +188,19 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Uses skills:** `execution-runner`
 - **Needs:** the blast radius · the plan's local/CI gates · your **own test runner** · the Source‑Map `tests` + `test-report`
 - **Produces:** a run record + observations · loop‑input (clean fails) · limitations
-- **Used by:** `capture-baseline`, `implement-tests`
+- **Used by:** `capture-baseline`, `specify-tests`
 
-**`implement-tests`** — Materialize and adjust the **witnessing tests** per the plan's fates — criterion witnesses from the criteria, regression witnesses from the baseline. The **independent test‑implementer**; never edits production code.
-- **Args:** `change` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
-- **Uses skills:** `test-reconciliation`
+**`specify-tests`** — **Own what each witness asserts** (from the criteria/baseline) and **verify** the authored result is a faithful witness — never coupled to the implementation. Emits a **`test-request`** for the external implementer to author; **writes no code**. An AC is done only on green evidence.
+- **Args:** `change` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>` · `test-requests=<path>`
+- **Uses skills:** `test-reconciliation`, `escalation`
 - **Delegates to:** `run-validation`
 - **Needs:** the Validation Plan · the Criteria IDs · the Behavior Baseline · the Source‑Map `tests`
-- **Produces:** the materialized/adjusted tests + a reconciliation record
+- **Produces:** `test-request`s (handoffs) · verified witnesses + evidence · a reconciliation record
 
 **`drive-correction`** — Drive a failing change **to green by handoff**: diagnose each failure into a structured **fix‑request** for whoever implements (a human or any implementation agent), re‑assess impact, re‑validate, and iterate. **Never writes production code.** Resumable — emits handoffs and pauses; re‑invoked after each external fix.
 - **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `fix-requests=<path>` · `max-iterations=<n>`
 - **Uses skills:** `correction-loop`
-- **Delegates to:** `run-validation`, `classify-change` *(re‑assess)*, `capture-baseline` *(sort)*, `implement-tests` *(test fixes)*
+- **Delegates to:** `run-validation`, `classify-change` *(re‑assess)*, `capture-baseline` *(sort)*, `specify-tests` *(test fixes)*
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (loop‑input)
 - **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 
