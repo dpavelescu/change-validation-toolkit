@@ -45,7 +45,7 @@ Some capabilities you set up once; the rest run on every change.
 - **Records what was validated.** On green it records what was validated, by what, and why — criteria, tests, evidence, the behavior preserved, the test changes made, and any decisions or limitations — so review is about behavior and decisions rather than internals.
 
 > **Finding affected tests without stored links.**
-> When a change touches code an old story's tests cover, those tests are found because the change reaches that code — rediscovered from the code each time (call graph and/or coverage), never from a stored "relates to story X" link. Nothing is stored, so nothing goes stale. System‑level tests (integration, end‑to‑end) are caught by the flows they exercise, which is why the toolkit is told where each kind of test lives.
+> When a change touches code an old story's tests cover, those tests are found because the change reaches that code — recomputed each time from the code itself, never from a stored "relates to story X" link. Nothing is stored, so nothing goes stale. The strongest signal it uses is a **coverage map** it generates by running your suite (which it runs anyway): because that's recorded from real execution, it catches even dynamic wiring — dependency injection, reflection, event/queue hops — that static analysis can't see. Where the signal is weak it **widens the scope and flags it** rather than risk a miss: an imperfect radius costs a little extra runtime, never a false green. System‑level tests are caught by the flows they exercise, which is why the toolkit is told where each kind of test lives.
 
 ---
 

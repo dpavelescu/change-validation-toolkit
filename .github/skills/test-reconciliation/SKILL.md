@@ -16,6 +16,8 @@ Test Reconciliation turns the Validation Plan's **provisional dispositions** int
 - A **regression test** asserts the **pinned baseline** — what *is* true — for any blast‑radius surface no AC owns, as a behavior‑preservation net. (`internal-refactor` is the case where *every* surface is of this kind.)
 - **Forbidden:** an assertion derived from the **new implementation**. Reading the impl for *mechanical wiring* (how to invoke the surface) is allowed and flagged; reading it to decide *what is correct* is the failure the separation exists to prevent.
 
+**Telling a faithful test from a coupled one (the verification check).** A faithful test asserts only the **observable surface the criterion names** — return value, status, emitted payload, persisted state, rendered output — never internal structure, private calls, or call order. The operational test: *would it still pass under a deliberately wrong implementation of the criterion?* If yes, it asserts the wrong thing (coupled, or vacuous) → **rejected** (acceptance test) or **repaired** (existing test). This is the concrete check behind "not coupled to the implementation"; it's a judgment, but a bounded one.
+
 ## Disposition → action (confirming the plan's provisional dispositions against reality)
 
 | Plan disposition | Trigger (from the Criteria IDs) | Action | Justified by |
