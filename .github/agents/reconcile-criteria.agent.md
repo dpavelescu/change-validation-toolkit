@@ -23,7 +23,7 @@ The story's current acceptance criteria (kind `acceptance-criteria` — the norm
 
 ## Output
 - **Criteria IDs** — ids + text + status, per the **criteria‑ids** schema, with a provisional **delta summary**: `new[]`, `moved[]` (provisional), `retired[]` (provisional), `unchanged[]`.
-- **Decisions to settle** *(only when raised)* — an ambiguous "same criterion or new?" match, in the **escalation** shape (the question · its context · the owning authority · what it blocks), each with a recommended resolution.
+- **Decisions to settle** *(only when raised)* — an ambiguous "same criterion or new?" match, in the **escalation** shape (each with a recommended resolution).
 
 ## Guards
 Per‑change scope (ids stable for this run/local↔CI; discarded after merge; never durable, cross‑change, or global) · human‑owns‑content (story read‑only) · provisional‑delta (`moved`/`retired` confirmed by the Behavior Baseline, not asserted here) · ambiguous‑match → decision · seed (no criteria → Not ready, route upstream) · cross‑change‑is‑the‑baseline's‑job (impact on a prior change's tests = blast radius + Behavior Baseline, not this criteria IDs).

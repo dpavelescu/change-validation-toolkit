@@ -24,7 +24,7 @@ The blast radius (which surfaces), the Validation Plan's `local-gate`/`ci-gate` 
 
 ## Output
 - **Run record** — per the **execution‑runner** schema: `observations[]` (per surface — `outcome`, `evidenced` behavior, `determinism`) · `recheck[]` (clean fails — behavior signals) · `determinism` verdict. The substrate `capture-baseline` calls to capture and re‑observe behavior.
-- **Limitations** *(only when raised)* — can't‑run/build/unresolved or flaky‑quarantined surfaces (toolkit gaps), in the **escalation** shape (the gap · its context · what would close it · what it blocks).
+- **Limitations** *(only when raised)* — can't‑run/build/unresolved or flaky‑quarantined surfaces (toolkit gaps), in the **escalation** shape.
 
 ## Guards
 Runs‑never‑edits (the correction loop is a separate consumer) · reuse‑the‑project's‑runner (your own command; no invented harness) · clean‑fail‑is‑recheck (red test = signal, never a handoff) · tier‑&‑preflight (native here, your‑env where it allows, externalized integrate‑only; unavailable env → limitation up front) · can't‑run‑is‑limitation (broken harness = toolkit gap) · minimality (blast‑radius slice) · fail‑fast‑ordering (cheap local first; CI‑only placement is expected) · determinism‑or‑quarantine (flaky → limitation) · report‑not‑console (machine‑readable `test-report`; no report → limitation) · CI‑participant (`gate=ci` runs within the pipeline; never dispatches CI) · local↔CI‑parity (same commands recorded; CI widens scope only) · persisted (run record in‑repo).

@@ -24,7 +24,7 @@ The Validation Plan's **`behavior-preservation` track** (the authoritative list 
 
 ## Output
 - **Behavior Baseline + reconciliation record** — per the **behavior‑baseline** schema: `justified[]` (AC + the disposition it confirms) · `regressions[]` (fed back into the loop). For `specify-tests` and the loop.
-- **Decisions & limitations** — per the **escalation** shape: a `boundary-decision` (the question · context · recommended resolution · owning authority · what it blocks) or a `limitation` (the gap · what it blocked · what would close it).
+- **Decisions & limitations** — a `boundary-decision` or a `limitation`, each per the **escalation** shape (a decision carries a recommended resolution).
 
 ## Guards
 Baseline‑immutability (read‑only once captured; never widened post‑hoc) · justification‑by‑criteria‑delta (`justified` only on a `moved`/new/`retired` match) · regression‑is‑recheck (never a handoff; contract/ownership crossing → decision) · can't‑capture → limitation (toolkit gap, never normalized) · minimality (blast radius only) · refactor‑is‑sharpest (`internal-refactor` has no criteria delta → every delta is a regression; baseline is its primary evidence) · determinism (flaky → quarantine + limitation, never silently baselined) · persisted (written so local and CI share identical pinned behavior).
