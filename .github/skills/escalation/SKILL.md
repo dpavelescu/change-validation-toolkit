@@ -29,7 +29,7 @@ A decision is **a question, never broken code**. The human answers; they never d
 ```
 limitation:
   id:        L-<n>
-  type:      cant-run | cant-build | cant-reproduce | unresolved-command
+  type:      cant-run | runner-unavailable | env-absent | cant-reproduce
              | flaky-quarantined | lost-context | missing-access | critical-source-unretrievable
   what:      <what the toolkit could not do>
   blocked:   <which evidence / step it blocked>
