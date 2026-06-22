@@ -19,9 +19,22 @@ For each change‑type in the **change‑taxonomy**, the Strategy states:
 1. **What confidence matters** — the kinds of evidence that make a change of this type trustworthy here.
 2. **Required evidence** — what must be validated (the seeds of the derived Rules).
 3. **Source kinds** — which sources (by kind, resolved via the Source‑Map) are needed to validate this type.
-4. **Test level + local/CI placement** — the **lowest test level** that gives solid confidence for each piece of evidence, and where it runs: fast, low‑level tests (unit, component, contract) run **locally first** for early failure; cross‑boundary / infra‑dependent tests (integration, e2e) that can't run on a dev machine belong to the **CI** gate. Order cheap→expensive so problems surface before any CI‑level run.
+4. **Test level + tier** — the **lowest test level** that gives solid confidence for each piece of evidence, and its **support tier** (① native · ② your‑env · ③ externalized — see *Test support tiers* below). Native tests run locally first; your‑env tests run where the environment allows (else CI); externalized ones integrate or admit a runtime‑monitor.
 5. **Risk modifiers** — when this type carries extra risk (public contract, regulated data, cross‑team ownership) requiring stronger evidence.
 6. **Lowest sufficient level (anti‑brittleness)** — specify evidence at the **lowest test category that proves it**; reserve integration/e2e for what *only* they can verify (real cross‑service flow, infra behavior). Higher‑level tests are slower and **brittle** — reaching for them when a unit/component test gives the same guarantee is a cost and a reliability risk to challenge, not a default.
+
+## Test support tiers (what the toolkit does per category)
+
+Every test category sits in one of four tiers; the toolkit's behaviour follows the tier, and the Strategy states which evidence is which:
+
+- **① Native (first‑class)** — `unit`, `component`. The toolkit **authors, runs locally, and reads results** end‑to‑end — fast, in‑process, no external infra. Its strongest ground.
+- **② With your environment** — `integration`, `contract`, `e2e`. The toolkit **authors/maintains** them and **runs them where your environment allows** (locally if the infra is up, else **CI**); results come from your report. It *uses* your environment, never stands one up.
+- **③ Externalized (integrate only)** — `performance`, `load`, `failure-resilience`, `security-scan`, `a11y`. Dedicated tools/pipelines outside the toolkit. It **does not author or run them**; it **names the requirement and consumes results** if your pipeline produces them, else admits a **runtime‑monitor**.
+- **④ Out of scope (declared)** — provisioning environments/harnesses, writing production code, manual/exploratory testing. Said plainly; never pretended.
+
+**One line:** the toolkit runs the simple/in‑process tests itself, runs the env‑dependent ones where your environment allows, and only *integrates* with the externally‑run ones.
+
+**BDD is a spec style, not a tier.** A Gherkin scenario is a **specification = the acceptance criterion** (human‑owned), not a test. If your project uses BDD, the toolkit's test‑implementation job is to **author/maintain the step definitions** (derived from the scenario, never the impl) and run them through your **BDD tooling** (Cucumber/SpecFlow/Behave) — it **honors the practice; it does not fork the scenario into a separate xUnit test.** The scenario sits in the tier of whatever it exercises (a unit‑level scenario is native; an e2e scenario is your‑env). Only a BDD pipeline owned *entirely* by another process — scenarios, step defs, **and** execution — is integrate‑only (③).
 
 ## Coverage checklist (the Strategy is *complete enough* when…)
 
@@ -31,10 +44,10 @@ Assess against these — checking what's **missing** as much as present. Each is
 2. **Architecture‑grounded** — the expectations reflect this system's real properties (eventing semantics, service‑owned schemas, no cross‑service DB, CQRS, contract‑first), not generic QA.
 3. **Evidence, not tools** — each entry states *what confidence*, not just "write unit tests."
 4. **Source kinds named** — each type names the sources it needs (so the Source‑Map can resolve them).
-5. **Local/CI roles distinct (fail‑fast)** — fast low‑level tests run locally first; cross‑boundary/infra tests are the CI gate; the order is cheap→expensive so failures surface early.
+5. **Tier placement (fail‑fast)** — each evidence item names its **tier** (① native · ② your‑env · ③ externalized); native tests gate locally first, your‑env ones run where the environment allows, externalized ones are integrated or admitted as runtime‑monitors. Order cheap→expensive so failures surface early.
 6. **Test‑level discipline (anti‑brittleness)** — evidence is specified at the **lowest sufficient level**; integration/e2e are justified by what only they prove, not used by default; the brittleness/cost of over‑using high‑level tests is explicitly controlled.
 7. **Risk modifiers stated** — public‑contract, regulated, and cross‑team cases call for stronger evidence.
-8. **Non‑functional & security per type** — security (authz, input validation, secrets), performance/latency budgets, accessibility, and reliability are stated as **expected evidence or risk‑modifiers per change‑type**, so cross‑cutting concerns aren't left implicit. These are **conditional categories**: they need a declared capability (load generator, fault injection, scanner) to run pre‑merge — where it exists, name it; where it doesn't, admit a **runtime‑monitor** or mark **out of scope**, never a perfect test that can't run. *(A story‑specific NFR is still an acceptance criterion; this covers the ones that apply to a whole change‑type.)*
+8. **Non‑functional & security per type** — security (authz, input validation, secrets), performance/latency budgets, accessibility, and reliability are stated per change‑type, so cross‑cutting concerns aren't left implicit. Most are **tier ③ externalized** (need a load generator, fault injection, scanner): where the capability exists, the toolkit consumes its results; where it doesn't, admit a **runtime‑monitor** or mark **out of scope** — never a perfect test that can't run. *(A story‑specific NFR is still an acceptance criterion; this covers the ones that apply to a whole change‑type.)*
 9. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑witness alternative — it does not pretend everything automates.
 10. **Traceability expectation** — states that evidence traces back to acceptance criteria (the authoritative fixed point).
 

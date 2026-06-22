@@ -17,8 +17,8 @@ Validation Rules are the **operational layer**: a thin, structured projection of
 ```
 change-type:        <taxonomy key>
 required-evidence:  [ { id, what, level, why (traces to a confidence in the Strategy) } ]
-                    # level: unit | component | contract | integration | e2e
-                    #   | performance | load | failure-resilience | security-scan | a11y  (CONDITIONAL — need a declared capability; usually runtime-monitor, else out of scope)
+                    # level: unit | component | contract | integration | e2e          (tier ①/②: the toolkit runs these)
+                    #   | performance | load | failure-resilience | security-scan | a11y   (tier ③ externalized: integrate results / runtime-monitor)
 source-kinds:       [ <kind> ]            # resolved to locations via the Source-Map
 local-gate:         [ <evidence ids that must pass locally before PR> ]
 ci-gate:            [ <evidence ids the broader CI gate adds> ]

@@ -24,9 +24,9 @@
 | `authoritative-for` | the claim categories this source is the canonical truth for; `—` if none |
 | `notes` | optional — version, owner, caveats |
 
-**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `test-data` · `build-commands` · `test-report` · `ci-config` · `runbook` · `observability`
+**Canonical kinds:** `architecture` · `api-spec` · `event-schema` · `data-model` · `coding-guidelines` · `testing-strategy` · `acceptance-criteria` · `tests` · `test-data` · `test-report` · `ci-config` · `runbook` · `observability`
 
-**Claim categories** (what a source can be *authoritative‑for*): `correctness` (acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `build-and-run` · `conventions` · `operational-behavior`. The **implementation is never authoritative** for a claim a normative source owns.
+**Claim categories** (what a source can be *authoritative‑for*): `correctness` (acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `conventions` · `operational-behavior`. The **implementation is never authoritative** for a claim a normative source owns.
 
 ## Entries — FILL THESE IN
 
@@ -40,18 +40,15 @@
 | data-model | `src/main/resources/db/migration/**` | repo | `db-migration` | critical | normative | `persistence-shape` | Flyway/Liquibase |
 | coding-guidelines | `docs/engineering/guidelines.md` | repo | `*` | supporting | advisory | `conventions` | recommends, never binds |
 | testing-strategy | `.github/skills/testing-strategy` + `TESTING-STRATEGY.md` | repo | `*` | critical | normative | `expected-evidence` | the human‑owned Strategy |
-| acceptance-criteria | `<tracker link>` or `docs/stories/<id>.md` | url or repo | `*` | critical | normative | `correctness` | the story's ACs; source‑agnostic (link or in‑repo); read‑only — humans own the content, the Criteria IDs owns the ids |
+| acceptance-criteria | `<tracker link>` or `docs/stories/<id>.md`, `features/**/*.feature` | url or repo | `*` | critical | normative | `correctness` | the story's ACs — incl. **BDD `.feature` scenarios** (a scenario *is* a criterion); source‑agnostic; read‑only, humans own the content |
 | test-data | `src/test/resources/fixtures/**`, `**/factories/**`, `**/__fixtures__/**` | repo | `*` | supporting | descriptive | `—` | fixtures / factories / seed data tests build on; un‑buildable test data → a *limitation* |
-| tests (unit) | `src/test/java/**/*Test.java` | repo | `*` | critical | descriptive | `—` | scope: symbol; **runs: local (fast, first)**; found by reachability/coverage |
-| tests (component) | `**/*.spec.tsx`, `**/*.test.tsx` | repo | `react-ui` | critical | descriptive | `—` | scope: component; **runs: local (fast, first)**; found by reachability/coverage |
-| tests (contract) | `src/test/**/contract/**`, `pacts/**` | repo | `rest-api`, `event-consumer`, `event-producer`, `cross-service` | critical | descriptive | `—` | scope: contract; **runs: local**; implicated by `api-spec`/`event-schema` changes |
-| tests (integration) | `src/test/java/**/*IT.java`, `src/test/integration/**` | repo | `*` | critical | descriptive | `—` | scope: module/service; **runs: local-if-infra-available else CI**; reachability/coverage or surface participation |
-| tests (e2e) | `e2e/**`, `cypress/**` | repo | `*` | supporting | descriptive | `—` | scope: flow/system; **runs: CI (cross-boundary/infra)**; implicated by any in‑scope surface in a covered flow — NOT call‑graph reachable |
-| tests (performance/load) | `perf/**`, `k6/**`, `*.jmx` | repo | `*` | supporting | descriptive | `—` | **conditional**; scope: latency/throughput; **needs: load generator (k6/Gatling/JMeter) + perf env**; usually a runtime-monitor; out of scope if the capability is absent |
-| tests (failure-resilience) | `chaos/**`, `resilience/**` | repo | `cross-service` | supporting | descriptive | `—` | **conditional**; scope: fault tolerance; **needs: fault-injection/chaos tooling + soak/staging env**; usually a runtime-monitor; out of scope if absent |
-| build-commands | `./mvnw test`, `npm test`, `pom.xml`, `package.json` | command:`./mvnw -q test` | `*` | critical | normative | `build-and-run` | install/build/test + selective‑run; defers to `ci-config` for parity |
+| tests (unit) | `src/test/java/**/*Test.java` | repo | `*` | critical | descriptive | `—` | scope: symbol; found by reachability/coverage |
+| tests (component) | `**/*.spec.tsx`, `**/*.test.tsx` | repo | `react-ui` | critical | descriptive | `—` | scope: component; found by reachability/coverage |
+| tests (contract) | `src/test/**/contract/**`, `pacts/**` | repo | `rest-api`, `event-consumer`, `event-producer`, `cross-service` | critical | descriptive | `—` | scope: contract; implicated by `api-spec`/`event-schema` changes |
+| tests (integration) | `src/test/java/**/*IT.java`, `src/test/integration/**` | repo | `*` | critical | descriptive | `—` | scope: module/service; reachability/coverage or surface participation |
+| tests (e2e) | `e2e/**`, `cypress/**` | repo | `*` | supporting | descriptive | `—` | scope: flow/system; implicated by any in‑scope surface in a covered flow |
 | test-report | `target/surefire-reports/*.xml`, `**/junit.xml`, `**/test-results/**` | repo | `*` | critical | descriptive | `—` | machine‑readable results the runner reads (format: junit-xml \| tap \| json \| native); **not** stdout |
-| ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | normative | `build-and-run` | parity authority: local must match what CI runs |
+| ci-config | `.github/workflows/*.yml` | repo | `*` | supporting | descriptive | `—` | reference for local↔CI parity (the toolkit does not derive execution from it) |
 | runbook | `docs/runbooks/**` | repo | `cross-service`, `db-migration` | supporting | descriptive | `operational-behavior` | |
 | observability | `<dashboards/alerts url>` | url | `cross-service` | supporting | descriptive | `operational-behavior` | for runtime‑witness items |
 
