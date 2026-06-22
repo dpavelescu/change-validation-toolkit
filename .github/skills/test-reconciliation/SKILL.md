@@ -1,9 +1,9 @@
 ---
 name: test-reconciliation
 description: >-
-  The fate→action mapping and provenance/honesty guards for Test Reconciliation — materializing or
-  adjusting the witnessing tests per the Validation Plan's fates, with assertions derived from the
-  criteria (or the baseline for regression witnesses), never the new implementation. Used by
+  The fate→action mapping and provenance/honesty guards for Test Reconciliation — the toolkit owns
+  what each witness asserts (from the criteria, or the baseline for regression witnesses) and verifies
+  the result; authoring is delegated to the external implementer via a test-request. Used by
   specify-tests; evidence comes from the runner. Phase 3.
 ---
 

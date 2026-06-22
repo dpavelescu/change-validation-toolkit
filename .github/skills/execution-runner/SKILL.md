@@ -1,7 +1,7 @@
 ---
 name: execution-runner
 description: >-
-  The run-record schema and resolve/run/observe procedure for the Execution Runner — the substrate
+  The run-record schema and tier-preflight/run/observe procedure for the Execution Runner — the substrate
   that drives the project's own test/build suite over a change's blast radius to produce structured
   behavior observations and a determinism verdict. Reuses the project's suite; runs, never edits.
   Used by run-validation; feeds the Behavior Baseline. Phase 3.
