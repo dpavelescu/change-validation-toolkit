@@ -102,6 +102,24 @@ Both arrive in a **structured** shape (the **escalation** skill), not loose pros
 
 ---
 
+## How tests run — local, CI, and what's in scope
+
+**Implemented in your frameworks.** Tests are written idiomatically for *your* stack — it learns each kind from your existing tests and conventions, and builds fixtures from your declared test data. A framework or test type it can't author is a flagged gap, never a fake.
+
+**Executed against your own suite, local-first.** It resolves *your* build/test commands (cross-checked with your CI config), runs the **cheap, local tests first** (unit, component) so failures surface early, then the slower ones — some of which only run in CI. It reads results from your **machine-readable test report** (JUnit XML, etc.), never by scraping console output.
+
+**CI is a participant, not something it triggers.** Locally it runs the local gate; your normal push/PR pipeline runs the CI gate (the wider, cross-boundary tests). It taps the *same* report in both — a local file, then the CI artifact — so local and CI evidence are directly comparable.
+
+**It checks the environment is there *before* it spends effort.** Before authoring or running a category, it verifies the capability that category needs is actually present. If it isn't, that category is **declared out of scope for this run** (a logged prerequisite gap) — it will **not** produce a perfect test that can't be executed.
+
+### What's in scope
+
+- **Targeted** (implemented & executed against your suite): **unit · component · contract · integration · end-to-end** — for proving acceptance criteria and guarding regression.
+- **Conditional** (only where you've provided the capability): **performance · latency · load · failure/resilience · security-scan · accessibility** — these need specialized harnesses (load generators, fault injection, scanners) and usually can't be proven before merge. Where the capability exists, it's used; where it doesn't, the requirement is admitted as a **runtime-monitor** (observed in a real/staging environment) or **declared out of scope** — never faked.
+- **Out of scope (a hard boundary):** the toolkit **uses** environments and harnesses; it never **provisions** them, and it never writes production code. A category whose environment it can't reach is an honest **limitation** (a setup gap to close), not a silent failure.
+
+---
+
 ## Where it is today
 
 **Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, writing/adjusting tests honestly, **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit), and recording the durable **Evidence Ledger**.
