@@ -21,7 +21,7 @@ A source carries claims of one **authority class** — `normative` (defines corr
 
 `correctness` (the acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `conventions` · `operational-behavior`
 
-The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptance criteria) is owned by `acceptance-criteria`, the **API contract** by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns — that is the toolkit's invariant restated at the source layer (tests evidence, code implements; neither defines truth).
+The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptance criteria) is owned by `acceptance-criteria`, the **API contract** by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns — that is the toolkit's invariant restated at the source layer (tests evidence, code implements; neither defines truth). Authority is **per claim, not per source**: a source is trusted only for the categories it owns, never for an aside outside them (a story governs intent and acceptance criteria, not a backend remark dropped into it).
 
 ## Entry schema
 
@@ -41,9 +41,9 @@ The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptanc
 1. From the classifier output, take the change‑type(s) and the `source-kinds` the matched Rules require.
 2. For each needed kind, look up the manifest entries whose `change-types` include this change.
 3. Retrieve via the entry's `retrieval` method.
-4. **Not in the map → repo‑search fallback.** If a needed kind has no entry (or the entry doesn't resolve), **fall back to a search scoped by that kind's conventions** — its usual filenames/globs and locations (e.g. `api-spec` → `**/openapi*.{yaml,json}`, `*swagger*`; `event-schema` → schema/avro/proto dirs; `tests` → the test roots; `ci-config` → `.github/workflows`, `*.gitlab-ci.yml`). **One confident match** → surface it as a **proposed manifest addition** for confirmation; **several or none** → surface a **gap** (ask), never silently hard‑code a path. The map is preferred; the search is the fallback, and bounded — not a blind scan.
+4. **Not in the map → repo‑search fallback.** If a needed kind has no entry (or the entry doesn't resolve), **fall back to a search scoped by that kind's conventions** — its usual filenames/globs and locations (e.g. `api-spec` → `**/openapi*.{yaml,json}`, `*swagger*`; `event-schema` → schema/avro/proto dirs; `tests` → the test roots; `ci-config` → `.github/workflows`, `*.gitlab-ci.yml`). **One confident match** → surface it as a **proposed manifest addition** for confirmation; **several or none** → surface a **gap** (ask), never silently hard‑code a path. The map is preferred; the search is the fallback, and bounded — **stop when no new candidate changes the resolved set**, not a blind or endless scan.
 5. **Critical + still‑unfound = blocking.** If a *critical* source is neither in the map nor findable by the fallback search, stop and report it as a *limitation* (per the escalation model) — never proceed on an assumed or invented source.
-6. **Resolve a claim by authority, not by guess.** For any claim — a contract, a boundary, the expected evidence — consult the source `authoritative-for` it and treat a `normative` source as **binding**. The **implementation is never the authority**: if impl/tests disagree with a normative source, the impl is wrong, not the source. A claim with **no** authoritative source is a **gap** (clarify, don't invent — the minimum‑clarity gate); two **normative** sources contradicting on the same claim is a **decision** (escalate, never silently pick one).
+6. **Resolve a claim by authority, not by guess.** For any claim — a contract, a boundary, the expected evidence — consult the source `authoritative-for` it and treat a `normative` source as **binding**, at its **latest approved, non‑superseded** version (a superseded source is not current authority). **Cite the claim's locus**, not just the source name — `api-spec: POST /devices → 409`, `ADR‑018 §ownership`, `tests: FooTest::bar`. The **implementation is never the authority**: if impl/tests disagree with a normative source, the impl is wrong, not the source. A claim with **no** authoritative source is a **gap** (clarify, don't invent — the minimum‑clarity gate); two **normative** sources contradicting on the same claim is a **decision** (escalate, never silently pick one).
 
 ## Guards
 
@@ -51,6 +51,8 @@ The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptanc
 - **Authority over implementation** — a claim is resolved against its authoritative source.
 - **No authority → gap; conflicting authorities → decision** — unowned claim clarified; contradicting normative sources escalate.
 - **Descriptive/advisory are context** — they inform; they never bind.
+- **Latest, non‑superseded** — resolve against the current version; a superseded source isn't authority, and a derived artifact (plan/baseline/criteria set) is stale if an upstream source changed after it was captured — re‑derive, don't trust blindly.
+- **Cite the locus** — anchor a claim to its exact place (file/section/endpoint), not just the source name.
 - **Criticality is honored** — a critical source unretrievable is treated as missing.
 - **Agent‑extension is explicit** — agents propose additions; humans seed and confirm.
 - **`tests` is typed (for discovery)** — one entry per test type, each with its location and scope.
