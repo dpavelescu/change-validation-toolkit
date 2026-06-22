@@ -59,7 +59,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     correction-loop                 test-request + fix-request handoffs → re-assess → re-validate (Phase 3)
     evidence-ledger                 durable audit trail: criteria → test → evidence; output, never read back (Phase 3)
     escalation                      the structured shape of a decision (a question) vs a limitation (a gap) (cross-cutting)
-    output-style                    handoff artifact vs human report + the no-fluff rules for human-facing output (cross-cutting)
+    output-style                    machine (schema) vs human (readable) vs both (derive or section); no-fluff rules (cross-cutting)
 ```
 
 ---

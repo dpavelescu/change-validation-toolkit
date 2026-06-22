@@ -1,34 +1,38 @@
 ---
 name: output-style
 description: >-
-  How agents shape what they emit — the split between a handoff artifact (a skill's schema, read by a
-  tool or a later agent) and a human report (readable prose over it), and the best-practice rules for
-  the human one: name the audience and their next action, lead with the conclusion, relevant prose
-  only, structured to scan, every point actionable. Cross-cutting; applies to every agent's Output.
+  How agents shape what they emit: machine artifacts are schema-based; the few human artifacts get an
+  easy-to-read structure; when both audiences need the same thing, either derive a machine form from
+  the human one (the Strategy→Rules pattern already in the toolkit) or give one artifact clearly-named
+  sections both can read — never a duplicate. Plus the no-fluff rules for anything a human reads.
+  Cross-cutting; cross-check outputs against this, don't restructure a working artifact.
 ---
 
-Every output an agent emits is one of two kinds. **Name which, and shape it to that** — most "poorly specified output" is the two kinds blurred together.
+Be precise about **who reads each output**. Most "poorly specified output" is a machine schema and a human summary blurred into one vague blob. Classify each output as one of three kinds and shape it to that — and **don't add a layer the current model doesn't already need**.
 
-## The two kinds
+## Three kinds — classify each output
 
-- **Handoff artifact** — consumed by a tool, a later agent, or replay (the Criteria IDs, run record, Behavior Baseline, the Validation Plan schema, the reconciliation record, a `fix-request` / `test-request`). It follows its **skill's schema exactly**: stable field names, complete, terse, parseable. Not prose.
-- **Human report** — read by a person who will **decide, approve, answer, audit, or implement**. Prose over the artifact, held to the rules below.
+1. **Machine artifact** — consumed by a tool, a later agent, or replay. **Schema-based** (the owning skill's schema): stable fields, terse, complete, no prose. *Criteria IDs · Change Classification · Behavior Baseline · run record · reconciliation record · Validation Rules · `fix-request` / `test-request`.*
+2. **Human artifact** — owned or acted on by a person. **Easy-to-read structure** (named sections, plain prose, the rules below). Few of these: *the Testing Strategy (human-owned) · each escalation **decision** / **limitation** a person must answer or close.*
+3. **Both audiences** — don't fork into two documents that can drift. Two patterns; prefer the one already in the model:
+   - **Derive a machine form from the human one.** The human artifact stays readable; a thin machine/AI projection is generated from it. *This is the **Strategy → Validation Rules** pattern already in the toolkit — reuse it, don't reinvent.*
+   - **One artifact, sections for both.** Keep it schema/structured for the tool, with **clearly-named sections and a one-paragraph lead** a person (or an AI) reads directly — no parallel prose copy. *The **Validation Plan** (the executor replays the schema; the approver reads its tracks, led by a "what to approve" summary) · the **Evidence Ledger** (a structured record an auditor reads by section).*
 
-Some outputs are **both** — the Validation Plan is a schema a tool replays *and* a thing a human approves. Then emit both layers: the schema for the tool, a short readable summary for the person. **Never hand a person raw schema; never bury a decision in a YAML field.**
+**Cross-check, don't restructure.** If an artifact already serves both — a schema with readable sections, or a human doc with a derived projection — keep it; just verify it reads cleanly for each audience. Only add a human summary or a derived form where one is genuinely missing.
 
-## Rules for a human report
+## Rules for anything a human reads (kind 2, and the human side of kind 3)
 
-1. **Name the audience and their next action.** State who reads it and what they do with it, and write only what serves that — a reviewer approving a plan needs coverage and open decisions; an implementer needs the failing expectation and where to fix. Different reader → different report.
-2. **Lead with the conclusion.** The decision, verdict, or finding first; the support after. No restating the task, no preamble.
-3. **Relevant prose only — no fluff.** Full sentences where the reasoning carries weight; cut the obvious, the motivational, the hedging. If removing a sentence loses nothing, remove it.
-4. **Structured to scan.** Named sections or short lists, one idea each. Length is proportional to stakes — a routine pass is a line; a decision gets its full context.
-5. **Every point carries its next step.** A finding states what it means *and* what to do — signal is never left without an action.
-6. **Plain, established words.** The vocabulary a practitioner already knows; no coined jargon where a standard term exists.
+1. **Name the audience and their next action** — write only what serves it: a reviewer approving a plan needs coverage and open decisions; an implementer needs the failing expectation and where to fix.
+2. **Lead with the conclusion** — the decision, verdict, or finding first; the support after. No preamble.
+3. **Relevant prose only** — cut the obvious, the motivational, the hedging; if removing a sentence loses nothing, remove it.
+4. **Structured to scan** — named sections or short lists, one idea each; length proportional to stakes.
+5. **Every point carries its next step** — signal is never left without an action.
+6. **Plain, established words** — no coined jargon where a standard term exists.
 
 ## Guards
 
-- **Name the kind** — each output is declared handoff-artifact, human-report, or both.
-- **Schema for tools, prose for people** — never raw schema at a human; never a decision buried in a field.
-- **Audience-first** — content is what the named reader needs to act, nothing more.
-- **No fluff** — every sentence serves the intent.
-- **Signal carries its action** — no finding without a next step.
+- **Classify the output** — machine artifact (schema), human artifact (readable), or both.
+- **Both ≠ duplicated** — derive a machine form from the human one, or give one artifact sections for both; never two copies to drift.
+- **Reuse the model** — Strategy→Rules is the derivation template; cross-check existing artifacts, don't add layers the model already covers.
+- **Schema for tools, readable for people** — never raw schema dumped at a human, never a decision buried in a field.
+- **No fluff** — every sentence serves the named reader.
