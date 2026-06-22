@@ -1,12 +1,27 @@
 ---
 name: validation-plan
 description: >-
-  The schema and derivation procedure for the per-change Validation Plan — the AC→test map, the
-  evidence required per acceptance criterion, the provisional test dispositions, and the local/CI gates.
-  Used by plan-validation to derive the plan and by review-plan to gate it. Phase 2.
+  The schema and derivation procedure for the per-change Validation Plan — criterion identity (stable
+  AC ids), the AC→test map, the evidence required per acceptance criterion, the provisional test
+  dispositions, and the local/CI gates. Used by plan-validation to derive the plan and by review-plan to gate it. Phase 2.
 ---
 
 The Validation Plan states **what evidence is needed to trust this change** along two tracks: **criterion evidence** (per active AC — *does the intended change work?*) and **behavior‑preservation evidence** (per blast‑radius surface no AC owns — *does the change break anything around it?*). The first is keyed to stable acceptance‑criterion IDs; the second is keyed to surfaces and exists to catch regression. It is *intent* — it does not run or edit anything. Test dispositions it proposes are **provisional**, confirmed against the real suite at execution by `specify-tests` (against the Behavior Baseline), Phase 3. It is per‑change, in‑repo, and travels with the change.
+
+## Criteria IDs (criterion identity — assigned first)
+
+Before the plan proper, give each acceptance criterion a **stable id** (`AC-1`, `AC-2`…) for **this change's run**, so the plan, tests, baseline, and evidence all point at the same criterion (locally and again in CI). The human owns the prose ACs in the story; the toolkit owns identity. It is **per‑change run‑state**: lives on the branch, discarded after merge, never accumulating across changes or in `main` — cross‑change impact is found by the blast radius + Behavior Baseline (by surface, not a remembered id), and the durable trail is the Evidence Ledger.
+
+Per AC, **reading the story and never modifying it**: `{ ac-id: AC-<n>, text, status, source-ref }`. Classify `status` against the existing tests the change reaches (blast radius); it drives the provisional disposition:
+
+| `status` | meaning | provisional disposition |
+|---|---|---|
+| `unchanged` | an existing test covers it, wording stable | `keep` |
+| `moved` | a test covers it but the wording shifts its meaning | `change` |
+| `new` | nothing covers it yet | `add` |
+| `retired` | a test covers a criterion no longer in the story | `remove` |
+
+`moved`/`retired` are **provisional** — the **Behavior Baseline** confirms whether behavior actually moved. The match is **semantic, not positional** (the AC's meaning vs. what a test asserts); a genuinely ambiguous "same one reworded, or new?" is a **decision**, never a silent guess.
 
 ## Plan schema
 
@@ -44,7 +59,7 @@ open-decisions:    [ escalations blocking completeness ]
 
 ## Derivation procedure
 
-1. **Take** the Change Classification (types, blast radius, resolved sources) and the **Criteria IDs** (active ACs with stable IDs).
+1. **Take** the Change Classification (types, blast radius, resolved sources) and **assign the Criteria IDs** (above) — active ACs with stable IDs + their `status`.
 2. **Per active AC**, pull `required-evidence` from the Validation Rules for the matched change‑type(s), then **check it is *sufficient* to prove *this* criterion** — not merely that some rule applies. If the generic type‑evidence doesn't suffice for what the AC means (a story‑specific need, or an NFR/security aspect the Strategy doesn't cover), that's a **Strategy gap**: surface it and **propose a Strategy addition** (don't silently under‑test). The Strategy still wins; the plan only proposes.
 3. **Map a test** to each AC: discover related existing tests **read‑only** (via the Source‑Map `tests` kind) and set `test`. Where confidence can't be proven pre‑merge, set `kind: runtime-monitor` and list it under `non-automatable` — **never fake a green test**. An AC with no test yet → `none-yet` (a coverage gap, surfaced, not hidden).
 4. **Propose dispositions** for related existing tests — **provisional**:

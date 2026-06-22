@@ -14,8 +14,8 @@ The assembled Validation Plan and the Criteria IDs. Skills and agents are cited 
 
 ## Review
 1. **Coverage & sufficiency** — every **active** AC has a `test` (test, runtime‑monitor, manual) or an explicit `none-yet` with a reason, **and** that evidence is *sufficient* to prove the AC incl. its NFR/security aspects (not merely present). A silently uncovered or under‑proven AC is a gap; an uncovered need the Strategy doesn't cover → flag a **Strategy gap** (propose an extension). — *uses* **validation‑plan**.
-2. **Disposition justification** — every proposed `change`/`remove` traces to a **criteria delta** (an AC `moved`/`retired` in the criteria IDs), never to a test result. A result‑driven disposition is the masking‑a‑regression smell — flag it. — *uses* **criteria‑ids**.
-3. **Testability** — each AC is observable/verifiable as written; an un‑observable AC is a criteria gap (defer to a decision, don't resolve here). — *uses* **criteria‑ids**.
+2. **Disposition justification** — every proposed `change`/`remove` traces to a **criteria delta** (an AC `moved`/`retired` in the Criteria IDs), never to a test result. A result‑driven disposition is the masking‑a‑regression smell — flag it. — *uses* **validation‑plan**.
+3. **Testability** — each AC is observable/verifiable as written; an un‑observable AC is a criteria gap (defer to a decision, don't resolve here). — *uses* **validation‑plan**.
 4. **Blast radius (regression)** — every blast‑radius surface no active AC owns carries a **behavior‑preservation** test (or explicit `none-yet` / `out-of-scope`). A silently uncovered touched surface is a regression hole — flag it as a gap. — *uses* **validation‑plan**.
 5. **Test‑level discipline** — each test is at the **lowest level that proves it**; flag any integration/e2e that a unit/component/contract test could replace (brittleness/cost). Check gate placement: fast low‑level tests in `local-gate` (fail‑fast), cross‑boundary/infra in `ci-gate` — and CI‑only placement is **not** mis‑flagged as a coverage gap. — *uses* **validation‑plan**.
 6. **Honesty** — non‑automatable evidence is admitted with a runtime monitor, not faked as a passing test.

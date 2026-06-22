@@ -56,7 +56,7 @@ Some capabilities you set up once; the rest run on every change.
 | You run | When | It orchestrates underneath (subagents) |
 |---|---|---|
 | **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
-| **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `review-plan` |
+| **`plan-validation`** | per change — to plan | `classify-change` · `review-plan` |
 | **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` |
 
 Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them.
@@ -70,7 +70,7 @@ The actual sequence — who acts, where you're in the loop, and what lands in th
 2. **You run `define-testing-strategy`.** It asks one question at a time where the approach isn't already implied, authors the **Testing Strategy**, and generates the **Validation Rules**. **You approve.** → both are **committed** (durable, versioned).
 
 **Per change — plan it**
-3. **You run `plan-validation`** with the change and its story. Underneath: `classify-change` → `reconcile-criteria` → `review-plan`. It produces the **Validation Plan**.
+3. **You run `plan-validation`** with the change and its story. Underneath: `classify-change` → `review-plan` (it assigns the Criteria IDs itself). It produces the **Validation Plan**.
    - No usable acceptance criteria → it stops at **Not ready** and says what's missing (that's the work‑item toolkit's job, not this one).
    - A **decision to settle** (an ambiguity, a contract call) comes to you as a question *with a recommended answer*; **you confirm or override.**
 4. **You approve the plan.** → the Validation Plan and the per‑change Criteria IDs are **committed** under `.validation/<change>/`.
@@ -205,23 +205,16 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Needs:** the change · the Validation Rules · the Source‑Map
 - **Produces:** change‑types · blast radius · affected tests (by type) · needed sources · claim authorities
 
-**`reconcile-criteria`** — Give each acceptance criterion a **stable id for this change's run** (`new`/`unchanged`/`moved`/`retired` vs the existing suite). Read‑only on the story; ids are **per‑change** (stable across local↔CI, discarded after merge) — *not* a durable or cross‑change record.
-- **Args:** `story=<link|file>` · `classification=<path>` *(affected tests)* · `criteria-ids=<path>` *(this change's run state; default `.validation/<change>/criteria.md`)*
-- **Uses skills:** `criteria-ids`, `source-map`
-- **Needs:** the story's ACs (Source‑Map kind `acceptance-criteria`) · the existing tests the change reaches (from the blast radius)
-- **Produces:** the per‑change Criteria IDs + a **provisional** delta summary (new / moved / retired — the Baseline confirms moved/retired)
-- **Delegated by:** `plan-validation`
-
-**`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: per‑AC required evidence and test map, provisional test dispositions, the regression (behavior‑preservation) track, and the local/CI gates.
+**`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: assign the **Criteria IDs** (stable per‑change AC ids + `new`/`unchanged`/`moved`/`retired` status — read‑only on the story, discarded after merge, not durable), then per‑AC required evidence and test map, provisional test dispositions, the regression (behavior‑preservation) track, and the local/CI gates.
 - **Args:** `change=<diff|branch|PR>` · `story=<link|file>` · `classification=<path>` *(reuse)*
 - **Uses skills:** `validation-plan`, `change-taxonomy`
-- **Delegates to:** `classify-change`, `reconcile-criteria`, `review-plan`
+- **Delegates to:** `classify-change`, `review-plan`
 - **Needs:** the change · the story · the Validation Rules · the Source‑Map
-- **Produces:** the Validation Plan (a draft you approve) — or *Not ready* with a resumable agenda
+- **Produces:** the Validation Plan incl. the per‑change Criteria IDs (a draft you approve) — or *Not ready* with a resumable agenda
 
 **`review-plan`** — *gate lens* — Review the assembled plan before capture: coverage, disposition justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
 - **Args:** none of its own (invoked by `plan-validation`)
-- **Uses skills:** `validation-plan`, `criteria-ids`
+- **Uses skills:** `validation-plan`
 - **Needs:** the assembled plan · the Criteria IDs
 - **Produces:** findings + a recommendation (ready to capture / Not ready)
 - **Delegated by:** `plan-validation`
@@ -271,14 +264,14 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `validation-rules` | the Rule schema + deriving Rules from the Strategy |
 | `source-map` | source locations + **authority** (who owns which claim) + typed tests |
 | `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
-| `criteria-ids` | per‑change stable AC ids + new/unchanged/moved/retired classification |
-| `validation-plan` | the plan schema + derivation + AC→test mapping |
+| `validation-plan` | criterion identity (AC ids) + the plan schema + derivation + AC→test mapping |
 | `behavior-baseline` | the behavior snapshot + capture/reconcile + the no-edit-to-pass rule |
-| `execution-runner` | the run record + resolve/run/observe + fail‑fast ordering |
+| `execution-runner` | the run record + tier‑preflight/run/observe + fail‑fast ordering |
 | `test-reconciliation` | the disposition→action mapping + criteria provenance + the no-edit-to-pass rule |
 | `correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
 | `evidence-ledger` | the durable audit trail: criteria → test → evidence; output, never read back |
 | `escalation` | the structured shape of a decision (a question) vs a limitation (a toolkit gap) |
+| `output-style` | machine (schema) vs human (readable) vs both; the human-report skeleton |
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
 
