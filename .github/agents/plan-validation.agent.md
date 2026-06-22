@@ -28,7 +28,7 @@ The change, the story, the generated **Validation Rules**, the **Source‑Map Ma
   2. **Coverage** — each AC → its test, or an explicit `none-yet` gap.
   3. **Test changes** — each disposition + the criteria delta that justifies it.
   4. **Regression scope** — surfaces covered vs. `out-of-scope`.
-  5. **Open decisions** — anything blocking sign‑off, in the **escalation** shape.
+  5. **Decisions to settle** — the judgment calls for sign‑off, each a question with context and a **recommended resolution** (**escalation** shape). A *blocking* decision would have made the plan **Not ready** instead, so these are confirmatory.
 - **Not ready** *(instead of a plan)* — a resumable agenda naming exactly what's missing; no plan written.
 
 ## Guards

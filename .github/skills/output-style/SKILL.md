@@ -26,10 +26,10 @@ Conclusion-first (BLUF), grouped by what the reader acts on — **never a flat e
 
 1. **Verdict** — the conclusion and the reader's one next action, in a line.
 2. **Named sections** — the substance, grouped by what the reader *does* with it (coverage, changes, risk…), not by how it was produced. One concern per section.
-3. **Open items** — decisions, limitations, and next steps, each carrying its owner and action.
+3. **Decisions & limitations** — calls to settle (each a question with a recommended resolution) and toolkit gaps; settled or surfaced for sign-off, never a passive backlog.
 
 Each concrete output names its own sections under this skeleton:
-- **Validation Plan** (approver view) — *Verdict · Coverage · Test changes · Regression scope · Open decisions.*
+- **Validation Plan** (approver view) — *Verdict · Coverage · Test changes · Regression scope · Decisions to settle.*
 - **Evidence Ledger** (audit view) — *Outcome · Evidence per criterion · Behavior preserved · Justified changes · Decisions & limitations.*
 - **escalation** (decision / limitation) — the escalation skill's fields *are* this skeleton already.
 
