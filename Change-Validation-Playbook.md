@@ -104,7 +104,7 @@ Both arrive in a **structured** shape (the **escalation** skill), not loose pros
 
 ## How tests run — local, CI, and what's in scope
 
-**Implemented in your frameworks.** Tests are written idiomatically for *your* stack — it learns each kind from your existing tests and conventions, and builds fixtures from your declared test data. A framework or test type it can't author is a flagged gap, never a fake.
+**Implemented in your frameworks and your style.** Tests are written idiomatically for *your* stack and *your* test style — xUnit, **BDD/Gherkin scenarios**, property/table-based — learned from your existing tests and conventions, with fixtures from your declared test data. A style or framework it can't author is a flagged gap, never a fake. **Coverage is still defined by the plan, not the specs:** the criteria drive what must be witnessed, cross-checked against your specifications so a criterion with no scenario — or a scenario with no criterion — is surfaced and fixed.
 
 **Executed against your own suite, local-first.** It resolves *your* build/test commands (cross-checked with your CI config), runs the **cheap, local tests first** (unit, component) so failures surface early, then the slower ones — some of which only run in CI. It reads results from your **machine-readable test report** (JUnit XML, etc.), never by scraping console output.
 
