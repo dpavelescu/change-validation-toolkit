@@ -76,16 +76,16 @@ The actual sequence — who acts, where you're in the loop, and what lands in th
 4. **You approve the plan.** → the Validation Plan and the per‑change Criteria IDs are **committed** under `.validation/<change>/`.
 
 **Per change — drive it to green**
-5. **You run `drive-correction`.** First run, it sets up underneath: `capture-baseline` records current behavior (**committed**), `specify-tests` works out what each test must assert and emits **test‑requests**, `run-validation` runs your suite.
+5. **You run `drive-correction`.** First run, it sets up underneath: `capture-baseline` records current behavior (**committed**), `specify-tests` works out what each test must assert and emits **test‑requests**, `run-validation` runs your suite (what it runs itself vs. leaves to your pipeline → **How tests run**).
 6. **Authoring is handed off.** A `test-request` ("write a test that asserts this") and a `fix-request` ("make this test pass") go to **your implementer — a person or your coding agent**. The toolkit writes no code, and **pauses**.
-7. **You (or your agent) apply the handoff and re‑invoke.** The loop re‑assesses impact, re‑runs, and sorts each failure itself — real regression vs. brittle test — **without coming back to you**. You hear from it again only for a **decision**, never to debug.
+7. **You (or your agent) apply the handoff and re‑invoke.** The loop re‑assesses impact, re‑runs, and sorts each failure itself — real regression vs. brittle test — **without coming back to you**. You hear from it again only for a **decision**, never to debug (decision vs. limitation → **When it comes to you**).
 8. **On green:** `record-evidence` writes the **Evidence Ledger** entry (**committed**) — what was validated, by what, and why. The change is done; its evidence travels with the merge.
 
 **Where you are in the loop — and where you aren't**
 - **You are:** filling the Source‑Map; approving the Strategy; approving the plan; answering decisions; implementing code and authoring tests (or delegating that to an agent); reviewing the Evidence Ledger.
 - **You aren't:** deciding what to test, writing the plan, chasing which tests a change affects, or debugging a red test — those are the loop's job.
 
-**What lands in the repo:** the Strategy and Rules (once); and per change, under `.validation/<change>/`, the Criteria IDs, Validation Plan, Behavior Baseline, run records, the reconciliation record, the open test‑/fix‑requests, and the Evidence Ledger — all **committed** so local and CI see the same state and the audit trail travels with the change. The tests themselves are committed as normal code by whoever authors them.
+**What lands in the repo:** the Strategy and Rules once; then, per change, everything the run produces is **committed** under `.validation/<change>/`, so local and CI see the same state and the audit trail travels with the merge. The tests themselves are committed as normal code by whoever authors them. *(Which artifacts these are — and which are human‑readable / count as process evidence — is in **Artifacts** below.)*
 
 > The pipeline underneath, in one line: *classify → plan → record behavior → specify tests → run → correct → record evidence*, with the **Execution Runner** running your suite throughout.
 
