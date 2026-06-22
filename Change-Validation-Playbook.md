@@ -77,6 +77,16 @@ These are the classes of change the toolkit handles end‑to‑end — each stat
 **④ A fix that breaks a brittle test.** The loop tells a real regression from a test merely coupled to internal structure: if the baseline says behavior is **preserved**, the test is *brittle* and gets repaired (decoupled); if behavior **moved** with no criterion, it's a regression to fix. The baseline is the gate — a regression can never be relabelled "brittle."
 > *Example:* a fix extracts a method; a unit test bound to the old internals goes red while the endpoint's behavior is unchanged → repaired, not laundered.
 
+### Starting conditions — what you bring to it
+
+What already exists around a change varies by project. Three inputs differ from team to team; here is how each is handled, so there's no surprise about what the toolkit assumes.
+
+**Ⓐ No testing strategy yet.** It will not validate against a guessed standard — it **authors a strategy with you first** (`define-testing-strategy`), derived from your architecture, asking one question at a time only where the answer isn't already implied, then generates the machine‑facing Validation Rules. You own and approve it. This is a one‑time setup, not repeated per change; until it exists there is nothing to derive evidence from, so it is the required first move — never skipped, never faked.
+
+**Ⓑ A testing strategy already exists.** It's treated as the **authoritative, human‑owned source**: the toolkit reads it (via the Source‑Map), derives and refreshes the Validation Rules from it, and **never edits it silently**. When a change needs evidence the strategy doesn't cover, that surfaces as a **Strategy gap** — a *proposed* addition for you to approve, not a quiet under‑test. An informal or prose strategy can be normalized into the structured form (still yours to approve).
+
+**Ⓒ The story comes with test specifications (e.g. BDD) — optional.** A behavioral spec that accompanies the change description is treated as a **specification of intended behavior: it _complements_ the acceptance criteria, it never bypasses them.** For **BDD/Gherkin**, the scenario *is* the criterion — the plan cross‑checks scenarios against criteria (a criterion with **no** scenario is a coverage gap; a scenario with **no** criterion is an orphan → a candidate criterion or a decision), and the toolkit **implements the step definitions** through *your* BDD runner, never re‑authoring the scenario as a separate test. Other spec styles (example tables, contract specs) follow the same rule. If **no** specs accompany the story, the criteria come from its acceptance criteria alone. Either way the **Validation Plan owns coverage** (criteria‑driven); the specs are inputs and witnesses, never the definition of what's covered.
+
 ### When it comes to you — and when it doesn't
 
 Every human touch is exactly one of two things — this is what keeps it autonomous without dumping work back on you:
