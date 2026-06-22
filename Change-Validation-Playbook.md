@@ -1,51 +1,51 @@
 # Change‑Validation Toolkit — Playbook
 
-> **Turn a change into the evidence needed to trust it** — derived from how your system is built, produced and checked against your real code, and self‑correcting, so a failing test becomes the system's next task, not yours.
+> **Turn a change into the evidence needed to trust it** — derived from your testing strategy, checked against your real code, and self‑correcting.
 
-This is the guide to **what the toolkit is for, what it does, and how to use it** — written for the people who adopt and run it. It is tool‑neutral; the agents and skills under `.github/` are the build that implements it (see [Under the hood](#under-the-hood) at the end).
+A guide to what the toolkit is for, what it does, and how to use it, for the people who adopt and run it. It is tool‑neutral; the agents and skills under `.github/` are the build that implements it, catalogued at the end.
 
 ---
 
 ## Why it exists
 
-**The problem is not too few tests — it's that "the tests pass" rarely means "the change is correct."** A test that asserts *whatever the code happens to do* is green and worthless: it rubber‑stamps the implementation instead of proving the intent. AI that *generates* tests makes this worse — it produces plausible green tests that confirm the code, not the requirement. So teams ship on a signal that doesn't mean what they think it means, and regressions hide in code some *other* story built.
+A passing test suite is meant to tell you a change is correct. Often it doesn't. A test that asserts whatever the code already does will pass whether or not the change is right — it confirms the implementation, not the intent. Tools that generate tests tend to make this worse, producing green tests that lock in current behavior. And a change can break code it never mentions, in areas an unrelated story built.
 
-**The single value proposition: make _green_ trustworthy.** The toolkit validates a change against **what it is supposed to do** — its acceptance criteria — never against what the code does. Every test traces to a criterion; no test can be edited to go green dishonestly; the evidence is real and observed. That is the whole point: not *more* tests — **honest** ones.
+This toolkit validates a change against its acceptance criteria — what the change is meant to do — rather than against the code as written. Each test traces back to a criterion, and no test is edited only to make it pass, so a green result reflects the criteria being met rather than the code agreeing with itself.
 
-Everything else in this document — blast radius, the behavior baseline, the correction loop, the evidence ledger — is *mechanism* in service of that one promise. And so the value isn't diluted, be clear about what it is **not**: it is **not** a coverage‑padding test generator; it **writes no code** (it specifies and verifies — authoring is handed off); it is **not** CI middleware. Its value is the **honesty of the validation**, not the volume of output.
+The rest of the design follows from that. It works out what a change affects, records current behavior before anything is touched, runs your suite, and feeds failures back through a correction loop. It does not pad coverage with generated tests, it does not write the code — it specifies tests and verifies them, and the implementation is handed off — and it does not sit between you and your CI.
 
 ### Why you can trust the output
 
-Four rules make the result trustworthy rather than merely automated. They're worth knowing, because they're *why* you can rely on what it produces:
+Four rules hold throughout:
 
-- **Your acceptance criteria are the fixed point.** "Correct" is defined by what the change is meant to do — never by what the code happens to do.
-- **The toolkit writes no code — it specifies and verifies.** Tests and production code are freely mutable around the criteria, but the toolkit *directs* that change (it specifies what each test must assert and what code must satisfy, and **verifies** the result); the authoring is handed off. The criteria never bend around the code.
-- **Every test traces to a criterion.** A test exists to defend one specific expectation. It checks the criterion; it is never the source of truth.
-- **You make decisions; you never debug.** It asks you a question only when the *criteria themselves* are genuinely unresolvable — it never hands you broken code to fix.
+- **The acceptance criteria are the fixed point.** Correct means what the change is meant to do, not what the code happens to do.
+- **The toolkit specifies and verifies; it doesn't write code.** It decides what each test must assert and what the code must satisfy, then checks the result. The authoring is handed off; the criteria never bend to fit the code.
+- **Every test traces to a criterion.** A test defends one expectation. It checks the criterion; it is never the source of truth.
+- **You make decisions, not fixes.** It asks a question only when the criteria themselves are unresolvable, and never hands you broken code.
 
 ---
 
 ## What it does for you
 
-Think of it as a set of capabilities, not a pile of files. Some you set up once; the rest run on every change.
+Some capabilities you set up once; the rest run on every change.
 
 ### Set up once — about your system, not any one change
 
-- **Captures your testing strategy.** What kinds of evidence make a change trustworthy *in your system* — and **if you don't have a written strategy, it authors one with you** from your architecture, asking one question at a time only where the answer genuinely isn't decided. It favours the **lowest test level that gives solid confidence** and pushes back on slow, brittle end‑to‑end tests where a focused unit or component test would do. The strategy stays human‑owned; you approve it.
-- **Learns where truth lives.** A map of your sources — architecture, API specs, event schemas, tests, CI — and, crucially, **which source is authoritative for what** (the API spec defines the contract; the code doesn't). So when something has to be checked, it checks against the owner, not a guess.
+- **Captures your testing strategy.** What kinds of evidence make a change trustworthy in your system. If you don't have a written strategy, it authors one with you from your architecture, asking one question at a time where the answer isn't already decided. It favours the lowest test level that gives solid confidence, and pushes back on slow end‑to‑end tests where a unit or component test would do. The strategy stays yours; you approve it.
+- **Maps where truth lives.** Your sources — architecture, API specs, event schemas, tests, CI — and which one is authoritative for what: the API spec defines the contract, not the code. When something needs checking, it checks against the owner rather than guessing.
 
-### Every change — automatically
+### Every change
 
-- **Finds the real blast radius.** It works out everything the change touches — *including which existing tests it affects, even tests written for old, unrelated work* — by analysing the code, with **no links for you to maintain** (more on this below).
-- **Works out the evidence the change needs.** Two things, separately: that the **new behavior works** (your acceptance criteria) and that **nothing around it broke** (a regression guard over everything the change reaches).
-- **Tells intended change from accidental breakage.** Before touching anything, it photographs current behavior. Afterward, a behavior that moved is either *justified* (a criterion moved with it) or a *regression* (nothing asked for it) — and it can tell which.
-- **Specifies and verifies tests honestly.** It decides what each test must assert — from the criteria, never the new code — **hands the authoring to your implementer**, and verifies the result faithfully checks the criterion (a test that asserts the implementation is rejected). A test changes **only because the requirement behind it moved** — never to make a red result turn green. It writes no test code itself.
-- **Runs your own test suite — fast feedback first.** Not an invented harness — your suite — running the **cheap, local tests first** (unit, component) so problems surface early, before the slower CI‑level tests (integration, end‑to‑end), some of which can only run in CI anyway. It distinguishes a **real failure** (work to do) from a **broken harness** (its own gap to fix).
-- **Drives correction to green — by handoff.** When a test fails it **diagnoses** and emits a structured **fix‑request** for whoever implements the code (a human or your impl agent), then re‑validates and iterates. It **never writes production code itself** and never hands a person broken code — only the tests, the evidence, and an honest diagnosis.
-- **Keeps a durable audit trail.** When a change reaches green it records *what was validated, by what, and why* — criteria → test → evidence, what behavior was preserved, the justified test changes, and any decisions or limitations — so a human review (or a compliance check) is about **behavior and decisions, not internals**. Evidence only; nothing is "done" without it.
+- **Finds the blast radius.** Everything the change touches, including which existing tests it reaches — even tests written for old, unrelated work — worked out from the code, with no links for you to maintain.
+- **Works out the evidence the change needs.** Two things, separately: that the new behavior works (the acceptance criteria), and that nothing around it broke (a regression check over everything the change reaches).
+- **Separates intended change from breakage.** It records current behavior before the change. Afterward, a behavior that moved is either justified (a criterion moved with it) or a regression that nothing asked for, and it can tell which.
+- **Specifies and verifies the tests.** It decides what each test asserts — from the criteria, not the new code — hands the authoring to your implementer, and checks that the result tests the criterion rather than the implementation. A test changes only when the requirement behind it moves.
+- **Runs your own suite, cheap tests first.** Your suite, not an invented harness — unit and component tests first so problems surface early, then the slower integration and end‑to‑end tests, some of which only run in CI. It tells a real failure from a broken harness.
+- **Drives correction by handoff.** When a test fails it diagnoses the cause and writes a structured fix‑request for whoever implements the code, then re‑validates. It doesn't write the production code, and it doesn't hand a person broken code — only the tests, the evidence, and the diagnosis.
+- **Records what was validated.** On green it records what was validated, by what, and why — criteria, tests, evidence, the behavior preserved, the test changes made, and any decisions or limitations — so review is about behavior and decisions rather than internals.
 
-> **The capability you should understand: finding affected tests without links.**
-> When a change touches code that an old story's tests cover, those tests are found **because the change reaches that code** — discovered fresh every time from the code itself (call graph and/or coverage), never from a stored "this change relates to story X" reference. References rot; this can't, because there's nothing to keep. System‑level tests (end‑to‑end, integration) are caught too, by the *flows* they exercise — which is why the toolkit is told where each kind of test lives.
+> **Finding affected tests without stored links.**
+> When a change touches code an old story's tests cover, those tests are found because the change reaches that code — rediscovered from the code each time (call graph and/or coverage), never from a stored "relates to story X" link. Nothing is stored, so nothing goes stale. System‑level tests (integration, end‑to‑end) are caught by the flows they exercise, which is why the toolkit is told where each kind of test lives.
 
 ---
 
@@ -59,11 +59,11 @@ Think of it as a set of capabilities, not a pile of files. Some you set up once;
 | **`plan-validation`** | per change — to plan | `classify-change` · `reconcile-criteria` · `review-plan` |
 | **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` |
 
-End‑to‑end: **set up once → plan a change → drive it to green.** You never invoke the inner agents directly — the two per‑change entry points orchestrate them. Underneath, the pipeline is *classify → plan → photograph behavior → specify tests → run → correct*, with the **Execution Runner** as the shared engine that actually runs your suite.
+Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them. The pipeline underneath is *classify → plan → record behavior → specify tests → run → correct*, with the **Execution Runner** running your suite.
 
 ### Scenarios it supports
 
-These are the classes of change the toolkit handles end‑to‑end — each stated as a capability, then shown with a concrete example.
+The classes of change it handles, each with an example.
 
 **① A new feature (new acceptance criteria).** It plans the required evidence, specifies (and verifies) a test for each criterion — authoring handed off — and drives the unmet ones to green via fix‑requests — never editing a test to pass.
 > *Example — "add an email field to signup":* classified as a REST change; the blast radius pulls in the endpoint, the shared `UserService`, and an old end‑to‑end test found *from the code*. The new acceptance tests are red (feature not built) → fix‑request → you (or your impl agent) implement and re‑invoke → green.
@@ -71,7 +71,7 @@ These are the classes of change the toolkit handles end‑to‑end — each stat
 **② A change that risks untouched‑but‑reachable code.** Its blast radius and behavior baseline catch a regression even in code some *other*, unrelated story built — with no links for you to maintain.
 > *Example — a shared helper is tweaked:* nothing in the story asked for it, but an old order‑history endpoint now returns a different total. The delta maps to **no criterion → regression**, caught before anyone ships.
 
-**③ A pure refactor (no behavior change intended).** Behavior‑preservation is the entire evidence: every touched behavior must match the pre‑change photograph; any difference is a regression.
+**③ A pure refactor (no behavior change intended).** Behavior‑preservation is the entire evidence: every touched behavior must match the pre‑change snapshot; any difference is a regression.
 > *Example:* an `extract method` cleanup — the baseline pins every reachable surface beforehand and confirms each is identical after.
 
 **④ A fix that breaks a brittle test.** The loop tells a real regression from a test merely coupled to internal structure: if the baseline says behavior is **preserved**, the test is *brittle* and gets repaired (decoupled); if behavior **moved** with no criterion, it's a regression to fix. The baseline is the gate — a regression can never be relabelled "brittle."
@@ -79,9 +79,9 @@ These are the classes of change the toolkit handles end‑to‑end — each stat
 
 ### Starting conditions — what you bring to it
 
-What already exists around a change varies by project. Three inputs differ from team to team; here is how each is handled, so there's no surprise about what the toolkit assumes.
+What already exists around a change varies by project. Here is how the toolkit handles three common cases.
 
-**Ⓐ No testing strategy yet.** It will not validate against a guessed standard — it **authors a strategy with you first** (`define-testing-strategy`), derived from your architecture, asking one question at a time only where the answer isn't already implied, then generates the machine‑facing Validation Rules. You own and approve it. This is a one‑time setup, not repeated per change; until it exists there is nothing to derive evidence from, so it is the required first move — never skipped, never faked.
+**Ⓐ No testing strategy yet.** It won't validate against a guessed standard. It authors a strategy with you first (`define-testing-strategy`), derived from your architecture, asking one question at a time where the answer isn't already implied, then generates the machine‑facing Validation Rules. You own and approve it. This is one‑time setup, not repeated per change; until it exists there is nothing to derive evidence from, so it comes first.
 
 **Ⓑ A testing strategy already exists.** It's treated as the **authoritative, human‑owned source**: the toolkit reads it (via the Source‑Map), derives and refreshes the Validation Rules from it, and **never edits it silently**. When a change needs evidence the strategy doesn't cover, that surfaces as a **Strategy gap** — a *proposed* addition for you to approve, not a quiet under‑test. An informal or prose strategy can be normalized into the structured form (still yours to approve).
 
@@ -89,14 +89,14 @@ What already exists around a change varies by project. Three inputs differ from 
 
 ### When it comes to you — and when it doesn't
 
-Every human touch is exactly one of two things — this is what keeps it autonomous without dumping work back on you:
+When it needs you, it's one of two things:
 
-- **A decision** — criteria ambiguous or contradictory, a public contract must change, something unsafe → a **clear question**. You answer a question; you never receive broken code.
-- **A limitation** — it can't run a test, reproduce a failure, or build a fixture → the **toolkit's** gap to close, logged as such, never reframed as "a human handles this."
+- **A decision** — criteria ambiguous or contradictory, a public contract must change, something unsafe → a clear question with a recommended answer. You decide; you don't receive broken code.
+- **A limitation** — it can't run a test, reproduce a failure, or build a fixture → a gap for the toolkit to close, logged as such rather than reframed as "a human handles this."
 
-A failing test is **neither** — it's just the loop's next step. You hear about it only if it becomes a decision.
+A failing test is neither — it's the loop's next step, and you hear about it only if it turns into a decision.
 
-Both arrive in a **structured** shape (the **escalation** skill), not loose prose: a *decision* carries its question, the context that forces it, the owning authority, and what it blocks; a *limitation* carries the gap, what it blocked, and what would close it. So they're fast to review and they land in the Evidence Ledger.
+Both come in the **escalation** skill's structured shape: a decision carries its question, the context that forces it, a recommended resolution, the owning authority, and what it blocks; a limitation carries the gap, what it blocked, and what would close it. Both land in the Evidence Ledger.
 
 ---
 
@@ -113,30 +113,30 @@ Both arrive in a **structured** shape (the **escalation** skill), not loose pros
 
 ## How tests run — and what's in scope
 
-The toolkit is honest about what it does itself versus what it only integrates with. Every test category sits in one of four tiers:
+What the toolkit does itself depends on the test category. Each sits in one of four tiers:
 
 | Tier | Categories | What the toolkit does |
 |---|---|---|
-| **① First-class (native)** | **unit · component** | **Specifies + verifies the tests, runs them, and reads results** (authoring handed off to your implementer) — locally, fast, end-to-end. Its strongest ground. |
-| **② With your environment** | integration · contract · end-to-end | **Specifies + verifies, then runs them where your environment allows** (locally if the infra is up, else in **CI**; authoring handed off to your implementer). It *uses* your environment — never stands one up. |
-| **③ External — out of scope by default** | performance · load · failure/resilience · security-scan · accessibility | **Your pipeline owns these; the toolkit stays out of the path.** *Optionally* (opt-in) it reads your result to record an audit trace and flag an NFR nothing covers — reading only, **never a relay or gate.** |
-| **④ Out of scope (declared)** | provisioning environments, production code, manual/exploratory | Said plainly — never pretended. |
+| **① Native** | unit · component | Specifies and verifies the tests, runs them, and reads results — locally and fast. Authoring is handed off to your implementer. |
+| **② With your environment** | integration · contract · end-to-end | Specifies and verifies, then runs them where your environment allows — locally if the infra is up, else in CI. It uses your environment; it doesn't stand one up. |
+| **③ External** | performance · load · failure/resilience · security-scan · accessibility | Out of scope by default — your pipeline owns these. Opt-in, it reads your result to record an audit trace and flag an NFR nothing covers; it reads only, and never gates. |
+| **④ Out of scope** | provisioning environments, production code, manual/exploratory | Left to you and your team. |
 
-**In one line:** its real footprint is **①②** — it *specifies, verifies, and runs* those (authoring handed off). The rest it leaves to you; for external NFRs it offers *opt-in* bookkeeping only. **It is never a man-in-the-middle that complicates a flow you already own.**
+In practice it works in tiers ① and ②, leaving the rest to you; for external NFRs it can record an opt-in audit trace. It doesn't insert itself into a flow you already run.
 
 A few practical points:
-- **Your frameworks, your runner.** The test-request *specifies* the idiomatic style for *your* stack; **your implementer authors it**; it runs via *your* own test command — never an invented harness, never guessed commands. It reads results from your **machine-readable report** (JUnit XML, etc.), not the console.
-- **BDD is a spec, not a test.** If you use BDD, a Gherkin scenario *is* the acceptance criterion (you own it). The toolkit **specifies the step definitions** (authoring handed off to your implementer) and they run through *your* BDD tooling — it never forks a scenario into a parallel test. Coverage is still defined by the criteria, cross-checked against your scenarios so a criterion with no scenario, or a scenario with no criterion, is surfaced.
-- **CI is a participant, not triggered.** Locally it runs the local gate; your normal push/PR pipeline runs the CI gate. It taps the *same* report in both, so local and CI evidence are comparable.
-- **It checks the environment is there first.** If a category's environment isn't available where it should run, that's a **declared limitation up front** — it will never produce a perfect test that can't be executed.
+- **Your frameworks, your runner.** The test-request specifies the idiomatic style for your stack; your implementer authors it; it runs via your own test command, not an invented harness. Results come from your machine-readable report (JUnit XML, etc.), not the console.
+- **BDD.** A Gherkin scenario is the acceptance criterion. The toolkit specifies the step definitions and runs them through your BDD tooling rather than forking a separate test. Coverage stays defined by the criteria and cross-checked against your scenarios, so a criterion with no scenario, or a scenario with no criterion, is surfaced.
+- **CI is a participant, not a trigger.** Locally it runs the local gate; your normal push/PR pipeline runs the CI gate. It reads the same report in both, so local and CI evidence are comparable.
+- **Environment checked first.** If a category's environment isn't available where it should run, that's flagged as a limitation up front rather than producing a test that can't execute.
 
 ---
 
 ## Where it is today
 
-**Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, photographing behavior, running your suite, specifying and verifying tests honestly, **driving correction to green** via structured fix‑requests (implementation handed off, never written by the toolkit), and recording the durable **Evidence Ledger**.
+**Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, recording behavior, running your suite, specifying and verifying tests, driving correction to green via structured fix‑requests (implementation handed off), and recording the Evidence Ledger.
 
-**Next:** the parallel **`.claude/` build** — this is the Copilot‑first build; the model itself is now specified end-to-end.
+**Next:** the parallel `.claude/` build. This is the Copilot‑first build; the model is specified end‑to‑end.
 
 ---
 
@@ -185,7 +185,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 
 ### Execute a change — *Phase 3; runs your suite, drives correction*
 
-**`capture-baseline`** — **Photograph current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
+**`capture-baseline`** — **Record current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
 - **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
 - **Uses skills:** `behavior-baseline`, `change-taxonomy`
 - **Delegates to:** `run-validation`
