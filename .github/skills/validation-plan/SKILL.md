@@ -34,7 +34,7 @@ out-of-scope:      [ { surface-id, why-excluded } ]     # blast-radius surfaces 
 coverage-alignment:                     # the existing tests the blast radius surfaced, classified (brownfield bias made visible)
   - test-ref:    <existing test>
     alignment:   criterion-aligned | behavior-guard | implementation-coupled
-    disposition: keep | change | repair | remove-recommendation   # re-align by default; remove only guards-nothing (decision)
+    disposition: keep | change | repair | remove-recommendation   # repair = behavior-preserving re-align (default); remove-recommendation = a human-approved decision; same vocabulary as test-reconciliation
 
 local-gate:        [ evidence that must pass locally before PR ]
 ci-gate:           [ broader evidence the CI gate adds ]

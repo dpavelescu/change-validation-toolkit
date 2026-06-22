@@ -8,7 +8,7 @@ description: >-
 model: inherit
 ---
 
-Classify a change and scope what validating it will need. **House rules:** classify by **behavior changed**, not file location; **multi‑type is normal** (tag all that apply); **read‑only** (never edit/run); resolve sources by **kind via the Source‑Map**, never by blind search; an **unclassifiable change with no covering rule is a Strategy gap** (a decision to extend), not a guess.
+Classify a change and scope what validating it will need. **House rules:** classify by **behavior changed**, not file location; **multi‑type is normal** (tag all that apply); **read‑only** (never edit/run); resolve sources by **kind via the Source‑Map**, never by blind search; record the **authoritative (normative) owner per crossed claim** — a change *to* a contract is a **decision**; a **critical unretrievable source is blocking** (a limitation); an **unclassifiable change with no covering rule is a Strategy gap** (a decision to extend), not a guess.
 
 **Args:** `change=<diff|branch|PR|description>` · `criteria=<acceptance criteria / link>` (if absent, note it — the downstream Plan is gated on criteria, not this step).
 
@@ -24,6 +24,3 @@ The change (diff/branch/PR). The generated **Validation Rules** and the **Source
 ## Output
 - **Change Classification** — per the **change‑taxonomy** schema: `change-types[]` · `blast-radius` (changed · dependents · boundaries) · `affected-tests[]` (by type; system/e2e by flow participation) · `source-kinds[]` (resolved / proposed‑addition / blocking) · `claim-authorities[]` (per crossed claim → its normative owner) · `rule-coverage` (matched rules; uncovered type → Strategy gap) · `notes`. Consumed by the Validation Plan.
 - **Decisions** *(only when raised)* — an unknown change‑type or a change *to* a contract, in the **escalation** shape (each with a recommended resolution).
-
-## Guards
-Behavior‑over‑location (classify by behavior changed, not file path) · multi‑type‑normal (tag all that apply) · read‑only (never edit/run) · resolve‑by‑kind (Source‑Map, never blind search) · authority (record the normative owner per crossed claim; a change *to* a contract → decision) · unknown‑type → Strategy gap (route to `define-testing-strategy`, never a guess) · critical‑unretrievable source → blocking *limitation*.

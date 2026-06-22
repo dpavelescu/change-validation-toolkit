@@ -13,7 +13,7 @@ The change‑types are the **key** the Testing Strategy and Validation Rules are
 1. **rest-api** — a synchronous HTTP endpoint's behavior, contract, or error mapping changes. Signals: controller/route handlers, OpenAPI/schema, request/response DTOs, status‑code mapping.
 2. **event-consumer** — an async SNS/SQS consumer's processing, deserialization, idempotency, retry/DLQ, or version tolerance changes. Signals: listeners/handlers, event schema, message‑mapping, ordering assumptions.
 3. **event-producer** — a service starts/changes the events it emits. Signals: publish calls, new/changed event schema, downstream consumers.
-4. **db-migration** — schema or data migration; backward/forward compatibility and rollback. Signals: migration scripts (Flyway/Liquibase), entity changes, old‑vs‑new app‑version coexistence.
+4. **db-migration** — schema or data migration; backward/forward compatibility and rollback. Signals: migration scripts (Flyway/Liquibase), entity changes, old‑vs‑new app‑version coexistence (which needs two app versions running — usually a **limitation** to flag, not something pinnable locally).
 5. **react-ui** — user‑visible component behavior or flow changes. Signals: components, hooks, routing, API‑state handling, accessibility‑relevant interactions.
 6. **cross-service** — behavior that spans service boundaries via contract/event/integration. Signals: consumer‑driven contracts, end‑to‑end flow of an affected path, another team's owned component.
 7. **internal-refactor** — behavior is intended to be unchanged; structure changes. Signals: no criteria delta, but a regression risk to pin.

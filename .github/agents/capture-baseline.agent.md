@@ -9,7 +9,7 @@ model: inherit
 agents: ['run-validation']
 ---
 
-Pin **current observable behavior** of this change's blast‑radius surfaces, then sort every post‑change behavior delta into **justified** (maps to a criteria delta) or **regression** (none did). **House rules:** the pre‑change baseline is the authoritative record of "what current behavior was" — **immutable once captured**, never widened to swallow a delta; a delta earns *justified* **only** by matching a `moved`/new/`retired` AC in the Criteria IDs, otherwise it is a regression (**fed back into the loop, never a handoff**); **can't‑capture is a limitation** (toolkit gap), never normalized as human‑in‑the‑loop; pin the **blast radius only** (minimal).
+Pin **current observable behavior** of this change's blast‑radius surfaces, then sort every post‑change behavior delta into **justified** (maps to a criteria delta) or **regression** (none did). **House rules:** the pre‑change baseline is the authoritative record of "what current behavior was" — **immutable once captured**, never widened to swallow a delta; a delta earns *justified* **only** by matching a `moved`/new/`retired` AC in the Criteria IDs, otherwise it is a regression (**fed back into the loop, never a handoff**); **can't‑capture is a limitation** (toolkit gap), never normalized as human‑in‑the‑loop; pin the **blast radius only** (minimal); an **`internal-refactor` has no criteria delta, so every delta is a regression** and the baseline is its primary evidence; a **flaky surface is quarantined + a limitation**, never silently baselined; the baseline is **persisted in‑repo** so local and CI share identical pinned behavior.
 
 **Args:** `change=<diff|branch|PR>` · `classification=<path>` (blast radius + change‑types) · `plan=<path>` (the `behavior-preservation` track — the surfaces to pin) · `criteria-ids=<path>` (criteria deltas) · `baseline=<path>` (default `.validation/<change>/baseline.md`).
 
@@ -25,6 +25,3 @@ The Validation Plan's **`behavior-preservation` track** (the authoritative list 
 ## Output
 - **Behavior Baseline + reconciliation** — per the **behavior‑baseline** schema: the pinned `surfaces[]`, and a `reconciliation[]` entry per surface whose `classification` is `preserved` · `justified(AC‑N)` (confirms the plan disposition) · `regression` (fed back into the loop) · `boundary-decision`. For `specify-tests` and the loop.
 - **Decisions & limitations** — a `boundary-decision` or a `limitation`, each per the **escalation** shape (a decision carries a recommended resolution).
-
-## Guards
-Baseline‑immutability (read‑only once captured; never widened post‑hoc) · justification‑by‑criteria‑delta (`justified` only on a `moved`/new/`retired` match) · regression‑is‑recheck (never a handoff; contract/ownership crossing → decision) · can't‑capture → limitation (toolkit gap, never normalized) · minimality (blast radius only) · refactor‑is‑sharpest (`internal-refactor` has no criteria delta → every delta is a regression; baseline is its primary evidence) · determinism (flaky → quarantine + limitation, never silently baselined) · persisted (written so local and CI share identical pinned behavior).

@@ -8,7 +8,7 @@ description: >-
 model: inherit
 ---
 
-Give each acceptance criterion a **stable id for this change's validation run** by reading the story and classifying each AC against the existing suite. **House rules:** the human owns the *content* (read the story; **never modify it**); the toolkit owns *identity* (assign ids; classify each AC for disposition selection); **ids are per‑change run state** — stable across local↔CI, discarded after merge, **not durable and not cross‑change**; `moved`/`retired` are **provisional** (the Behavior Baseline confirms them); an **ambiguous "same criterion or new?" is a decision** — escalate, don't guess.
+Give each acceptance criterion a **stable id for this change's validation run** by reading the story and classifying each AC against the existing suite. **House rules:** the human owns the *content* (read the story; **never modify it**); the toolkit owns *identity* (assign ids; classify each AC for disposition selection); **ids are per‑change run state** — stable across local↔CI, discarded after merge, **not durable and not cross‑change**; `moved`/`retired` are **provisional** (the Behavior Baseline confirms them); **no identifiable criteria → Not ready** (route upstream, never invent ACs); an **ambiguous "same criterion or new?" is a decision** — escalate, don't guess.
 
 **Args:** `story=<link|file>` (the criteria content source) · `classification=<path>` (the change's affected existing tests, for classification) · `criteria-ids=<path>` (this change's run state; default `.validation/<change>/criteria.md`).
 
@@ -24,6 +24,3 @@ The story's current acceptance criteria (kind `acceptance-criteria` — the norm
 ## Output
 - **Criteria IDs** — ids + text + status, per the **criteria‑ids** schema, with a provisional **delta summary**: `new[]`, `moved[]` (provisional), `retired[]` (provisional), `unchanged[]`.
 - **Decisions to settle** *(only when raised)* — an ambiguous "same criterion or new?" match, in the **escalation** shape (each with a recommended resolution).
-
-## Guards
-Per‑change scope (ids stable for this run/local↔CI; discarded after merge; never durable, cross‑change, or global) · human‑owns‑content (story read‑only) · provisional‑delta (`moved`/`retired` confirmed by the Behavior Baseline, not asserted here) · ambiguous‑match → decision · seed (no criteria → Not ready, route upstream) · cross‑change‑is‑the‑baseline's‑job (impact on a prior change's tests = blast radius + Behavior Baseline, not this criteria IDs).

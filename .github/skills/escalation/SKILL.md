@@ -15,8 +15,8 @@ A decision is raised only for what the toolkit cannot legitimately resolve itsel
 ```
 decision:
   id:        D-<n>
-  type:      ambiguous-criteria | contradictory-criteria | un-observable-criterion
-             | ownership-boundary | public-contract-change | unsafe-design
+  type:      <hint for the reader, e.g. ambiguous-criteria · contradictory-criteria · un-observable-criterion
+             · ownership-boundary · public-contract-change · unsafe-design — nothing branches on it>
   question:  <the single clear question the human settles>
   context:   <what forces the call — the conflicting criteria, the boundary crossed, …>
   recommend: <the toolkit's proposed answer + a one-line rationale; the human confirms or overrides>
@@ -32,8 +32,8 @@ A decision is **a question with a recommendation, never broken code**. The human
 ```
 limitation:
   id:        L-<n>
-  type:      cant-run | runner-unavailable | env-absent | cant-reproduce
-             | flaky-quarantined | lost-context | missing-access | critical-source-unretrievable
+  type:      <hint for the reader, e.g. cant-run · runner-unavailable · env-absent · cant-reproduce
+             · flaky-quarantined · lost-context · missing-access · critical-source-unretrievable — nothing branches on it>
   what:      <what the toolkit could not do>
   blocked:   <which evidence / step it blocked>
   needed:    <what would close the gap — the missing capability / access / fixture>
