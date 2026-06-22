@@ -54,14 +54,14 @@ The toolkit **does not dispatch CI.** Local runs `gate=local` (the fast tests); 
 
 ## Guards
 
-- **Runs, never edits** — the substrate observes; it does not touch tests or implementation. The correction loop is a separate, later consumer of this output.
-- **Reuse the project's runner** — the toolkit invokes *your own* test command/runner (and your BDD runner where you use BDD); it never invents a parallel harness, and it never catalogs or guesses commands.
-- **Report, not console** — observations come from a machine‑readable `test-report` (resolved + normalized), never from scraping stdout; no report → a *limitation*.
-- **CI is a participant** — `gate=ci` runs *within* the pipeline (push/PR triggers it); the toolkit never dispatches CI by default. Same report tapped local and CI → comparable evidence.
-- **Clean fail ≠ can't‑run** — a red test is **loop input**; a broken harness is a **limitation**. Never conflate signal with gap.
-- **No handoff for a fail** — a failing test is loop input, never escalated to a human (escalation is for *decisions*, not red tests).
+- **Runs, never edits** — the substrate observes; it does not touch tests or implementation.
+- **Reuse the project's runner** — the toolkit invokes *your own* test command/runner; never a parallel harness.
+- **Report, not console** — observations come from a machine‑readable `test-report`; no report → a *limitation*.
+- **CI is a participant** — `gate=ci` runs *within* the pipeline; the toolkit never dispatches CI by default.
+- **Clean fail ≠ can't‑run** — a red test is **loop input**; a broken harness is a **limitation**.
+- **No handoff for a fail** — a failing test is loop input, never escalated to a human.
 - **Minimality** — run the blast‑radius slice, not the whole suite.
-- **Fail‑fast ordering** — cheapest/lowest‑level local tests run first; a local‑gate failure short‑circuits before any CI‑level run. CI‑only placement (a test that can't run locally) is **expected, not a limitation**; only a test that can't run where it's supposed to is.
-- **Determinism or quarantine** — flaky → limitation; never baselined or asserted as behavior.
-- **Local↔CI parity** — same commands and method, recorded; CI widens scope, never changes how behavior is observed.
-- **Persisted** — the run record lives in‑repo so local and CI share identical execution context.
+- **Fail‑fast ordering** — cheapest/lowest‑level local tests run first; CI‑only placement is expected.
+- **Determinism or quarantine** — flaky → limitation; never baselined.
+- **Local↔CI parity** — same commands and method, recorded; CI widens scope only.
+- **Persisted** — the run record lives in‑repo so local and CI share execution context.

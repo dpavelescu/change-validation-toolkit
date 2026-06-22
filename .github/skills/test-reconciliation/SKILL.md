@@ -72,14 +72,14 @@ limitations:     [ can't author/invoke a surface → toolkit gap ]
 
 ## Guards
 
-- **Independence by spec** — the toolkit owns *what* each witness asserts (from the criteria/baseline) and **verifies** it; **authoring is delegated to the external implementer**. A witness that asserts the implementation is **rejected**, not accepted — independence is in the spec + the check, not in who types the code.
-- **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl; impl is read for wiring only, flagged.
-- **Honesty lock** — every behavior‑altering `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a red‑driven edit with no delta is regression‑laundering, forbidden. A **`repair`** is the only edit without a criteria delta, and only when the baseline says `preserved` (the asserted behavior is unchanged).
-- **Traceability tag** — each materialized/adjusted witness is **stamped with its `AC-N` tag from the Criteria IDs** (a regression witness carries its `surface-id`), as a native annotation (`@Tag("AC-N")` / `[AC-N]`) extractable by one `AC-[0-9]+` regex, so the witness→criterion link is **greppable**. The tool stamps it from the criteria IDs; humans never type it.
-- **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input, never a softened test or a handoff.
-- **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline (or an explicit `out-of-scope`); a red regression witness is a **caught regression** (loop input), never softened to pass.
-- **Re‑align, don't inherit** — an implementation‑coupled existing test is **re‑aligned by default** (`repair` → assert behavior; re‑tag to a criterion if owned), and **deleted only when it guards nothing observable**, as a human‑approved `decision`. Signal is never the end state — it always carries the action.
+- **Independence by spec** — the toolkit owns *what* each witness asserts and **verifies** it; authoring is delegated to the external implementer.
+- **Criteria provenance** — assertions derive from the AC (or baseline for regression witnesses), never from the new impl.
+- **Honesty lock** — every behavior‑altering `change`/`remove` traces to a criteria delta **and** a `justified` baseline delta; a **`repair`** is the only edit without a criteria delta.
+- **Traceability tag** — each adjusted witness is **stamped with its `AC-N` tag from the Criteria IDs** (a regression witness carries its `surface-id`), so the witness→criterion link is greppable.
+- **Done‑on‑evidence** — an AC is satisfied only on green Runner evidence; red is loop input.
+- **Regression coverage** — every blast‑radius surface no AC owns gets a behavior‑preservation witness from the baseline.
+- **Re‑align, don't inherit** — an implementation‑coupled existing test is **re‑aligned by default** (`repair`), deleted only when it guards nothing observable.
 - **No faked green** — non‑automatable → admitted runtime witness, never a fake pass.
-- **Idiomatic & data‑backed** — witnesses are authored in the project's own **style** (xUnit, property/table‑based) and frameworks (from the typed `tests` exemplars + `coding-guidelines`), with fixtures from `test-data`. **BDD:** a Gherkin scenario *is* the criterion — implement the **step definitions** and run via the project's BDD tooling; **never fork a scenario into a parallel test.** A style/framework it can't author or un‑buildable test data is a *limitation*, surfaced, never faked.
+- **Idiomatic & data‑backed** — witnesses are authored in the project's own **style** and frameworks, with fixtures from `test-data`.
 - **Un‑observable AC → decision; can't‑author → limitation** — the standard decision/limitation split.
 - **Persisted** — witnesses and the reconciliation record live in‑repo so local and CI share them.

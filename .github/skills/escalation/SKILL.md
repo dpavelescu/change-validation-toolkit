@@ -40,8 +40,8 @@ A limitation is **the toolkit's problem**, logged as such — **never** reframed
 
 ## Guards
 
-- **Exactly one bin** — every human touch is a `decision` *or* a `limitation`; never both, never neither.
-- **A limitation never masquerades as a decision** — "can't run / reproduce / build" is a gap to close, not a question for a human.
-- **A decision is a question** — the human answers; they are never handed a broken artifact.
-- **Structured, not prose** — both carry their fields so review and audit are fast and the Evidence Ledger can record them.
+- **Exactly one bin** — every human touch is a `decision` *or* a `limitation`.
+- **A limitation never masquerades as a decision** — "can't run / reproduce" is a gap to close, not a question.
+- **A decision is a question** — the human answers; never handed a broken artifact.
+- **Structured, not prose** — both carry their fields so review and audit are fast.
 - **A failing test is neither** — a clean fail is loop input, not an escalation.

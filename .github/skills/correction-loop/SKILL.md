@@ -63,9 +63,9 @@ So the two handoffs are symmetric and complete: a **`test-request`** says *"auth
 
 ## Guards
 
-- **Never writes production code** — the loop emits a `fix-request` and is re‑invoked after the external fix; implementation is out of scope.
-- **Baseline is the gate** — `regression` vs `brittle` is decided by *behavior preservation*, never by the red result; a real regression can't be relabelled "brittle."
-- **Witness never edited to pass** — test changes go through `specify-tests`, justified by a criteria delta (`justified`) or behavior preservation (`brittle`).
-- **Re‑assess on every fix** — a fix ripples; impact is re‑evaluated incrementally (minimal), and a material scope change re‑plans.
-- **No silent loop** — every pass ends in green, a handoff, a re‑plan, a decision, or an escalation; bounded by `max-iterations`.
-- **Decision vs limitation** — criteria/contract change → decision; can't‑resolve / oscillation → escalate a diagnosis, never broken code to a human.
+- **Never writes production code** — the loop emits a `fix-request`; implementation is out of scope.
+- **Baseline is the gate** — `regression` vs `brittle` is decided by *behavior preservation*, never the red result.
+- **Witness never edited to pass** — test changes go through `specify-tests`, justified by a criteria delta or behavior preservation.
+- **Re‑assess on every fix** — impact is re‑evaluated incrementally; a material scope change re‑plans.
+- **No silent loop** — every pass ends in green, a handoff, a re‑plan, a decision, or an escalation.
+- **Decision vs limitation** — criteria/contract change → decision; can't‑resolve / oscillation → escalate a diagnosis.

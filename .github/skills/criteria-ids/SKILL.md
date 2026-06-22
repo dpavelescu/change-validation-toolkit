@@ -41,9 +41,9 @@ No `witnesses` field — the **Validation Plan** owns the AC→witness map. No a
 
 ## Guards
 
-- **Per‑change scope** — ids are stable for one change's run (local↔CI) and discarded after merge; never a durable, cross‑change, or global record.
-- **Human owns content** — the story is read‑only; the toolkit tracks the ids, never edits the criteria.
-- **Provisional delta** — `moved`/`retired` are confirmed by the Behavior Baseline, not asserted here.
+- **Per‑change scope** — ids stable for one change's run, discarded after merge.
+- **Human owns content** — the story is read‑only; the toolkit tracks the ids.
+- **Provisional delta** — `moved`/`retired` are confirmed by the Behavior Baseline.
 - **Ambiguous → decision** — a borderline "same or new?" is a structured question, never a guess.
-- **Cross‑change is the baseline's job** — impact on a prior change's tests is found by blast radius + Behavior Baseline (by surface), not by this criteria IDs.
+- **Cross‑change is the baseline's job** — impact on a prior change's tests is found by blast radius + Behavior Baseline.
 - **No accumulation** — no growing history here; the durable audit trail is the Evidence Ledger.

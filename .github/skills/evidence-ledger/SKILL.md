@@ -46,9 +46,9 @@ verdict:          green               # recorded only when every active criterio
 
 ## Guards
 
-- **Evidence, never assertion** — only green‑on‑real‑runs and admitted runtime‑monitors are recorded; nothing is "validated" without evidence behind it.
-- **Criterion by content** — recorded by text + witness (the durable trace), not the ephemeral per‑change id.
-- **Output, not a source** — written for humans/audit; never read back to drive a future change (cross‑change recomputes from code).
-- **Justified changes only** — every recorded test change carries its justification (a criteria delta, or `baseline-preserved` for a repair).
-- **Honest gaps** — limitations and decisions are recorded, not omitted; a non‑green change does not get a `green` verdict.
-- **Behavior + decisions, not internals** — structured for fast review: what behavior was proven, what was preserved, what humans decided.
+- **Evidence, never assertion** — only green‑on‑real‑runs and admitted runtime‑monitors are recorded.
+- **Criterion by content** — recorded by text + witness, not the ephemeral per‑change id.
+- **Output, not a source** — written for humans/audit; never read back to drive a future change.
+- **Justified changes only** — every recorded test change carries its justification.
+- **Honest gaps** — limitations and decisions are recorded; a non‑green change does not get a `green` verdict.
+- **Behavior + decisions, not internals** — structured for fast review.
