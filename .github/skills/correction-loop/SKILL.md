@@ -26,6 +26,27 @@ fix-request:
 
 Bounded and coherent: *what's wrong · the witness · what you may not break · where to fix.* The loop writes it and stops; it does not call any particular implementer.
 
+## The test‑request (the other handoff — author a witness)
+
+The toolkit never writes test code either: `specify-tests` emits a **`test-request`** — a precise, self‑contained **test specification** the external implementer renders into your framework.
+
+```
+test-request:
+  id:            TR-<n>
+  fate:          add | change | repair
+  assert:        <the criterion text, or the pinned baseline behavior, the witness must prove>   # the SPEC — from criteria/baseline, NOT the code
+  surface:       <what it exercises — endpoint / method / event / flow>
+  level:         unit | component | contract | integration | e2e        # tier ①/② only
+  style:         <project test style/framework; BDD → step definitions for scenario <ref>, never a parallel test>
+  fixtures:      <from test-data, if needed>
+  tag:           AC-<n>                                  # stamped from the Criteria IDs, for traceability
+  constraints:   [ assert the criterion, NOT the implementation · honor <contract> (its authoritative source) ]
+  acceptance:    <what makes it a faithful, runnable witness — the toolkit verifies the authored test against this>
+  status:        open        # resolved when the authored test is verified faithful AND runs
+```
+
+So the two handoffs are symmetric and complete: a **`test-request`** says *"author a test that proves this criterion, this way, without asserting the implementation,"* and a **`fix-request`** says *"make this witness pass."* The toolkit owns the spec and the verification of both; the external implementer authors the code.
+
 ## Loop procedure (resumable — one pass per invocation)
 
 1. **Validate** — `run-validation` over the affected slice (fail‑fast: local first). **Green & complete → done** (evidence → the Evidence Ledger).

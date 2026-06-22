@@ -8,12 +8,11 @@ This is the guide to **what the toolkit is for, what it does, and how to use it*
 
 ## Why it exists
 
-Every change has to be **trusted** before it ships, and today that trust is expensive and manual. Someone decides what to test, writes the tests, runs them, and — when something breaks — stops to debug. Two deeper problems hide behind that:
+**The problem is not too few tests — it's that "the tests pass" rarely means "the change is correct."** A test that asserts *whatever the code happens to do* is green and worthless: it rubber‑stamps the implementation instead of proving the intent. AI that *generates* tests makes this worse — it produces plausible green tests that confirm the code, not the requirement. So teams ship on a signal that doesn't mean what they think it means, and regressions hide in code some *other* story built.
 
-- **Tests drift from intent.** Over time a test ends up asserting *whatever the code does*, not *what the change was supposed to do*. When it goes red, it's edited until it's green again — quietly laundering a regression into "expected."
-- **Brownfield changes break things silently.** A small change can alter behavior nobody thought to re‑check, in code that some *other*, unrelated story originally built.
+**The single value proposition: make _green_ trustworthy.** The toolkit validates a change against **what it is supposed to do** — its acceptance criteria — never against what the code does. Every test traces to a criterion; no test can be edited to go green dishonestly; the evidence is real and observed. That is the whole point: not *more* tests — **honest** ones.
 
-The toolkit's bet is simple: **a change should carry its own evidence.** Starting from what the change is supposed to do, it works out what would prove that, produces the proof against your real system, and keeps the loop closed itself — so a red test is the next thing *it* works on, not a ticket back to you.
+Everything else in this document — blast radius, the behavior baseline, the correction loop, the evidence ledger — is *mechanism* in service of that one promise. And so the value isn't diluted, be clear about what it is **not**: it is **not** a coverage‑padding test generator; it **writes no code** (it specifies and verifies — authoring is handed off); it is **not** CI middleware. Its value is the **honesty of the validation**, not the volume of output.
 
 ### Why you can trust the output
 

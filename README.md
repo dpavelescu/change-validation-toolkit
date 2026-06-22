@@ -60,10 +60,11 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     criteria-ids               per-change AC ids + new/unchanged/moved/retired reconciliation (Phase 2)
     validation-plan                 plan schema + derivation + AC→witness mapping (Phase 2)
     behavior-baseline               baseline schema + capture/reconcile + the honesty rule (Phase 3)
-    execution-runner                run-record schema + resolve/run/observe + clean-fail vs can't-run (Phase 3)
+    execution-runner                run-record schema + tier-preflight/run/observe + clean-fail vs can't-run (Phase 3)
     test-reconciliation             fate→action + criteria provenance + the honesty lock (Phase 3)
-    correction-loop                 diagnose → fix-request handoff → re-assess → re-validate (Phase 3)
+    correction-loop                 test-request + fix-request handoffs → re-assess → re-validate (Phase 3)
     evidence-ledger                 durable audit trail: criteria → witness → evidence; output, never read back (Phase 3)
+    escalation                      the structured shape of a decision (a question) vs a limitation (a gap) (cross-cutting)
 ```
 
 ---

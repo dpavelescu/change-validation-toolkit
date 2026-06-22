@@ -24,7 +24,7 @@ scope:          <blast-radius slice actually run — the minimal sufficient set,
 gate:           local | ci                 # local-gate run locally; ci-gate widens scope in CI
 invocation:     [ <the project's own test command / runner used — its standard invocation, with a selector> ]
 report:         <the test-report read — path (local) or CI artifact + format: junit-xml|tap|json|native>
-environment:    <provenance: toolchain versions, local|ci, config/seed>     # reproducibility + parity
+environment:    local | ci
 
 observations:                              # one per observed surface / witnessing test
   - surface-id:   <ties to a behavior-baseline surface, or a test ref>

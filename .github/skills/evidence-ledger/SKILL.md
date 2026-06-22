@@ -23,7 +23,6 @@ strategy-version:  <provenance of the Rules in force>
 validated:                            # one per active acceptance criterion
   - criterion:   <the criterion text>
     witness:     <test file::case>     # what validated it
-    level:       <unit | component | contract | integration | e2e>
     evidence:    green | runtime-monitor(<what is watched>) | manual
 behavior-preserved:                   # the regression guard's result
   - surface:     <id>

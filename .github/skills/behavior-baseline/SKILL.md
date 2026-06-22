@@ -59,7 +59,7 @@ A provisional `change` fate from the Validation Plan is **honest only if its sur
 
 - **Baseline immutability** — once captured the baseline is read‑only; never widen it after the fact to make a delta look "expected" (the behavior analogue of *no silent supersession*).
 - **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC in the Criteria IDs; absent that match it is a `regression`.
-- **Preserved ≠ endorsed** — pinning current behavior holds it **stable** (changing it silently would be a regression), but does **not** bless it as correct. A surface guarded by a witness yet owned by **no criterion** is flagged **`guarded-but-unspecified`** — a candidate criterion routed upstream — so latent bias/bugs surface instead of being silently treated as "correct."
+- **Preserved ≠ endorsed** — pinning current behavior holds it **stable** (changing it silently would be a regression), but does **not** bless it as correct. A surface guarded by a witness yet owned by **no criterion** is flagged upstream as a **candidate criterion** — so latent bias/bugs surface instead of being silently treated as "correct."
 - **Regression is loop input, not a handoff** — an unjustified delta feeds the correction loop / surfaces as a finding — a toolkit task, never normalized as human‑in‑the‑loop — *unless* it crosses a public contract / ownership boundary, which is a **decision** (structured question).
 - **Can't capture → limitation** — can't run / build / reproduce is a toolkit gap, logged as such, never a handoff.
 - **Minimality** — pin the blast radius only.
