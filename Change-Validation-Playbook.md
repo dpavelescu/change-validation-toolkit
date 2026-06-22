@@ -110,10 +110,10 @@ The toolkit is honest about what it does itself versus what it only integrates w
 |---|---|---|
 | **① First-class (native)** | **unit · component** | **Authors, runs, and reads results** — locally, fast, end-to-end. Its strongest ground. |
 | **② With your environment** | integration · contract · end-to-end | **Authors and runs them where your environment allows** (locally if the infra is up, else in **CI**). It *uses* your environment — never stands one up. |
-| **③ Integrate only (external)** | performance · load · failure/resilience · security-scan · accessibility | Needs dedicated tools/pipelines. It **names the requirement and reads results** if your pipeline produces them, else admits a **runtime-monitor**. It does **not** author or run these. |
+| **③ External — out of scope by default** | performance · load · failure/resilience · security-scan · accessibility | **Your pipeline owns these; the toolkit stays out of the path.** *Optionally* (opt-in) it reads your result to record an audit trace and flag an NFR nothing covers — reading only, **never a relay or gate.** |
 | **④ Out of scope (declared)** | provisioning environments, production code, manual/exploratory | Said plainly — never pretended. |
 
-**In one line:** it runs the simple/in-process tests itself, runs the environment-dependent ones where your environment allows, and only *integrates* with the externally-run ones.
+**In one line:** its real footprint is **①②** — it *runs* those. The rest it leaves to you; for external NFRs it offers *opt-in* bookkeeping only. **It is never a man-in-the-middle that complicates a flow you already own.**
 
 A few practical points:
 - **Your frameworks, your runner.** Tests are written idiomatically for *your* stack and run via *your* own test command — never an invented harness, never guessed commands. It reads results from your **machine-readable report** (JUnit XML, etc.), not the console.
