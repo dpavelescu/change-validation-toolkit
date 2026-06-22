@@ -207,7 +207,7 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 - **Needs:** the plan's behavior‑preservation track · the classification · the criteria IDs deltas · the pre‑change state
 - **Produces:** the Behavior Baseline + a delta reconciliation
 
-**`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a determinism verdict. The execution substrate; runs, never edits.
+**`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a flakiness check. The execution substrate; runs, never edits.
 - **Args:** `change` · `classification=<path>` · `plan=<path>` · `gate=local|ci` · `run-record=<path>`
 - **Uses skills:** `execution-runner`
 - **Needs:** the blast radius · the plan's local/CI gates · your **own test runner** · the Source‑Map `tests` + `test-report`

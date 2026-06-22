@@ -8,7 +8,7 @@ description: >-
 model: inherit
 ---
 
-Drive **the project's own suite** over this change's blast‑radius slice and return **structured behavior observations** — what ran, what each result evidences, whether it reproduces. **House rules:** invoke the project's **own test runner** (its standard command; **never invent a parallel harness or guess commands**); run the **minimal blast‑radius slice**, never the whole suite; **observe only — never edit** tests or implementation; a **clean fail is fed back into the loop** (never a handoff); a **can't‑run is a limitation** (toolkit gap, never normalized as human‑in‑the‑loop); **flaky → quarantine + limitation**, never asserted as behavior.
+Drive **the project's own suite** over this change's blast‑radius slice and return **structured behavior observations** — what ran, what each result evidences, whether it reproduces. **House rules:** invoke the project's **own test runner** (its standard command; **never invent a parallel harness or guess commands**); run the **blast‑radius slice** (minimal on trustworthy signal, widen when it's weak), never the whole suite; **observe only — never edit** tests or implementation; a **clean fail is fed back into the loop** (never a handoff); a **can't‑run is a limitation** (toolkit gap, never normalized as human‑in‑the‑loop); **flaky → quarantine + limitation**, never asserted as behavior.
 
 **Args:** `change=<diff|branch|PR>` · `classification=<path>` (blast radius) · `plan=<path>` (the `local-gate`/`ci-gate` naming what to run) · `gate=local|ci` (default `local`) · `run-record=<path>` (default `.validation/<change>/run.md`).
 
@@ -17,13 +17,13 @@ The blast radius (which surfaces), the Validation Plan's `local-gate`/`ci-gate` 
 
 ## Process (tier & preflight → invoke → scope → run → check → record)
 1. **Tier & preflight** — per in‑scope category take its **tier** (**① native** runs here · **② your‑env** runs where the environment allows, else CI · **③ external** → **out of scope by default**, your pipeline owns it, not run here; optionally read its result for the trace). A category that should run here but whose environment is **unavailable** → a **limitation up front** (no perfect unrunnable test). Then **invoke the project's own test runner** (its standard command, minimal slice via its selector); never catalog or guess commands — a runner you can't invoke is a **limitation**. — *uses* **execution‑runner**.
-2. **Scope & order (fail‑fast)** to the blast radius and the `gate` — the **minimal sufficient** slice via selective invocation, **cheapest first** (`local-gate` for `gate=local`, run **before** `ci-gate` for `gate=ci`; a local failure short‑circuits the CI‑level run). The slice runs **both** test duties: acceptance tests (the ACs) **and** behavior‑preservation (regression) tests across the blast radius. Never run the whole suite. A CI‑only test seen under `gate=local` is **deferred to `ci-gate`, not a `can't-run` limitation**. — *uses* **execution‑runner**.
+2. **Scope & order (fail‑fast)** to the blast radius and the `gate` — the slice via selective invocation (minimal on trustworthy signal, widen when it's weak), **cheapest first** (`local-gate` for `gate=local`, run **before** `ci-gate` for `gate=ci`; a local failure short‑circuits the CI‑level run). The slice runs **both** test duties: acceptance tests (the ACs) **and** behavior‑preservation (regression) tests across the blast radius. Never run the whole suite. A CI‑only test seen under `gate=local` is **deferred to `ci-gate`, not a `can't-run` limitation**. — *uses* **execution‑runner**.
 3. **Run & observe** — execute; per surface record `outcome` + the behavior it `evidenced`. Sort each non‑pass: **clean fail → fed back into the loop**, **can't‑run → limitation**. Do not edit anything. — *uses* **execution‑runner**.
-4. **Determinism check** — re‑run the slice; flaky disagreement → **quarantine** the surface + raise a **limitation** (never pass noise on as behavior). — *uses* **execution‑runner**.
+4. **Flakiness check** — re‑run the slice; disagreement → **quarantine** the surface + raise a **limitation** (never pass noise on as behavior). Agreement is a smoke‑check, not proof of determinism. — *uses* **execution‑runner**.
 5. **Record** the run in‑repo (committed) for local↔CI parity; hand observations to `capture-baseline` (pin / re‑observe) or the correction loop. — *uses* `capture-baseline`.
 
 ## Output
-- **Run record** — per the **execution‑runner** schema: `observations[]` (per surface — `outcome`, `evidenced` behavior, `determinism`) · `recheck[]` (clean fails — behavior signals) · `determinism` verdict. The substrate `capture-baseline` calls to capture and re‑observe behavior.
+- **Run record** — per the **execution‑runner** schema: `observations[]` (per surface — `outcome`, `evidenced` behavior, `determinism` re‑run result) · `recheck[]` (clean fails — behavior signals) · a flakiness result. The substrate `capture-baseline` calls to capture and re‑observe behavior.
 - **Limitations** *(only when raised)* — can't‑run/build/unresolved or flaky‑quarantined surfaces (toolkit gaps), in the **escalation** shape.
 
 ## Guards

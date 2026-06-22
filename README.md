@@ -42,7 +42,7 @@ source-map.manifest.md              ← fillable source-map instance (copy into 
     plan-validation                 derive the Validation Plan: AC→test, dispositions, gates (Phase 2)
     review-plan                     gate the plan: coverage + disposition justification (Phase 2)
     capture-baseline                pin current behavior; sort post-change deltas → justified vs regression (Phase 3)
-    run-validation                  drive the project's own suite over the blast radius → observations + determinism (Phase 3)
+    run-validation                  drive the project's own suite over the blast radius → observations + flakiness check (Phase 3)
     specify-tests                   own what each test asserts (from criteria) + verify; authoring handed off (Phase 3)
     drive-correction                drive to green via test-request + fix-request handoffs (writes no code); re-assess + re-validate (Phase 3)
     record-evidence                 on green, write the durable Evidence Ledger (criteria → test → evidence) (Phase 3)

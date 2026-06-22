@@ -23,7 +23,7 @@ The Validation Plan's **`behavior-preservation` track** (the authoritative list 
 4. **Dispose** — `justified` → **confirms** the Validation Plan's provisional disposition, recorded as evidence; `regression` → **fed back into the loop**; `boundary-decision` → **structured question**; can't re‑observe → **limitation**. Write the baseline + reconciliation in‑repo, committed. — *uses* **escalation**, **output‑style**.
 
 ## Output
-- **Behavior Baseline + reconciliation record** — per the **behavior‑baseline** schema: `justified[]` (AC + the disposition it confirms) · `regressions[]` (fed back into the loop). For `specify-tests` and the loop.
+- **Behavior Baseline + reconciliation** — per the **behavior‑baseline** schema: the pinned `surfaces[]`, and a `reconciliation[]` entry per surface whose `classification` is `preserved` · `justified(AC‑N)` (confirms the plan disposition) · `regression` (fed back into the loop) · `boundary-decision`. For `specify-tests` and the loop.
 - **Decisions & limitations** — a `boundary-decision` or a `limitation`, each per the **escalation** shape (a decision carries a recommended resolution).
 
 ## Guards
