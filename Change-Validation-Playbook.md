@@ -2,7 +2,7 @@
 
 > **Turn a change into the evidence needed to trust it** — derived from your testing strategy, checked against your real code, and self‑correcting.
 
-A guide to what the toolkit is for, what it does, and how to use it, for the people who adopt and run it. It is tool‑neutral; the agents and skills under `.github/` are the build that implements it, catalogued at the end.
+A guide to what the toolkit is for, what it does, and how to use it, for the people who adopt and run it. It is tool‑neutral; the agents and skills that implement it ship in two parallel builds — `.github/` (GitHub Copilot) and `.claude/` (Claude Code), same model — catalogued at the end. (Setup and the Copilot‑vs‑Claude differences are in the **README**.)
 
 ---
 
@@ -179,13 +179,13 @@ A few practical points:
 
 **Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, recording behavior, running your suite, specifying and verifying tests, driving correction to green via structured fix‑requests (implementation handed off), and recording the Evidence Ledger.
 
-**Next:** the parallel `.claude/` build. This is the Copilot‑first build; the model is specified end‑to‑end.
+**Two builds, same model:** `.github/` (GitHub Copilot) and `.claude/` (Claude Code). The agents and skills are identical; only the entry points differ — Copilot agents vs. Claude slash commands. See the **README** to get started in either.
 
 ---
 
 ## The toolkit — agents & skills (catalog)
 
-This Playbook is the concept; the running build lives under `.github/`. Below is every **agent** — its purpose, arguments, the **skills** it uses, what it depends on, and what it produces — followed by a one‑line index of the skills.
+This Playbook is the concept; the running build lives under `.github/` (Copilot) and `.claude/` (Claude Code). Below is every **agent** — its purpose, arguments, the **skills** it uses, what it depends on, and what it produces — followed by a one‑line index of the skills.
 
 **You run only three** (the entry points): `define-testing-strategy`, `plan-validation`, `drive-correction`. Everything else is a **subagent** one of those calls (shown as *Delegated by / Used by* below) — you don't invoke them directly in the normal flow, though each can be run standalone if you only want its output.
 
@@ -273,6 +273,6 @@ This Playbook is the concept; the running build lives under `.github/`. Below is
 | `escalation` | the structured shape of a decision (a question) vs a limitation (a toolkit gap) |
 | `output-style` | machine (schema) vs human (readable) vs both; the human-report skeleton |
 
-**`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. A `.claude/` build will follow the same shape once this stabilises.
+**`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. The `.claude/` build mirrors this same shape (agents + skills), adding slash `commands/` as its entry points.
 
 If you're extending the toolkit, start in the skills — they're terse and self‑describing.
