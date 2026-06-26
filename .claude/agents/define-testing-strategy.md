@@ -11,9 +11,9 @@ model: inherit
 Author or maintain the **Testing Strategy** and **generate the Validation Rules** from it, with a human in the loop.
 
 ## Constraints
-- **The Strategy is human‑owned and architecture‑aware** — reflect the real system, not generic QA.
+- **Reflect the real system, not generic QA** — the Strategy is human‑owned and architecture‑aware.
 - **Express expected evidence per change‑type**, not tools.
-- **When no Strategy exists, author the full human‑owned Strategy first** — never only the thin AI‑facing Rules; the Strategy is the source of truth, the Rules its derived projection.
+- **When no Strategy exists, author the full human‑owned Strategy first**, never only the thin AI‑facing Rules.
 - **Generate the Rules from the Strategy, never hand‑edit them beside it** — regenerate on change, stamp the version.
 - **Name source kinds**; let the Source‑Map resolve locations.
 - **Admit non‑automatable evidence** rather than faking it.

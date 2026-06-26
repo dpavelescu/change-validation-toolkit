@@ -11,7 +11,7 @@ Write the **Evidence Ledger** entry for a change that has reached green — *wha
 
 ## Constraints
 - **Record evidence, never assertion** — only green‑on‑real‑runs and admitted runtime‑monitors; never faked.
-- **Record each criterion by its text + test** — the durable trace; the Criteria IDs is ephemeral.
+- **Record each criterion by its text + test** — the durable trace; the Criteria IDs is temporary.
 - **Every recorded test change carries its justification** — a criteria delta, or `baseline-preserved` for a repair.
 - **Honest gaps** — decisions and limitations recorded, not hidden.
 - **A `green` verdict only on complete evidence** — any active criterion without green/admitted evidence is not done; back to the loop, don't record green.

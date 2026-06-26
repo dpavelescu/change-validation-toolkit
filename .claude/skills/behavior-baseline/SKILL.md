@@ -36,7 +36,7 @@ reconciliation:                            # produced post-change, via the Execu
 
 ## Capture procedure (pre‑change)
 
-1. **Scope** the surfaces from the blast radius — minimal on trustworthy signal, but **widen when the signal is weak** rather than risk an unpinned regression. This includes blast‑radius surfaces **no acceptance criterion owns** (the plan's behavior‑preservation track) — pinning them is exactly how regression in untouched‑but‑reachable code is caught. (`internal-refactor` is the limit case: every surface is of this kind.) Regression coverage is **bounded by what's locally observable**: a surface that can't be pinned (no infra, flaky, needs prod data) is a **flagged limitation**, not a silent hole — so refactor validation is honest about which surfaces it could and couldn't hold.
+1. **Scope** the surfaces from the blast radius — minimal on trustworthy signal, but **widen when the signal is weak** rather than risk an unpinned regression. This includes blast‑radius surfaces **no acceptance criterion owns** (the plan's behavior‑preservation track) — pinning them is exactly how regression in untouched‑but‑reachable code is caught. (`internal-refactor` is the special case: every surface is of this kind.) Regression coverage is **bounded by what's locally observable**: a surface that can't be pinned (no infra, flaky, needs prod data) is a **flagged limitation**, not a silent hole — so refactor validation is honest about which surfaces it could and couldn't hold.
 2. **Per surface**, define the observation contract: what is observable for its change‑type (HTTP response + status for `rest-api`; emitted payload for `event-producer`; persisted state and old‑vs‑new coexistence for `db-migration`; rendered output for `react-ui`; the contract itself for `cross-service`).
 3. **Pin** behavior by observing current code at `captured-at`; record `pinned-behavior`. Discover related existing tests **read‑only** via **test‑impact analysis** over the Source‑Map's typed `tests` entries — reachability/coverage for fine‑grained tests, **surface/flow participation for `e2e`/`system`** (so a system‑level test a changed surface participates in is pinned too, even though it isn't call‑graph‑reachable).
 4. **Determinism gate** — non‑reproducible / flaky behavior is **not** baselined: quarantine the surface and raise a **limitation** (you cannot pin what you cannot reproduce; baselining noise would lie).
@@ -63,5 +63,5 @@ A provisional `change` disposition from the Validation Plan is **honest only if 
 - **Regression is fed back into the loop, not a handoff** — an unjustified delta feeds the correction loop.
 - **Can't capture → limitation** — can't run / reproduce is a toolkit gap.
 - **Minimality** — pin the blast radius only.
-- **Refactor is sharpest** — `internal-refactor` baseline is its primary evidence.
+- **Refactor relies on it most** — `internal-refactor` baseline is its primary evidence.
 - **Persisted** — written in‑repo so local and CI reconcile.

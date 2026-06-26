@@ -62,7 +62,7 @@ correction-log:
       outcome:     handed-off | green | re-plan | decision | escalation
 ```
 
-**Oscillation** = a surface that returns `red` in this pass after an earlier pass already routed and resolved it. **Exhaustion** = `pass > max-iterations`. Either ends the loop in an escalated diagnosis.
+**Oscillation** = a surface that returns `red` in this pass after an earlier pass already routed and resolved it. **Iteration limit reached** = `pass > max-iterations`. Either ends the loop in an escalated diagnosis.
 
 ## Loop procedure (resumable — one pass per invocation)
 
@@ -76,7 +76,7 @@ correction-log:
    - **regression** / **failing‑criterion** → emit a **`fix-request`** (code fix, external).
    - **justified** → `change` the test (a criteria delta justifies it); **brittle** → `repair` it (decouple, re‑align to assert the behavior, gated by the baseline's `preserved` verdict) — or, if it guards **nothing observable**, a **`remove` recommendation** (a human‑approved `decision`, never a silent delete). Both via `specify-tests`, then re‑validate — never to force green.
 5. **Hand off & pause** — write the open `fix-request`s + the re‑assessment, and **append this pass to the correction log** (pass number · red surfaces · what was routed); **return control**. A human or any implementation agent applies them and re‑invokes.
-6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **exhaustion** (the log's pass count exceeds `max-iterations`) or **oscillation** (a surface returns red after an earlier pass resolved it) → **escalate a diagnosis** (a limitation), never loop silently.
+6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **iteration limit reached** (the log's pass count exceeds `max-iterations`) or **oscillation** (a surface returns red after an earlier pass resolved it) → **escalate a diagnosis** (a limitation), never loop silently.
 
 ## Constraints
 

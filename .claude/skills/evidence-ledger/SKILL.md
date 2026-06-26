@@ -7,11 +7,11 @@ description: >-
   back. Written by record-evidence when a change reaches green. Phase 3.
 ---
 
-The Evidence Ledger is the **durable audit trail** of a change's validation: *what was validated, by what, and why* — structured so a human (or an auditor) reviews **behavior and decisions, not internals**. It is written when a change reaches **green on real evidence**, kept in‑repo, and travels with the merge. It is the lasting answer to "did we trust this change, and on what basis?"
+The Evidence Ledger is the **durable audit trail** of a change's validation: *what was validated, by what, and why* — structured so a human (or an auditor) reviews **behavior and decisions, not internals**. It is written when a change reaches **green on real evidence**, kept in‑repo, and travels with the merge.
 
 **It is an output, not a source.** The toolkit records *to* it; it never reads it back to drive a future change — cross‑change impact is always recomputed from the code (blast radius + behavior baseline), so the Evidence Ledger never becomes a stored cross‑change reference. It accumulates as history (that is what an audit trail is for), but nothing downstream depends on querying it.
 
-**Criterion by content, not by ephemeral id.** Because the Criteria IDs is per‑change run state, the ledger records each criterion by its **text** plus the **test** that validated it — the durable test→criterion trace.
+**Criterion by content, not by temporary id.** Because the Criteria IDs is per‑change run state, the ledger records each criterion by its **text** plus the **test** that validated it — the durable test→criterion trace.
 
 ## Entry schema (one per change)
 
@@ -47,7 +47,7 @@ verdict:          green               # recorded only when every active criterio
 ## Constraints
 
 - **Evidence, never assertion** — only green‑on‑real‑runs and admitted runtime‑monitors are recorded.
-- **Criterion by content** — recorded by text + test, not the ephemeral per‑change id.
+- **Criterion by content** — recorded by text + test, not the temporary per‑change id.
 - **Output, not a source** — written for humans/audit; never read back to drive a future change.
 - **Justified changes only** — every recorded test change carries its justification.
 - **Honest gaps** — limitations and decisions are recorded; a non‑green change does not get a `green` verdict.

@@ -16,7 +16,7 @@ Test Reconciliation turns the Validation Plan's **provisional dispositions** int
 - A **regression test** asserts the **pinned baseline** — what *is* true — for any blast‑radius surface no AC owns, as a behavior‑preservation net. (`internal-refactor` is the case where *every* surface is of this kind.)
 - **Forbidden:** an assertion derived from the **new implementation**. Reading the impl for *mechanical wiring* (how to invoke the surface) is allowed and flagged; reading it to decide *what is correct* is the failure the separation exists to prevent.
 
-**Telling a faithful test from a coupled one (the verification check).** A faithful test asserts only the **observable surface the criterion names** — return value, status, emitted payload, persisted state, rendered output — never internal structure, private calls, or call order. The operational test: *would it still pass under a deliberately wrong implementation of the criterion?* If yes, it asserts the wrong thing (coupled, or vacuous) → **rejected** (acceptance test) or **repaired** (existing test). This is the concrete check behind "not coupled to the implementation"; it's a judgment, but a bounded one.
+**Telling a faithful test from a coupled one (the verification check).** A faithful test asserts only the **observable surface the criterion names** — return value, status, emitted payload, persisted state, rendered output — never internal structure, private calls, or call order. The operational test: *would it still pass under a deliberately wrong implementation of the criterion?* If yes, it asserts the wrong thing (coupled, or empty) → **rejected** (acceptance test) or **repaired** (existing test). This is the concrete check behind "not coupled to the implementation"; it's a judgment, but a bounded one.
 
 ## Disposition → action
 
@@ -39,10 +39,10 @@ The blast radius surfaces *existing* tests that are often **implementation‑ali
 |---|---|---|
 | **criterion‑aligned** — defends a behavior a current criterion owns | maps to an active AC's behavior | `keep` (or `change` if the AC `moved`) |
 | **behavior‑guard** — defends observable behavior, no criterion | behavior preserved, no AC owns it | `keep` as a regression guard, **and flag it upstream** as a candidate criterion |
-| **implementation‑coupled, salvageable** — red while behavior is **preserved**, but a real observable behavior exists | the brittle signal + a behavioral counterpart | **`repair` automatically** — rewrite it to assert that **behavior** (from the baseline), decoupled from internals; re‑tag to the owning criterion if any |
+| **implementation‑coupled, fixable** — red while behavior is **preserved**, but a real observable behavior exists | the brittle signal + a behavioral counterpart | **`repair` automatically** — rewrite it to assert that **behavior** (from the baseline), decoupled from internals; re‑tag to the owning criterion if any |
 | **implementation‑coupled, empty** — asserts only internal structure; guards **no** observable behavior | the brittle signal + no behavioral counterpart | **`remove` recommendation** — a structured `decision` (test ref · what it asserts · why low‑relevance · recommended delete), **human‑approved**, never silent |
 
-**Re‑alignment is the default, deletion the exception.** Each time the toolkit touches a biased test it either **converts it** (raising its relevance, lowering the bias) or hands you a **one‑step, fully‑justified delete**. The suite migrates toward criteria/behavior alignment over time; you are never stuck with low‑relevance tests and no path forward. (A `remove` here is justified by *guards‑nothing‑observable*, not a criteria delta, so it is a **human‑approved decision** — losing coverage is hard to undo.)
+**Re‑alignment is the default, deletion the exception.** Each time the toolkit touches a biased test it either **converts it** (raising its relevance, lowering the bias) or hands you a **one‑step, fully‑justified delete**. (A `remove` here is justified by *guards‑nothing‑observable*, not a criteria delta, so it is a **human‑approved decision** — losing coverage is hard to undo.)
 
 ## The no-edit-to-pass rule (three keys)
 

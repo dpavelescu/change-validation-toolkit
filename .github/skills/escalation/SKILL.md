@@ -39,7 +39,7 @@ limitation:
   needed:    <what would close the gap — the missing capability / access / fixture>
 ```
 
-A limitation is **the toolkit's problem**, logged as such — **never** reframed as "a human handles this case." That reframing is the failure this structure exists to prevent.
+A limitation is **the toolkit's problem**, logged as such — **never** reframed as "a human handles this case."
 
 ## Constraints
 

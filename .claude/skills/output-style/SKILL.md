@@ -22,7 +22,7 @@ Be precise about **who reads each output**. Most "poorly specified output" is a 
 
 ## Structure of a human report — a predefined skeleton (kind 2, and the human side of kind 3)
 
-Conclusion-first (BLUF), grouped by what the reader acts on — **never a flat enumeration**:
+Conclusion-first, grouped by what the reader acts on — **never a flat list**:
 
 1. **Verdict** — the conclusion and the reader's one next action, in a line.
 2. **Named sections** — the substance, grouped by what the reader *does* with it (coverage, changes, risk…), not by how it was produced. One concern per section.
