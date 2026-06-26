@@ -46,7 +46,7 @@ Each concrete output names its own sections under this skeleton:
 
 In an agent's prose: **skills in bold** (`**behavior-baseline**`), **agents in backticks** (`` `run-validation` ``). Tie each to the step that applies it with a single uniform trailing tag — `— *uses* **skill**, \`agent\`` — never ad-hoc parentheses.
 
-## Guards
+## Constraints
 
 - **Classify the output** — machine artifact (schema), human artifact (readable), or both.
 - **Both ≠ duplicated** — derive a machine form from the human one, or give one artifact sections for both; never two copies to drift.

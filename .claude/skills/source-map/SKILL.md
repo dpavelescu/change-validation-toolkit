@@ -21,7 +21,7 @@ A source carries claims of one **authority class** — `normative` (defines corr
 
 `correctness` (the acceptance criteria) · `api-contract` · `event-contract` · `persistence-shape` · `service-boundaries` / `ownership` · `expected-evidence` · `conventions` · `operational-behavior`
 
-The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptance criteria) is owned by `acceptance-criteria`, the **API contract** by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns — that is the toolkit's invariant restated at the source layer (tests evidence, code implements; neither defines truth). Authority is **per claim, not per source**: a source is trusted only for the categories it owns, never for an aside outside them (a story governs intent and acceptance criteria, not a backend remark dropped into it).
+The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptance criteria) is owned by `acceptance-criteria`, the **API contract** by `api-spec`, **service boundaries** by `architecture`, **expected evidence** by `testing-strategy`. The **implementation is never authoritative** for a claim a normative source owns. Authority is **per claim, not per source**: a source is trusted only for the categories it owns, never for an aside outside them (a story governs intent and acceptance criteria, not a backend remark dropped into it).
 
 ## Entry schema
 
@@ -45,7 +45,7 @@ The map answers *"who owns this claim?"* — e.g. **correctness** (the acceptanc
 5. **Critical + still‑unfound = blocking.** If a *critical* source is neither in the map nor findable by the fallback search, stop and report it as a *limitation* (per the escalation model) — never proceed on an assumed or invented source.
 6. **Resolve a claim by authority, not by guess.** For any claim — a contract, a boundary, the expected evidence — consult the source `authoritative-for` it and treat a `normative` source as **binding**, at its **latest approved, non‑superseded** version (a superseded source is not current authority). **Cite the claim's locus**, not just the source name — `api-spec: POST /devices → 409`, `ADR‑018 §ownership`, `tests: FooTest::bar`. The **implementation is never the authority**: if impl/tests disagree with a normative source, the impl is wrong, not the source. A claim with **no** authoritative source is a **gap** (clarify, don't invent — the minimum‑clarity gate); two **normative** sources contradicting on the same claim is a **decision** (escalate, never silently pick one).
 
-## Guards
+## Constraints
 
 - **Map first, search as fallback** — prefer the declared source; scoped repo search complements a missing kind.
 - **Authority over implementation** — a claim is resolved against its authoritative source.

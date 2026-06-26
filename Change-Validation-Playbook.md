@@ -21,7 +21,7 @@ Four rules hold throughout:
 - **The acceptance criteria are the fixed point.** Correct means what the change is meant to do, not what the code happens to do.
 - **The toolkit specifies and verifies; it doesn't write code.** It decides what each test must assert and what the code must satisfy, then checks the result. The authoring is handed off; the criteria never bend to fit the code.
 - **Every test traces to a criterion.** A test defends one expectation. It checks the criterion; it is never the source of truth.
-- **You make decisions, not fixes.** It asks a question only when the criteria themselves are unresolvable, and never hands you broken code.
+- **You make decisions, not fixes.** It asks a question only when the criteria themselves are unresolvable, and by design hands you decisions, not broken code.
 
 ---
 
@@ -57,7 +57,7 @@ Some capabilities you set up once; the rest run on every change.
 |---|---|---|
 | **`define-testing-strategy`** | once (and when architecture changes) | — *(authors the Strategy, generates the Rules)* |
 | **`plan-validation`** | per change — to plan | `classify-change` · `review-plan` |
-| **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` |
+| **`drive-correction`** | per change — to execute & correct | `capture-baseline` · `specify-tests` · `run-validation` · `classify-change` *(re‑assess)* · `record-evidence` *(on green)* |
 
 Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them.
 
@@ -70,7 +70,7 @@ The actual sequence — who acts, where you're in the loop, and what lands in th
 2. **You run `define-testing-strategy`.** It asks one question at a time where the approach isn't already implied, authors the **Testing Strategy**, and generates the **Validation Rules**. **You approve.** → both are **committed** (durable, versioned).
 
 **Per change — plan it**
-3. **You run `plan-validation`** with the change and its story. Underneath: `classify-change` → `review-plan` (it assigns the Criteria IDs itself). It produces the **Validation Plan**.
+3. **You run `plan-validation`** with the change and its story. Underneath it runs `classify-change`, assigns the **Criteria IDs** itself, then gates with `review-plan`. It produces the **Validation Plan**.
    - No usable acceptance criteria → it stops at **Not ready** and says what's missing (that's the work‑item toolkit's job, not this one).
    - A **decision to settle** (an ambiguity, a contract call) comes to you as a question *with a recommended answer*; **you confirm or override.**
 4. **You approve the plan.** → the Validation Plan and the per‑change Criteria IDs are **committed** under `.validation/<change>/`.
@@ -141,7 +141,7 @@ Both come in the **escalation** skill's structured shape: a decision carries its
 
 ## Artifacts — what's human-readable, and what counts as evidence
 
-Most of what the toolkit writes is operational: machine-readable records its agents pass along and replay — the change classification, criteria ids, behavior baseline, run records, and the test- and fix-requests. They underlie the evidence but aren't the record you would hand to a reviewer.
+Most of what the toolkit writes is operational: machine-readable records its agents pass along and replay — the change classification, criteria ids, behavior baseline, run records, the correction log (the resumable per-pass loop state), and the test- and fix-requests. They underlie the evidence but aren't the record you would hand to a reviewer.
 
 Four artifacts are human-readable documentation, and these are what serve as **process evidence**, including in regulated or audited environments:
 
@@ -178,6 +178,8 @@ A few practical points:
 ## Where it is today
 
 **Specified end‑to‑end:** capturing the strategy, mapping sources and authority, classifying a change and its blast radius, planning the evidence, recording behavior, running your suite, specifying and verifying tests, driving correction to green via structured fix‑requests (implementation handed off), and recording the Evidence Ledger.
+
+**Specified, not yet hardened by a reference run.** This is a complete *specification* — agent and skill definitions an LLM follows — not a compiled engine. The guarantees throughout (every test traces to a criterion · a test changes only when a criterion moves · you get decisions, not broken code) describe what the agents are **instructed** to do; they are followed by a model, not mechanically enforced, and have not yet been exercised end‑to‑end against a real codebase with a published result. Read it as a rigorous design you can adopt and check, not a black box that can't be wrong.
 
 **Two builds, same model:** `.github/` (GitHub Copilot) and `.claude/` (Claude Code). The agents and skills are identical; only the entry points differ — Copilot agents vs. Claude slash commands. See the **README** to get started in either.
 

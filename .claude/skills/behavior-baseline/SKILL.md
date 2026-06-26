@@ -55,7 +55,7 @@ Re‑observe each in‑scope surface and compare to `pinned-behavior`:
 
 A provisional `change` disposition from the Validation Plan is **honest only if its surface's delta is `justified` here**; otherwise the "change" is masking a regression — the same failure the plan reviewer's disposition‑justification guard names, now caught against *behavior* instead of *wording*.
 
-## Guards
+## Constraints
 
 - **Baseline immutability** — once captured the baseline is read‑only.
 - **Justification by criteria delta** — a delta earns `justified` only by matching a `moved` / new / `retired` AC.

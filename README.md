@@ -34,7 +34,7 @@ cp -r .github source-map.manifest.md /your/project/
 - **Plan** — `/plan-validation` *(Claude)* or the `plan-validation` agent *(Copilot)*, with the change + its story → a reviewed **Validation Plan** you approve.
 - **Drive** — `/drive-correction` or the `drive-correction` agent → it pins current behavior, specifies the tests, runs your suite, and for each failure hands you a structured **fix‑request** and **pauses**. You (or your coding agent) apply it and re‑invoke. On green it writes the durable **Evidence Ledger**.
 
-> **Where you're in the loop:** filling the source‑map, approving the Strategy and the Plan, answering **decisions**, and implementing code/tests (or delegating). **Where you're not:** deciding what to test, chasing which tests a change affects, or debugging a red test — that's the loop's job. It hands you decisions, never broken code. (Full walkthrough: **[Playbook → Running it end to end](Change-Validation-Playbook.md#running-it-end-to-end)**.)
+> **Where you're in the loop:** filling the source‑map, approving the Strategy and the Plan, answering **decisions**, and implementing code/tests (or delegating). **Where you're not:** deciding what to test, chasing which tests a change affects, or debugging a red test — that's the loop's job. By design it routes failures back through the loop and hands you decisions, not broken code. (Full walkthrough: **[Playbook → Running it end to end](Change-Validation-Playbook.md#running-it-end-to-end)**.)
 
 ---
 

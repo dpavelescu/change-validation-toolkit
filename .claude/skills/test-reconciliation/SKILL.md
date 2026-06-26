@@ -7,7 +7,7 @@ description: >-
   specify-tests; evidence comes from the runner. Phase 3.
 ---
 
-Test Reconciliation turns the Validation Plan's **provisional dispositions** into **verified tests** along both of the plan's tracks: an **acceptance test** for each active AC (intended behavior) and a **regression test** for each blast‑radius surface no AC owns (unchanged behavior). The toolkit (`specify-tests`) **owns *what* each test asserts** (from the Criteria IDs, or the pinned baseline for regression tests) and **verifies the authored result**; the **code is authored by the external implementer** via a **test‑request** (the toolkit writes none). **Independence holds because the toolkit — not the author — decides the assertion**, and verifies the authored test isn't coupled to the implementation: a test authored by the thing it judges is no check at all. Per‑change, in‑repo.
+Test Reconciliation turns the Validation Plan's **provisional dispositions** into **verified tests** along both of the plan's tracks: an **acceptance test** for each active AC (intended behavior) and a **regression test** for each blast‑radius surface no AC owns (unchanged behavior). The toolkit (`specify-tests`) **owns *what* each test asserts** (from the Criteria IDs, or the pinned baseline for regression tests) and **verifies the authored result**; the **code is authored by the external implementer** via a **test‑request** (the toolkit writes none). **Independence comes from the toolkit — not the author — deciding the assertion**, then verifying the authored test isn't coupled to the implementation. That verification is the model's coupling check (below) — bounded, but a judgment, not a mechanically enforced guarantee. Per‑change, in‑repo.
 
 > *Below, "author X" means **specify X (a test‑request) and verify the authored result** — the toolkit owns the spec and the check; the external implementer writes the code.*
 
@@ -18,7 +18,9 @@ Test Reconciliation turns the Validation Plan's **provisional dispositions** int
 
 **Telling a faithful test from a coupled one (the verification check).** A faithful test asserts only the **observable surface the criterion names** — return value, status, emitted payload, persisted state, rendered output — never internal structure, private calls, or call order. The operational test: *would it still pass under a deliberately wrong implementation of the criterion?* If yes, it asserts the wrong thing (coupled, or vacuous) → **rejected** (acceptance test) or **repaired** (existing test). This is the concrete check behind "not coupled to the implementation"; it's a judgment, but a bounded one.
 
-## Disposition → action (confirming the plan's provisional dispositions against reality)
+## Disposition → action
+
+Confirming the plan's provisional dispositions against reality.
 
 | Plan disposition | Trigger (from the Criteria IDs) | Action | Justified by |
 |---|---|---|---|
@@ -72,7 +74,7 @@ open-decisions:  [ un-observable AC → criteria gap ]
 limitations:     [ can't specify/invoke a surface → toolkit gap ]
 ```
 
-## Guards
+## Constraints
 
 - **Independence by spec** — the toolkit owns *what* each test asserts and **verifies** it; authoring is delegated to the external implementer.
 - **Criteria provenance** — assertions derive from the AC (or baseline for regression tests), never from the new impl.

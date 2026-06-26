@@ -41,7 +41,7 @@ limitation:
 
 A limitation is **the toolkit's problem**, logged as such — **never** reframed as "a human handles this case." That reframing is the failure this structure exists to prevent.
 
-## Guards
+## Constraints
 
 - **Exactly one bin** — every human touch is a `decision` *or* a `limitation`.
 - **A limitation never masquerades as a decision** — "can't run / reproduce" is a gap to close, not a question.

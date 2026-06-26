@@ -45,11 +45,28 @@ test-request:
   status:        open        # resolved when the authored test is verified faithful AND runs
 ```
 
-So the two handoffs are symmetric and complete: a **`test-request`** says *"author a test that proves this criterion, this way, without asserting the implementation,"* and a **`fix-request`** says *"make this test pass."* The toolkit owns the spec and the verification of both; the external implementer authors the code.
+The two handoffs are symmetric: a **`test-request`** says *"author a test that proves this criterion, this way, without asserting the implementation,"* and a **`fix-request`** says *"make this test pass."* The toolkit owns the spec and the verification of both; the external implementer authors the code.
+
+## The correction log (resumable loop state)
+
+The loop runs one pass per invocation as a fresh agent — so the count of passes and the history needed to spot oscillation live **in a committed log**, never in agent memory. Each pass appends one entry; a re‑invoked agent reads it to know the pass number and which surfaces it has already routed.
+
+```
+correction-log:
+  change-ref:    <change-ref>
+  max-iterations: <n>
+  passes:                                 # appended one per invocation
+    - pass:        <n>
+      red:         [ <surface-id / test-ref that failed this pass> ]
+      routed:      [ { surface, as: fix-request(FR-n) | change | repair } ]
+      outcome:     handed-off | green | re-plan | decision | escalation
+```
+
+**Oscillation** = a surface that returns `red` in this pass after an earlier pass already routed and resolved it. **Exhaustion** = `pass > max-iterations`. Either ends the loop in an escalated diagnosis.
 
 ## Loop procedure (resumable — one pass per invocation)
 
-1. **Validate** — `run-validation` over the affected slice (fail‑fast: local first). **Green & complete → done** (evidence → the Evidence Ledger).
+1. **Validate** — read the correction log (pass count; or start at pass 1), then `run-validation` over the affected slice (fail‑fast: local first). **Green & complete → done** (evidence → the Evidence Ledger).
 2. **Re‑assess (on re‑invocation after a fix)** — the diff moved, so impact moved: recompute the blast radius over the **fix's delta only** and union it into the existing radius (not a full re‑plan). A **material** scope change → **return `re-plan`** (re‑run `plan-validation`, then resume); the loop never re‑plans itself. *Material* = the fix introduces a **surface, dependency, or contract boundary not already in the blast radius** (or touches a criterion); a fix confined to surfaces already covered is **not** material and the loop continues. When unsure whether a delta is material, re‑plan (the conservative default).
 3. **Sort each clean fail by the Behavior Baseline** — map the test to the surface it defends, then read the baseline (the no-edit-to-pass rule):
    - behavior **moved**, no criterion owns it → **regression**
@@ -58,14 +75,15 @@ So the two handoffs are symmetric and complete: a **`test-request`** says *"auth
 4. **Route:**
    - **regression** / **failing‑criterion** → emit a **`fix-request`** (code fix, external).
    - **justified** → `change` the test (a criteria delta justifies it); **brittle** → `repair` it (decouple, re‑align to assert the behavior, gated by the baseline's `preserved` verdict) — or, if it guards **nothing observable**, a **`remove` recommendation** (a human‑approved `decision`, never a silent delete). Both via `specify-tests`, then re‑validate — never to force green.
-5. **Hand off & pause** — write the open `fix-request`s + the re‑assessment; **return control**. A human or any implementation agent applies them and re‑invokes.
-6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **no progress** after `max-iterations` (a test stays red across re‑invocations, or fixes oscillate) → **escalate a diagnosis** (a limitation), never loop silently.
+5. **Hand off & pause** — write the open `fix-request`s + the re‑assessment, and **append this pass to the correction log** (pass number · red surfaces · what was routed); **return control**. A human or any implementation agent applies them and re‑invokes.
+6. **Terminate / escalate** — needs a criterion or contract to change → **decision** (structured question); **exhaustion** (the log's pass count exceeds `max-iterations`) or **oscillation** (a surface returns red after an earlier pass resolved it) → **escalate a diagnosis** (a limitation), never loop silently.
 
-## Guards
+## Constraints
 
 - **Never writes production code** — the loop emits a `fix-request`; implementation is out of scope.
 - **Baseline is the gate** — `regression` vs `brittle` is decided by *behavior preservation*, never the red result.
 - **Test never edited to pass** — test changes go through `specify-tests`, justified by a criteria delta or behavior preservation.
 - **Re‑assess on every fix** — impact is re‑evaluated incrementally; a material scope change re‑plans.
 - **No silent loop** — every pass ends in green, a handoff, a re‑plan, a decision, or an escalation.
+- **State is persisted, not remembered** — pass count and oscillation are read from the committed correction log, since each pass is a fresh agent.
 - **Decision vs limitation** — criteria/contract change → decision; can't‑resolve / oscillation → escalate a diagnosis.

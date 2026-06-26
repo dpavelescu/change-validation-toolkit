@@ -14,7 +14,7 @@ The Execution Runner is the toolkit's **execution substrate** — the first piec
 - **Clean fail** — the test ran and asserted false → **fed back into the loop**, a behavior signal. Never escalated to a human.
 - **Can't‑run** — couldn't run in the available environment (runner won't invoke, infra absent) → **limitation**, a toolkit gap. Never normalized as human‑in‑the‑loop.
 
-A red test and a broken harness look identical at a glance; conflating them is how a toolkit quietly accretes handoffs that hide its own gaps. The runner refuses to — it sorts every non‑pass into **signal or gap**.
+A red test and a broken harness look identical at a glance; the runner must not conflate them — it sorts every non‑pass into **signal or gap**.
 
 ## Schema (the run record)
 
@@ -39,7 +39,7 @@ verdict:
   limitations:    [ <can't-run | runner-unavailable | env-absent | flaky-quarantined> ]
 ```
 
-## Procedure (tier & preflight → invoke → scope → run → check → record)
+## Procedure
 
 1. **Tier & preflight** — for each in‑scope category take its **tier** (from the Strategy). **① native** → runs here; **② your‑env** → run where the environment allows (else CI); **③ external** → **out of scope by default** (your pipeline owns it) — the runner does **not** run it and does not relay; *optionally* read its result for the audit trace, reading only. A category that *should* run here but whose environment isn't available → a **limitation up front** ("needs X, not available"), never effort spent on a test that can't execute.
 2. **Invoke the project's runner** — run via the project's **own test command / runner** (the standard invocation devs and CI use), selecting the minimal slice where the runner supports selection. The toolkit **uses your runner; it never catalogs or guesses commands.** A runner it genuinely can't invoke is a **limitation**.
@@ -52,7 +52,7 @@ verdict:
 
 The toolkit **does not dispatch CI.** Local runs `gate=local` (the fast tests); the project's **normal pipeline trigger** (push / PR) invokes the runner at `gate=ci` for the wider scope — the cross‑boundary / infra / e2e tests that can only run there. **Your pipeline owns how CI builds and tests**; the toolkit reads `ci-config` only as a parity *reference*, not as the source of execution. The runner taps the **same `test-report`** in both places — a local file locally, the CI run's artifact in CI — so local and CI evidence are directly comparable. The correction loop spans both: a red `ci-gate` is simply fed back into the loop on its next pass. (Optionally a team may have the runner dispatch a workflow and wait, but that couples it to a provider; the default is *CI runs the toolkit*.)
 
-## Guards
+## Constraints
 
 - **Runs, never edits** — the substrate observes; it does not touch tests or implementation.
 - **Reuse the project's runner** — the toolkit invokes *your own* test command/runner; never a parallel harness.
@@ -62,6 +62,6 @@ The toolkit **does not dispatch CI.** Local runs `gate=local` (the fast tests); 
 - **No handoff for a fail** — a failing test is fed back into the loop, never escalated to a human.
 - **Minimality** — run the blast‑radius slice, not the whole suite.
 - **Fail‑fast ordering** — cheapest/lowest‑level local tests run first; CI‑only placement is expected.
-- **Determinism or quarantine** — flaky → limitation; never baselined.
+- **Determinism or quarantine** — flaky → limitation, never baselined; re‑run agreement is a smoke‑check, not a proof of determinism.
 - **Local↔CI parity** — same commands and method, recorded; CI widens scope only.
 - **Persisted** — the run record lives in‑repo so local and CI share execution context.

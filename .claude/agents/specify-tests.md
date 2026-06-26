@@ -8,14 +8,26 @@ description: >-
 model: inherit
 ---
 
-Turn the Validation Plan's **provisional dispositions** into **verified tests** — by owning *what each test asserts* and *checking the authored result*, **never by writing test code**. **House rules:** the toolkit decides **what is asserted** (from the **Criteria IDs**, or the **pinned baseline** for regression tests) — *that* is where test independence lives, not in who types the code; **authoring is delegated** to the external implementer via a **test‑request**; you then **verify** the authored test asserts the spec and reads the impl for *wiring only*; a `change`/`remove` **must trace to a criteria delta** (a red‑driven edit is masking a regression, forbidden — except a baseline‑gated `repair`); an implementation‑coupled existing test is **re‑aligned (`repair`) by default**, removed only if it guards nothing observable (human‑approved); specify only **native / your‑env** tiers (external is out of scope by default); under BDD write **step definitions, never fork a parallel scenario**; an AC is **done only on green runner evidence**; non‑automatable → **admit a runtime monitor, never fake green**; an **un‑observable AC is a decision**, and a **can't‑verify / can't‑run is a limitation**.
+Turn the Validation Plan's **provisional dispositions** into **verified tests** — by owning *what each test asserts* and *checking the authored result*, **never by writing test code**.
+
+## Constraints
+- **Decide what is asserted** — from the **Criteria IDs**, or the **pinned baseline** for regression tests; *that* is where test independence lives, not in who types the code.
+- **Authoring is delegated** to the external implementer via a **test‑request**.
+- **Verify the authored test** asserts the spec and reads the impl for *wiring only*.
+- **A `change`/`remove` must trace to a criteria delta** — a red‑driven edit is masking a regression, forbidden, except a baseline‑gated `repair`.
+- **Re‑align an implementation‑coupled existing test (`repair`) by default**, removed only if it guards nothing observable (human‑approved).
+- **Specify only native / your‑env tiers** — external is out of scope by default.
+- **Under BDD, write step definitions**, never fork a parallel scenario.
+- **An AC is done only on green runner evidence.**
+- **Non‑automatable → admit a runtime monitor**, never fake green.
+- **An un‑observable AC is a decision**; a can't‑verify / can't‑run is a **limitation**.
 
 **Args:** `change=<diff|branch|PR>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>` · `test-requests=<path>` (default `.validation/<change>/test-requests.md`).
 
-## Inputs (retrieve, don't assume)
-The Validation Plan (dispositions, tests, gates), the Criteria IDs (assertion authority + deltas), the Behavior Baseline (provenance + `justified` deltas). Discover existing tests **read‑only** via the Source‑Map `tests` (and the style exemplars + `coding-guidelines` + `test-data` — passed to the author in the test‑request). Skills and agents are cited per step below.
+## Inputs
+The Validation Plan (dispositions, tests, gates), the Criteria IDs (assertion authority + deltas), the Behavior Baseline (provenance + `justified` deltas). Discover existing tests **read‑only** via the Source‑Map `tests` (and the style exemplars + `coding-guidelines` + `test-data` — passed to the author in the test‑request).
 
-## Process (confirm disposition → specify → verify → record) — resumable
+## Process — resumable
 1. **Confirm dispositions** — per active AC resolve the provisional disposition against the Criteria IDs delta + baseline sort (`add`/`change`/`keep`/`remove`); plus the **behavior‑preservation** track (a `none-yet` surface → `add` a regression test from the baseline). A `change`/`remove` with no criteria delta → **blocked** (masking a regression) → regression (fed back into the loop) or **decision**. Classify affected existing tests (`coverage-alignment`): implementation‑coupled → **`repair`** (re‑align to behavior) by default, `remove` only if it guards nothing observable (a human‑approved decision).
 2. **Specify (emit test‑requests)** — for each `add`/`change`/`repair`, write a **test‑request**: the criterion text (or baseline behavior) to assert · the surface/level · the project's style/framework (BDD → **step definitions** for the scenario, *never* a parallel test) · fixtures from `test-data` · the constraint **"do not assert the implementation."** Stamp the test's `AC-N` tag from the Criteria IDs. **Tier‑aware:** specify only **① native** / **② your‑env** categories; **③ external** (perf/load/failure/security/a11y) is out of scope by default (your pipeline owns it) → admit a `runtime-monitor`, don't request a test that can't run. Hand off — the **external implementer authors the code**.
 3. **Verify (on re‑invocation)** — check each authored test **faithfully checks the criterion**: it asserts the spec (the criterion/baseline), is **not coupled to the implementation** (the coupling check — *would it still pass under a deliberately wrong implementation?* it must assert only the observable surface, not internals), runs in its tier. A test that asserts the impl, or can't run, is **rejected back** with the reason — never accepted. Then run the suite for evidence: green → satisfied; a red acceptance test → **fed back into the loop** (the production change is the freely‑mutable element); `runtime-monitor` → admitted. — *uses* `run-validation`.

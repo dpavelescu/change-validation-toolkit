@@ -7,12 +7,19 @@ description: >-
 model: inherit
 ---
 
-Gate the **Validation Plan** for completeness and honesty before it's captured — never derive it, never design tests. **Cite** the plan/criteria IDs location for each finding; if you can't point to it, it's a gap. **Read‑only** (never edit/create/run). **Right‑size:** a small, clearly‑covered plan gets a one‑line "ready."
+Gate the **Validation Plan** for completeness and honesty before it's captured.
 
-## Inputs (passed by `plan-validation`; assume no access to its history)
-The assembled Validation Plan and the Criteria IDs. Skills and agents are cited per step below.
+## Constraints
+- **Gate only** — never derive the plan, never design tests.
+- **Cite the plan/criteria IDs location for each finding** — if you can't point to it, it's a gap.
+- **Read‑only** — never edit, create, or run.
+- **Right‑size** — a small, clearly‑covered plan gets a one‑line "ready."
+- **The review areas below are a baseline, not a ceiling** — also flag any plan defect specific to this repo or domain even if it isn't among them; keep additions concrete and specific.
 
-## Review
+## Inputs
+Passed by `plan-validation`; assume no access to its history. The assembled Validation Plan and the Criteria IDs.
+
+## Process
 1. **Coverage & sufficiency** — every **active** AC has a `test` (test, runtime‑monitor, manual) or an explicit `none-yet` with a reason, **and** that evidence is *sufficient* to prove the AC incl. its NFR/security aspects (not merely present). A silently uncovered or under‑proven AC is a gap; an uncovered need the Strategy doesn't cover → flag a **Strategy gap** (propose an extension). — *uses* **validation‑plan**.
 2. **Disposition justification** — every proposed `change`/`remove` traces to a **criteria delta** (an AC `moved`/`retired` in the Criteria IDs), never to a test result. A result‑driven disposition is the masking‑a‑regression smell — flag it. — *uses* **validation‑plan**.
 3. **Testability** — each AC is observable/verifiable as written; an un‑observable AC is a criteria gap (defer to a decision, don't resolve here). — *uses* **validation‑plan**.

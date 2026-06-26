@@ -44,7 +44,7 @@ verdict:          green               # recorded only when every active criterio
 4. **Record decisions and limitations** — the human calls (question + answer) and any toolkit gaps hit, honestly; nothing hidden.
 5. **Write** the entry in‑repo (kept; travels with the merge). **Verdict `green` only when every active criterion has evidence** (green or an admitted runtime monitor); otherwise it is not done — the change is still in the loop, not in the ledger.
 
-## Guards
+## Constraints
 
 - **Evidence, never assertion** — only green‑on‑real‑runs and admitted runtime‑monitors are recorded.
 - **Criterion by content** — recorded by text + test, not the ephemeral per‑change id.

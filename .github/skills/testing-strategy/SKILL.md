@@ -36,9 +36,9 @@ Every test category sits in one of four tiers; the toolkit's behaviour follows t
 
 **BDD is a spec style, not a tier.** A Gherkin scenario is a **specification = the acceptance criterion** (human‑owned), not a test. If your project uses BDD, the toolkit's test‑specification job is to **specify (and verify) the step definitions** (derived from the scenario, never the impl — authoring handed off) and run them through your **BDD tooling** (Cucumber/SpecFlow/Behave) — it **honors the practice; it does not fork the scenario into a separate xUnit test.** The scenario sits in the tier of whatever it exercises (a unit‑level scenario is native; an e2e scenario is your‑env). Only a BDD pipeline owned *entirely* by another process — scenarios, step defs, **and** execution — is integrate‑only (③).
 
-## Coverage checklist (the Strategy is *complete enough* when…)
+## Coverage checklist
 
-Assess against these — checking what's **missing** as much as present. Each is **Met / Deferred / Open**.
+The Strategy is complete enough when each item below is **Met / Deferred / Open** — checking what's **missing** as much as present. The list is a **baseline, not a ceiling**: also add any coverage concern specific to this system's architecture or domain even if it isn't listed, and omit a listed item only when it genuinely doesn't apply (mark it N/A, never pad).
 
 1. **Every change‑type covered** — each taxonomy type has a section, or is explicitly marked not‑applicable for this system.
 2. **Architecture‑grounded** — the expectations reflect this system's real properties (eventing semantics, service‑owned schemas, no cross‑service DB, CQRS, contract‑first), not generic QA.
@@ -51,7 +51,9 @@ Assess against these — checking what's **missing** as much as present. Each is
 9. **Non‑automatable evidence admitted** — where confidence can't be proven pre‑merge (load, real data, non‑determinism), the Strategy says so and names the runtime‑monitor alternative — it does not pretend everything automates.
 10. **Traceability expectation** — states that evidence traces back to acceptance criteria (the authoritative fixed point).
 
-## Architecture‑aware defaults (starting expectations — tailor, don't accept blindly)
+## Architecture‑aware defaults
+
+Starting expectations — tailor them to your system, don't accept them blindly.
 
 - **rest-api** — controller behavior, service logic, error mapping, **backward‑compatible contract changes**, OpenAPI/schema consistency.
 - **event-consumer** — event‑contract compatibility, deserialization, **idempotency**, retry/DLQ behavior, ordering assumptions, **version tolerance** (old + new events).
