@@ -18,7 +18,7 @@ The rest of the design follows from that. It works out what a change affects, re
 
 Four rules hold throughout:
 
-- **The acceptance criteria are the fixed point.** Correct means what the change is meant to do, not what the code happens to do.
+- **The acceptance criteria are the fixed point.** Correct means what the change is meant to do, not what the code happens to do. The toolkit checks the change *meets* those criteria — it does not judge whether the criteria themselves are complete or right; that's the work‑item stage.
 - **The toolkit specifies and verifies; it doesn't write code.** It decides what each test must assert and what the code must satisfy, then checks the result. The authoring is handed off; the criteria never bend to fit the code.
 - **Every test traces to a criterion.** A test defends one expectation. It checks the criterion; it is never the source of truth.
 - **You make decisions, not fixes.** It asks a question only when the criteria themselves are unresolvable, and by design hands you decisions, not broken code.
@@ -147,10 +147,10 @@ Four artifacts are human-readable documentation, and these are what serve as **p
 
 - **Testing Strategy** — the human-owned document of what evidence makes a change trustworthy in your system. A controlled document you author and approve.
 - **Validation Plan** (approved) — for one change, the evidence it requires, the test dispositions, and your approval. The record of what was planned and signed off.
-- **Evidence Ledger** — the durable, per-change audit trail: each criterion, the test that checked it, the evidence observed, the behavior preserved, the test changes and their justification, and any decisions or limitations. The primary record that a change was validated, by what, and why.
+- **Evidence Ledger** — the durable, per-change audit trail: each criterion, the test that checked it, the evidence observed, the behavior preserved, the blast-radius surfaces left unproven (deliberately excluded, or blocked by a limitation), the test changes and their justification, and any decisions or limitations. The primary record that a change was validated, by what, and why.
 - **Decisions & limitations** — the judgment calls made (the question, context, resolution, and who owns it) and the gaps the toolkit hit. An auditable trail of where a human decided and where the toolkit fell short.
 
-The Evidence Ledger references the operational records rather than copying them, so the audit trail stays readable while the detail stays reproducible. Whether these satisfy a particular standard is your determination; the toolkit's job is to produce them completely and to flag anything missing rather than imply coverage it doesn't have.
+The Evidence Ledger references the operational records rather than copying them, so the audit trail stays readable while the detail stays reproducible. Whether these satisfy a particular standard is your determination; the toolkit's job is to produce them completely and to flag the blast-radius surfaces it could not verify — the ledger's coverage reconciliation — rather than imply coverage it doesn't have.
 
 ---
 
@@ -251,7 +251,7 @@ This Playbook is the concept; the running build lives under `.github/` (Copilot)
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (the recheck list)
 - **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 
-**`record-evidence`** — On green, assemble the durable **Evidence Ledger** entry: *what was validated, by what, and why* (criteria → test → evidence, behavior preserved, justified test changes, decisions, limitations). Records only real evidence; an **output, never read back**.
+**`record-evidence`** — On green, assemble the durable **Evidence Ledger** entry: *what was validated, by what, and why* (criteria → test → evidence, behavior preserved, blast-radius coverage, justified test changes, decisions, limitations). Records only real evidence; an **output, never read back**.
 - **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `reconcile-record=<path>` · `ledger=<path>`
 - **Uses skills:** `evidence-ledger`
 - **Needs:** the Validation Plan · the Behavior Baseline reconciliation · the run records · the test‑reconciliation record · decisions/limitations raised

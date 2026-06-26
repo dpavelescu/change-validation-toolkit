@@ -30,7 +30,7 @@ Conclusion-first, grouped by what the reader acts on — **never a flat list**:
 
 Each concrete output names its own sections under this skeleton:
 - **Validation Plan** (approver view) — *Verdict · Coverage · Test changes · Regression scope · Decisions to settle.*
-- **Evidence Ledger** (audit view) — *Outcome · Evidence per criterion · Behavior preserved · Justified changes · Decisions & limitations.*
+- **Evidence Ledger** (audit view) — *Outcome · Evidence per criterion · Behavior preserved · Coverage & residual risk · Justified changes · Decisions & limitations.*
 - **escalation** (decision / limitation) — the escalation skill's fields *are* this skeleton already.
 
 ## Quality rules (how to fill the sections)

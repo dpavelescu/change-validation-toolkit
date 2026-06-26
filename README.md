@@ -1,6 +1,6 @@
 # Change‑Validation Toolkit
 
-**Turn a change into the evidence needed to trust it.** The toolkit works out what would prove a change is correct, produces that evidence against your real code, runs your own test suite, and drives failures to green by handoff. It **writes no code** — it specifies what must be true, verifies it, runs, and records; authoring stays with you (or your coding agent).
+**Turn a change into the evidence needed to trust it.** The toolkit works out what would prove a change does what its acceptance criteria require, produces that evidence against your real code, runs your own test suite, and drives failures to green by handoff. It **writes no code** — it specifies what must be true, verifies it, runs, and records; authoring stays with you (or your coding agent).
 
 New here? The **[Playbook](Change-Validation-Playbook.md)** is the human guide — what it's for, how it works end‑to‑end, and what's deliberately out of scope. This README gets you running.
 
