@@ -8,8 +8,6 @@ description: >-
 model: inherit
 ---
 
-**The toolkit writes no code, but it _does_ run — execution is its own step here, not a handoff.** It executes your suite by **invoking your existing test runner**; it never delegates the run to a person/agent and never builds a harness. (Only *authoring* is handed off; **tier ③ external** and **CI dispatch** are the sole execution exceptions — out of scope / your pipeline's.)
-
 Drive **the project's own suite** over this change's blast‑radius slice and return **structured behavior observations** — what ran, what each result evidences, whether it reproduces.
 
 ## Constraints

@@ -10,7 +10,7 @@ Validation Rules are the **operational layer**: a thin, structured projection of
 
 ## The hard rule
 
-**Rules are GENERATED from the Strategy, never hand‑edited beside it.** When the Strategy moves, regenerate. Two hand‑maintained documents drift, and the agent then enforces expectations the Strategy abandoned. Every generated rule set records the Strategy version it was derived from.
+**Rules are GENERATED from the Strategy, never hand‑edited beside it.** When the Strategy moves, regenerate. Every generated rule set records the Strategy version it was derived from.
 
 ## Rule schema (one entry per change‑type)
 
