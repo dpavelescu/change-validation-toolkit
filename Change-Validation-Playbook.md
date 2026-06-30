@@ -61,6 +61,31 @@ Some capabilities you set up once; the rest run on every change.
 
 Set up once, plan a change, drive it to green. You don't invoke the inner agents directly; the two per‑change entry points orchestrate them.
 
+### SDLC activities it fulfills — and what it leaves to you
+
+The toolkit covers the **change-validation slice** of the lifecycle: from "a change arrived" to "here is the evidence it's correct." It fulfils **three lifecycle activities** — you run one entry-point agent per activity, and each orchestrates subagents (`↳`) and skills underneath. The smaller tasks each one bundles (impact analysis, baselining, test design, execution, correction, reporting…) are steps *within* these activities, not separate things you run.
+
+**1 · Define the testing strategy** — *once, and when architecture changes.* The test-approach activity: decide what evidence makes a change trustworthy in *your* system and project it into machine-usable rules.
+- **Inputs:** your architecture sources — architecture, API specs, event/data schemas, coding guidelines, CI config — located via the Source-Map; any existing strategy.
+- **Outputs:** the **Testing Strategy** (human-owned, approved) and the derived **Validation Rules** (its machine projection) — both committed.
+- **Behind it:** `define-testing-strategy`, human-in-the-loop one question at a time → skills *author-testing-strategy · derive-validation-rules · classify-change-type · resolve-source-map · classify-escalation*.
+
+**2 · Plan the validation of a change** — *per change; advisory, nothing runs or is edited.* Bundles change-impact analysis, test planning, and requirements traceability, behind a quality gate.
+- **Inputs:** the change (diff/branch/PR), its story / acceptance criteria, the Validation Rules, the Source-Map.
+- **Outputs:** the approved **Validation Plan** — blast radius, the per-change **Criteria IDs** (the AC→test map), the evidence each criterion needs, provisional test dispositions, the regression (behavior-preservation) track, and the local/CI gates — or **Not ready** with exactly what's missing.
+- **Behind it:** `plan-validation` orchestrates `↳ classify-change` (impact analysis / blast radius) and `↳ review-plan` (the quality gate) → skills *derive-validation-plan · resolve-source-map · classify-escalation · shape-output*.
+
+**3 · Execute the validation and drive the change to green** — *per change.* Bundles characterization/baseline testing, test design + verification, test execution, regression, defect correction by handoff, test maintenance, and evidence reporting.
+- **Inputs:** the approved Validation Plan + Criteria IDs, the change, and your **runnable test suite**.
+- **Outputs:** the **Behavior Baseline** + delta reconciliation; **test-requests** and **fix-requests** handed to your implementer; per-criterion green evidence; and, on green, the durable **Evidence Ledger** entry — or a **decision** / **limitation** when it needs you. All committed under `.validation/<change>/`.
+- **Behind it:** `drive-correction` orchestrates `↳ capture-baseline` (baseline), `↳ specify-tests` (test design + maintenance), `↳ run-validation` (execution), `↳ classify-change` (re-assess on scope growth) and `↳ record-evidence` (reporting on green) → skills *run-correction-loop · capture-behavior-baseline · reconcile-tests · run-execution · record-evidence-ledger · classify-escalation · shape-output*.
+
+**Left to you — SDLC activities the toolkit deliberately does _not_ perform:**
+- **Requirements definition / authoring acceptance criteria** — upstream work (the companion work-item toolkit). This toolkit validates *against* criteria; it never invents or judges them.
+- **Writing production or test code** — authoring is handed off to your implementer (a person or your coding agent) via `fix-request`s and `test-request`s.
+- **Non-functional testing** — performance, load, resilience, security-scan, accessibility (tier ③): your pipeline owns these; opt-in, the toolkit reads the result as an audit trace and never gates.
+- **Exploratory / manual testing, environment provisioning, CI/CD orchestration** (tier ④) — CI is a participant it reads, not a pipeline it runs.
+
 ### Running it end to end
 
 The actual sequence — who acts, where you're in the loop, and what lands in the repo.
@@ -124,7 +149,7 @@ When it needs you, it's one of two things:
 
 A failing test is neither — it's the loop's next step, and you hear about it only if it turns into a decision.
 
-Both come in the **escalation** skill's structured shape: a decision carries its question, the context that forces it, a recommended resolution, the owning authority, and what it blocks; a limitation carries the gap, what it blocked, and what would close it. Both land in the Evidence Ledger.
+Both come in the **classify-escalation** skill's structured shape: a decision carries its question, the context that forces it, a recommended resolution, the owning authority, and what it blocks; a limitation carries the gap, what it blocked, and what would close it. Both land in the Evidence Ledger.
 
 ---
 
@@ -195,7 +220,7 @@ This Playbook is the concept; the running build lives under `.github/` (Copilot)
 
 **`define-testing-strategy`** — Author or update the human‑owned **Testing Strategy** (authoring one from your architecture **if you don't have it**) and generate the derived **Validation Rules**. Run when architecture or technology patterns change, not per story.
 - **Args:** `mode=author|update` *(inferred if omitted)* · `scope=change-types|all`
-- **Uses skills:** `testing-strategy`, `validation-rules`, `change-taxonomy`, `source-map`
+- **Uses skills:** `author-testing-strategy`, `derive-validation-rules`, `classify-change-type`, `resolve-source-map`, `classify-escalation`
 - **Needs:** your architecture sources (`architecture`, `api-spec`, `event-schema`, `data-model`, `coding-guidelines`, `ci-config`) via the Source‑Map
 - **Produces:** the Testing Strategy + Validation Rules (a draft you approve)
 
@@ -203,20 +228,20 @@ This Playbook is the concept; the running build lives under `.github/` (Copilot)
 
 **`classify-change`** — Classify a change into types, compute its **blast radius** (test‑impact analysis — including which existing tests it reaches), resolve the sources it needs, and record which source is **authoritative** for each crossed claim.
 - **Args:** `change=<diff|branch|PR|description>` · `criteria=<acceptance criteria|link>` *(optional)*
-- **Uses skills:** `change-taxonomy`, `validation-rules`, `source-map`
+- **Uses skills:** `classify-change-type`, `resolve-source-map`
 - **Needs:** the change · the Validation Rules · the Source‑Map
 - **Produces:** change‑types · blast radius · affected tests (by type) · needed sources · claim authorities
 
 **`plan-validation`** — *orchestrator* — Derive the **Validation Plan**: assign the **Criteria IDs** (stable per‑change AC ids + `new`/`unchanged`/`moved`/`retired` status — read‑only on the story, discarded after merge, not durable), then per‑AC required evidence and test map, provisional test dispositions, the regression (behavior‑preservation) track, and the local/CI gates.
 - **Args:** `change=<diff|branch|PR>` · `story=<link|file>` · `classification=<path>` *(reuse)*
-- **Uses skills:** `validation-plan`, `change-taxonomy`
+- **Uses skills:** `derive-validation-plan`, `resolve-source-map`, `classify-escalation`, `shape-output`
 - **Delegates to:** `classify-change`, `review-plan`
 - **Needs:** the change · the story · the Validation Rules · the Source‑Map
 - **Produces:** the Validation Plan incl. the per‑change Criteria IDs (a draft you approve) — or *Not ready* with a resumable agenda
 
 **`review-plan`** — *gate lens* — Review the assembled plan before capture: coverage, disposition justification, testability, blast‑radius regression, **test‑level discipline**, honesty, decisions. Read‑only.
 - **Args:** none of its own (invoked by `plan-validation`)
-- **Uses skills:** `validation-plan`
+- **Uses skills:** `derive-validation-plan`
 - **Needs:** the assembled plan · the Criteria IDs
 - **Produces:** findings + a recommendation (ready to capture / Not ready)
 - **Delegated by:** `plan-validation`
@@ -224,36 +249,36 @@ This Playbook is the concept; the running build lives under `.github/` (Copilot)
 ### Execute a change — *Phase 3; runs your suite, drives correction*
 
 **`capture-baseline`** — **Record current behavior** across the plan's surfaces before the change, then reconcile post‑change deltas into **justified** (a criterion moved) vs **regression** (none did).
-- **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>`
-- **Uses skills:** `behavior-baseline`, `change-taxonomy`
+- **Args:** `change` · `classification=<path>` · `plan=<path>` · `criteria-ids=<path>` · `pre-change-state=<commit|ref>` · `baseline=<path>`
+- **Uses skills:** `capture-behavior-baseline`, `classify-escalation`, `shape-output`
 - **Delegates to:** `run-validation`
 - **Needs:** the plan's behavior‑preservation track · the classification · the criteria IDs deltas · the pre‑change state
 - **Produces:** the Behavior Baseline + a delta reconciliation
 
 **`run-validation`** — Drive **your own test suite** over the blast‑radius slice (**cheapest/local first**), returning structured observations and a flakiness check. The execution substrate; runs, never edits.
 - **Args:** `change` · `classification=<path>` · `plan=<path>` · `gate=local|ci` · `run-record=<path>`
-- **Uses skills:** `execution-runner`
+- **Uses skills:** `run-execution`, `classify-escalation`
 - **Needs:** the blast radius · the plan's local/CI gates · your **own test runner** · the Source‑Map `tests` + `test-report`
 - **Produces:** a run record + observations · recheck list (clean fails) · limitations
 - **Used by:** `capture-baseline`, `specify-tests`
 
 **`specify-tests`** — **Own what each test asserts** (from the criteria/baseline) and **verify** the authored result faithfully checks the criterion — never coupled to the implementation. Emits a **`test-request`** for the external implementer to author; **writes no code**. An AC is done only on green evidence.
 - **Args:** `change` · `plan=<path>` · `criteria-ids=<path>` · `baseline=<path>` · `test-requests=<path>`
-- **Uses skills:** `test-reconciliation`, `escalation`
+- **Uses skills:** `reconcile-tests`, `classify-escalation`, `resolve-source-map`
 - **Delegates to:** `run-validation`
 - **Needs:** the Validation Plan · the Criteria IDs · the Behavior Baseline · the Source‑Map `tests`
 - **Produces:** `test-request`s (handoffs) · verified tests + evidence · a reconciliation record
 
 **`drive-correction`** — Drive a failing change **to green by handoff**: diagnose each failure into a structured **fix‑request** for whoever implements (a human or any implementation agent), re‑assess impact, re‑validate, and iterate. **Never writes production code.** Resumable — emits handoffs and pauses; re‑invoked after each external fix.
 - **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `fix-requests=<path>` · `max-iterations=<n>`
-- **Uses skills:** `correction-loop`
+- **Uses skills:** `run-correction-loop`, `classify-escalation`
 - **Delegates to:** `run-validation`, `classify-change` *(re‑assess)*, `capture-baseline` *(sort)*, `specify-tests` *(test fixes)*
 - **Needs:** the Validation Plan · the Behavior Baseline · the latest run record (the recheck list)
 - **Produces:** one of — **green** (evidence) · **fix‑requests** (handoffs) · **re‑plan** (scope grew) · a **decision** · an **escalation** (no‑progress diagnosis)
 
 **`record-evidence`** — On green, assemble the durable **Evidence Ledger** entry: *what was validated, by what, and why* (criteria → test → evidence, behavior preserved, blast-radius coverage, justified test changes, decisions, limitations). Records only real evidence; an **output, never read back**.
-- **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `reconcile-record=<path>` · `ledger=<path>`
-- **Uses skills:** `evidence-ledger`
+- **Args:** `change` · `plan=<path>` · `baseline=<path>` · `run-record=<path>` · `ledger=<path>`
+- **Uses skills:** `record-evidence-ledger`
 - **Needs:** the Validation Plan · the Behavior Baseline reconciliation · the run records · the test‑reconciliation record · decisions/limitations raised
 - **Produces:** the durable per‑change Evidence Ledger entry (verdict `green` only on complete evidence)
 - **Delegated by:** `drive-correction` *(on green)*
@@ -262,18 +287,18 @@ This Playbook is the concept; the running build lives under `.github/` (Copilot)
 
 | Skill | What it specifies |
 |---|---|
-| `testing-strategy` | authoring the architecture‑aware Strategy + the coverage checklist |
-| `validation-rules` | the Rule schema + deriving Rules from the Strategy |
-| `source-map` | source locations + **authority** (who owns which claim) + typed tests |
-| `change-taxonomy` | the change‑types + blast‑radius / test‑impact analysis |
-| `validation-plan` | criterion identity (AC ids) + the plan schema + derivation + AC→test mapping |
-| `behavior-baseline` | the behavior snapshot + capture/reconcile + the no-edit-to-pass rule |
-| `execution-runner` | the run record + tier‑preflight/run/observe + fail‑fast ordering |
-| `test-reconciliation` | the disposition→action mapping + criteria provenance + the no-edit-to-pass rule |
-| `correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
-| `evidence-ledger` | the durable audit trail: criteria → test → evidence; output, never read back |
-| `escalation` | the structured shape of a decision (a question) vs a limitation (a toolkit gap) |
-| `output-style` | machine (schema) vs human (readable) vs both; the human-report skeleton |
+| `author-testing-strategy` | authoring the architecture‑aware Strategy + the coverage checklist |
+| `derive-validation-rules` | the Rule schema + deriving Rules from the Strategy |
+| `resolve-source-map` | source locations + **authority** (who owns which claim) + typed tests |
+| `classify-change-type` | the change‑types + blast‑radius / test‑impact analysis |
+| `derive-validation-plan` | criterion identity (AC ids) + the plan schema + derivation + AC→test mapping |
+| `capture-behavior-baseline` | the behavior snapshot + capture/reconcile + the no-edit-to-pass rule |
+| `run-execution` | the run record + tier‑preflight/run/observe + fail‑fast ordering |
+| `reconcile-tests` | the disposition→action mapping + criteria provenance + the no-edit-to-pass rule |
+| `run-correction-loop` | diagnose → fix‑request handoff → re‑assess → re‑validate; regression vs brittle |
+| `record-evidence-ledger` | the durable audit trail: criteria → test → evidence; output, never read back |
+| `classify-escalation` | the structured shape of a decision (a question) vs a limitation (a toolkit gap) |
+| `shape-output` | machine (schema) vs human (readable) vs both; the human-report skeleton |
 
 **`source-map.manifest.md`** is the one file you fill in per project — where your sources live and what each is authoritative for. The `.claude/` build mirrors this same shape (agents + skills), adding slash `commands/` as its entry points.
 
